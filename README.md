@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Thanya Car Spare Part System — API
 
 A Clean Architecture ASP.NET Core Web API for managing car spare parts, orders, payments, and user accounts.
@@ -99,3 +100,7 @@ See [SECURITY.md](SECURITY.md) for:
 - Required environment variables for production
 - Local development setup options
 - Production deployment recommendations
+=======
+# NHA-4-171
+Auto generated repo 171
+>>>>>>> 8217caedd2eac2557bdd10b098a3447f48d03859
