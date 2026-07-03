@@ -1,0 +1,71 @@
+using Microsoft.AspNetCore.Mvc;
+using CarSparePartSysProject.BL.Service.IService;
+using CarSparePartSysProject.Models.Dto.Categories;
+
+namespace CarSparePartSysProject.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class CategoriesController : ControllerBase
+    {
+        private readonly ICategoryService _categoryService;
+
+        public CategoriesController(ICategoryService categoryService)
+        {
+            _categoryService = categoryService;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAll()
+        {
+            var categories = await _categoryService.GetAllAsync();
+            return Ok(categories);
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<CategoryDto>> GetById(int id)
+        {
+            var category = await _categoryService.GetByIdAsync(id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+            return Ok(category);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<CategoryDto>> Create(CreateCategoryRequestDto dto)
+        {
+            var category = await _categoryService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = category.CategoryId }, category);
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<CategoryDto>> Update(int id, UpdateCategoryRequestDto dto)
+        {
+            try
+            {
+                var category = await _categoryService.UpdateAsync(id, dto);
+                return Ok(category);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                await _categoryService.DeleteAsync(id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
+    }
+}
