@@ -26,7 +26,7 @@ namespace CarSparePartSysProject.DAL.Repositories.Authentication
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email!),
                 new Claim("name", user.FirstName + " " + user.LastName)
             };
 
@@ -36,7 +36,7 @@ namespace CarSparePartSysProject.DAL.Repositories.Authentication
             }
 
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtSettings["Key"])
+                Encoding.UTF8.GetBytes(jwtSettings["Key"]!)
             );
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -72,7 +72,7 @@ namespace CarSparePartSysProject.DAL.Repositories.Authentication
                 ValidateAudience = true,
                 ValidateIssuer = true,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"])),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!)),
                 ValidateLifetime = false, // We want to read claims from expired token
                 ValidIssuer = jwtSettings["Issuer"],
                 ValidAudience = jwtSettings["Audience"]

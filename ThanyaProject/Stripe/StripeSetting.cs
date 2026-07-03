@@ -1,4 +1,4 @@
-namespace CarSparePartSysProject.Configuration
+namespace CarSparePartSysProject.Stripe
 {
     public class StripeSetting
     {

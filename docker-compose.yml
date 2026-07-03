@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  database:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: spareparts-db
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "YourSecurePassword!123"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+
+  api:
+    image: spareparts-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spareparts-api
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Server=database;Database=ThanyaDB;User Id=sa;Password=YourSecurePassword!123;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
+      JWT__Key: "THIS_IS_SUPER_SECRET_KEY_123456_!@#$%^!@#$%%^^"
+      JWT__Issuer: "ThanyaAPI"
+      JWT__Audience: "ThanyaUser"
+      JWT__DurationInMinutes: "60"
+      Stripe__Secretkey: "sk_test_placeholder"
+      Stripe__Publishablekey: "pk_test_placeholder"
+      Stripe__WebhookSecret: "whsec_placeholder"
+      CloudinarySettings__CloudName: "cloudinary_placeholder"
+      CloudinarySettings__ApiKey: "cloudinary_placeholder"
+      CloudinarySettings__ApiSecret: "cloudinary_placeholder"
+      Admin__Email: "admin@thanya.com"
+      Admin__Password: "AdminPassword!123"
+    depends_on:
+      - database
+
+volumes:
+  mssql_data:

@@ -1,5 +1,4 @@
-using CarSparePartSys.Model;
-using CarSparePartSysProject.DAL.Repositories.Interfaces;
+using CarSparePartSysProject.BL.IServices;
 using Microsoft.Extensions.Options;
 using Stripe;
 using Stripe.Checkout;
@@ -7,29 +6,31 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CarSparePartSysProject.Configuration;
 
 namespace CarSparePartSysProject.Stripe
 {
     public class StripeService : IStripeService
     {
         private readonly StripeSetting _stripeSettings;
-        private readonly IOrderRepository _orderRepository;
-        private readonly IPaymentRepository _paymentRepository;
+        private readonly IOrderService _orderService;
 
         public StripeService(
             IOptions<StripeSetting> stripeSettings,
-            IOrderRepository orderRepository,
-            IPaymentRepository paymentRepository)
+            IOrderService orderService)
         {
             _stripeSettings = stripeSettings.Value;
-            _orderRepository = orderRepository;
-            _paymentRepository = paymentRepository;
+            _orderService = orderService;
             StripeConfiguration.ApiKey = _stripeSettings.SecretKey;
         }
 
-        public async Task<string> CreateCheckoutSessionAsync(Order order, string successUrl, string cancelUrl)
+        public async Task<string> CreateCheckoutSessionAsync(int orderId, string successUrl, string cancelUrl)
         {
+            var order = await _orderService.GetOrderWithDetailsAsync(orderId);
+            if (order == null)
+            {
+                throw new KeyNotFoundException($"Order {orderId} not found.");
+            }
+
             var options = new SessionCreateOptions
             {
                 PaymentMethodTypes = new List<string> { "card" },
@@ -58,8 +59,14 @@ namespace CarSparePartSysProject.Stripe
             return session.Url;
         }
 
-        public async Task<string> CreatePaymentIntentAsync(Order order)
+        public async Task<string> CreatePaymentIntentAsync(int orderId)
         {
+            var order = await _orderService.GetOrderWithDetailsAsync(orderId);
+            if (order == null)
+            {
+                throw new KeyNotFoundException($"Order {orderId} not found.");
+            }
+
             var options = new PaymentIntentCreateOptions
             {
                 Amount = (long)(order.TotalAmount * 100),
@@ -88,11 +95,11 @@ namespace CarSparePartSysProject.Stripe
             return refund.Status == "succeeded";
         }
 
-        public async Task<bool> HandleWebhookAsync(string json, string stripeSignature, string webhookSecret)
+        public async Task<bool> HandleWebhookAsync(string json, string stripeSignature)
         {
             try
             {
-                var stripeEvent = EventUtility.ConstructEvent(json, stripeSignature, webhookSecret);
+                var stripeEvent = EventUtility.ConstructEvent(json, stripeSignature, _stripeSettings.WebhookSecret);
 
                 if (stripeEvent.Type == "checkout.session.completed")
                 {
@@ -100,25 +107,11 @@ namespace CarSparePartSysProject.Stripe
                     if (session != null && !string.IsNullOrEmpty(session.ClientReferenceId))
                     {
                         var orderId = int.Parse(session.ClientReferenceId);
-                        var order = await _orderRepository.GetByIdAsync(orderId);
+                        var order = await _orderService.GetOrderWithDetailsAsync(orderId);
                         if (order != null)
                         {
-                            order.IsPaid = true;
-                            _orderRepository.Update(order);
-                            await _orderRepository.SaveAsync();
-
-                            // Record payment details
-                            var payment = new Payment
-                            {
-                                OrderId = orderId,
-                                Amount = order.TotalAmount,
-                                PaymentMethodId = 1,
-                                Status = "Succeeded",
-                                PaymentDate = DateTime.UtcNow
-                            };
-                            await _paymentRepository.AddAsync(payment);
-                            await _paymentRepository.SaveAsync();
-
+                            await _orderService.MarkOrderAsPaidAsync(orderId);
+                            await _orderService.RecordStripePaymentAsync(orderId, order.TotalAmount);
                             return true;
                         }
                     }
@@ -128,24 +121,11 @@ namespace CarSparePartSysProject.Stripe
                     var intent = stripeEvent.Data.Object as PaymentIntent;
                     if (intent != null && intent.Metadata.TryGetValue("OrderId", out string? orderIdStr) && int.TryParse(orderIdStr, out int orderId))
                     {
-                        var order = await _orderRepository.GetByIdAsync(orderId);
+                        var order = await _orderService.GetOrderWithDetailsAsync(orderId);
                         if (order != null && !order.IsPaid)
                         {
-                            order.IsPaid = true;
-                            _orderRepository.Update(order);
-                            await _orderRepository.SaveAsync();
-
-                            var payment = new Payment
-                            {
-                                OrderId = orderId,
-                                Amount = order.TotalAmount,
-                                PaymentMethodId = 1,
-                                Status = "Succeeded",
-                                PaymentDate = DateTime.UtcNow
-                            };
-                            await _paymentRepository.AddAsync(payment);
-                            await _paymentRepository.SaveAsync();
-
+                            await _orderService.MarkOrderAsPaidAsync(orderId);
+                            await _orderService.RecordStripePaymentAsync(orderId, order.TotalAmount);
                             return true;
                         }
                     }

@@ -1,14 +1,23 @@
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
 EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:8080
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
+COPY ["ThanyaProject/CarSparePartSysProject.csproj", "ThanyaProject/"]
+COPY ["ThanyaProject.BL/CarSparePartSysProject.BL.csproj", "ThanyaProject.BL/"]
+COPY ["ThanyaProject.DAL/CarSparePartSysProject.DAL.csproj", "ThanyaProject.DAL/"]
+COPY ["ThanyaProject.Models/CarSparePartSysProject.Models.csproj", "ThanyaProject.Models/"]
+RUN dotnet restore "ThanyaProject/CarSparePartSysProject.csproj"
 COPY . .
-RUN dotnet restore
-RUN dotnet publish -c Release -o /app/publish
+WORKDIR "/src/ThanyaProject"
+RUN dotnet build "CarSparePartSysProject.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "CarSparePartSysProject.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
-COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "ThanyaProject.dll"]
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "CarSparePartSysProject.dll"]

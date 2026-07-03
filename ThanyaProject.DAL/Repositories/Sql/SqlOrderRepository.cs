@@ -20,5 +20,13 @@ namespace CarSparePartSysProject.DAL.Repositories.Sql
                 .Where(o => o.CustomerId == userId)
                 .ToListAsync();
         }
+
+        public async Task<Order?> GetOrderWithDetailsAsync(int orderId)
+        {
+            return await _dbSet
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+        }
     }
 }

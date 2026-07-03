@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Text;
@@ -47,7 +48,8 @@ namespace CarSparePartSysProject.Extensions
                     },
                     OnAuthenticationFailed = context =>
                     {
-                        Console.WriteLine(context.Exception.ToString());
+                        var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<JwtBearerEvents>>();
+                        logger.LogError(context.Exception, "JWT authentication failed.");
                         return Task.CompletedTask;
                     }
                 };

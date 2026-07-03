@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using System;
 using System.Threading.Tasks;
 using CarSparePartSys.Model;
+using Microsoft.Extensions.Logging;
 
 namespace CarSparePartSysProject.DAL.Data
 {
@@ -26,14 +27,15 @@ namespace CarSparePartSysProject.DAL.Data
         public static async Task SeedAdminAsync(
             UserManager<User> userManager, 
             RoleManager<Role> roleManager, 
-            Microsoft.Extensions.Configuration.IConfiguration configuration)
+            Microsoft.Extensions.Configuration.IConfiguration configuration,
+            ILogger logger)
         {
             var adminEmail = configuration["Admin:Email"] ?? "admin@thanya.com";
             var adminPassword = configuration["Admin:Password"];
 
             if (string.IsNullOrEmpty(adminPassword))
             {
-                Console.WriteLine("Warning: Admin:Password configuration is missing. Skipping administrator account seeding.");
+                logger.LogWarning("Admin:Password configuration is missing. Skipping administrator account seeding.");
                 return;
             }
 
@@ -62,7 +64,7 @@ namespace CarSparePartSysProject.DAL.Data
                 }
                 else
                 {
-                    Console.WriteLine($"Warning: Failed to seed admin user: {string.Join(", ", System.Linq.Enumerable.Select(result.Errors, e => e.Description))}");
+                    logger.LogWarning("Failed to seed admin user: {Errors}", string.Join(", ", System.Linq.Enumerable.Select(result.Errors, e => e.Description)));
                 }
             }
         }
