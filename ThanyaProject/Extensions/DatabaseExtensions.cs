@@ -19,7 +19,7 @@ namespace CarSparePartSysProject.Extensions
         {
             using var scope = app.Services.CreateScope();
             var services = scope.ServiceProvider;
-            var logger = services.GetRequiredService<ILogger<DatabaseExtensions>>();
+            var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseExtensions");
             try
             {
                 var context = services.GetRequiredService<AppDbContext>();

@@ -1,6 +1,10 @@
 using CarSparePartSysProject.BL.Service.IService;
 using CarSparePartSysProject.Models.Dto.Categories;
 using CarSparePartSysProject.DAL.Repositories.Interfaces;
+using CarSparePartSys.Model;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CarSparePartSysProject.BL.Service
 {
@@ -13,29 +17,75 @@ namespace CarSparePartSysProject.BL.Service
             _categoryRepository = categoryRepository;
         }
 
-        public Task<IEnumerable<CategoryDto>> GetAllAsync()
+        private CategoryDto MapToDto(Category c)
         {
-            throw new NotImplementedException();
+            return new CategoryDto
+            {
+                CategoryId = c.CategoryId,
+                CategoryName = c.CategoryName,
+                Description = c.Description,
+                ImageUrl = c.ImageUrl,
+                ParentCategoryId = c.ParentCategoryId,
+                SubCategories = c.SubCategories?.Select(MapToDto).ToList() ?? new List<CategoryDto>()
+            };
         }
 
-        public Task<CategoryDto?> GetByIdAsync(int id)
+        public async Task<IEnumerable<CategoryDto>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            var categories = await _categoryRepository.GetAllAsync();
+            return categories.Select(MapToDto).ToList();
         }
 
-        public Task<CategoryDto> CreateAsync(CreateCategoryRequestDto dto)
+        public async Task<CategoryDto?> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var c = await _categoryRepository.GetByIdAsync(id);
+            if (c == null) return null;
+            return MapToDto(c);
         }
 
-        public Task<CategoryDto> UpdateAsync(int id, UpdateCategoryRequestDto dto)
+        public async Task<CategoryDto> CreateAsync(CreateCategoryRequestDto dto)
         {
-            throw new NotImplementedException();
+            var c = new Category
+            {
+                CategoryName = dto.CategoryName,
+                Description = dto.Description,
+                ImageUrl = dto.ImageUrl,
+                ParentCategoryId = dto.ParentCategoryId
+            };
+
+            await _categoryRepository.AddAsync(c);
+            await _categoryRepository.SaveAsync();
+
+            return MapToDto(c);
         }
 
-        public Task DeleteAsync(int id)
+        public async Task<CategoryDto> UpdateAsync(int id, UpdateCategoryRequestDto dto)
         {
-            throw new NotImplementedException();
+            var c = await _categoryRepository.GetByIdAsync(id);
+            if (c == null)
+            {
+                throw new KeyNotFoundException("Category not found.");
+            }
+
+            c.CategoryName = dto.CategoryName ?? c.CategoryName;
+            c.Description = dto.Description ?? c.Description;
+            c.ImageUrl = dto.ImageUrl ?? c.ImageUrl;
+            c.ParentCategoryId = dto.ParentCategoryId ?? c.ParentCategoryId;
+
+            _categoryRepository.Update(c);
+            await _categoryRepository.SaveAsync();
+
+            return MapToDto(c);
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var c = await _categoryRepository.GetByIdAsync(id);
+            if (c != null)
+            {
+                _categoryRepository.Delete(c);
+                await _categoryRepository.SaveAsync();
+            }
         }
     }
 }
