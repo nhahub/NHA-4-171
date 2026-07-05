@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Coupons — AutoParts Admin</title>
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>" />
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <aside id="admin-sidebar" class="admin-sidebar"></aside>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1 class="admin-header__title">Manage Coupons</h1>
+        <div class="admin-header__actions">
+          <button class="btn btn--primary btn--sm" onclick="openCouponDrawer()">
+            <span style="width:16px;height:16px" id="add-icon"></span>
+            Create New Coupon
+          </button>
+        </div>
+      </div>
+
+      <!-- Search Toolbar -->
+      <div class="card" style="margin-bottom:var(--space-5); padding:var(--space-4)">
+        <div style="display:flex; gap:var(--space-4); align-items:center;">
+          <div class="form-group" style="flex:1">
+            <input type="text" class="form-input" id="coupons-search-input" placeholder="Search by coupon code..." />
+          </div>
+          <button class="btn btn--secondary" onclick="resetFilters()">Reset</button>
+        </div>
+      </div>
+
+      <!-- Data Table -->
+      <div class="card" style="flex:1; display:flex; flex-direction:column">
+        <div class="table-responsive" style="flex:1">
+          <table class="data-table data-table--dense">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Type</th>
+                <th>Discount Value</th>
+                <th>Min Order</th>
+                <th>Validity Range</th>
+                <th>Usage Details</th>
+                <th>Active</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="coupons-list">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="coupons-pagination"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Side-Panel Edit/Add Drawer -->
+  <div class="drawer-backdrop" id="coupon-drawer-backdrop" onclick="closeCouponDrawer(event)">
+    <div class="drawer" id="coupon-drawer">
+      <div class="drawer__header">
+        <h3 class="drawer__title" id="drawer-title">Add Coupon</h3>
+        <button class="drawer__close" onclick="closeCouponDrawer()">${UI.Icons.close}</button>
+      </div>
+
+      <div class="drawer__body">
+        <form id="coupon-edit-form" style="display:flex; flex-direction:column; gap:var(--space-4)">
+          <div class="form-group">
+            <label class="form-label form-label--required">Promo Code</label>
+            <input type="text" class="form-input" name="code" id="coupon-code" required placeholder="e.g. AUTOPARTS10" style="text-transform:uppercase;" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label form-label--required">Discount Type</label>
+              <select class="form-select" name="discountType" id="coupon-type" required>
+                <option value="0">Percentage (%)</option>
+                <option value="1">Fixed Amount ($)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label form-label--required">Value</label>
+              <input type="number" class="form-input" name="discountValue" id="coupon-value" step="0.01" min="0" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Min Order Amount ($)</label>
+              <input type="number" class="form-input" name="minOrderAmount" id="coupon-min-order" step="0.01" min="0" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Max Discount ($)</label>
+              <input type="number" class="form-input" name="maxDiscountAmount" id="coupon-max-discount" step="0.01" min="0" placeholder="Applicable for % only" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label form-label--required">Start Date</label>
+              <input type="date" class="form-input" name="startDate" id="coupon-start" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label form-label--required">End Date</label>
+              <input type="date" class="form-input" name="endDate" id="coupon-end" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Usage Limit (Times)</label>
+            <input type="number" class="form-input" name="usageLimit" id="coupon-limit" min="1" placeholder="Unlimited if blank" />
+          </div>
+
+          <div class="form-check">
+            <input type="checkbox" name="isActive" id="coupon-active" checked />
+            <label for="coupon-active">Active and usable</label>
+          </div>
+        </form>
+      </div>
+
+      <div class="drawer__footer">
+        <button class="btn btn--secondary" onclick="closeCouponDrawer()">Cancel</button>
+        <button class="btn btn--primary" id="save-coupon-btn" onclick="saveCoupon()">Create Coupon</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/cart.js"></script>
+  <script src="/js/admin-api.js"></script>
+  <script src="/js/admin/admin-common.js"></script>
+  <script src="/js/admin/coupons.js"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -11,6 +11,8 @@ namespace CarSparePartSysProject.Models.Dto.Orders
     {
         [Required]
         public int AddressId { get; set; }
+
+        public int ShippingAddressId { get => AddressId; set => AddressId = value; }
 
         [Required]
         public int PaymentMethodId { get; set; }

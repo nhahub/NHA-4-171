@@ -2,6 +2,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CarSparePartSysProject.BL.IServices;
 using CarSparePartSysProject.Models.Dto.Shipping;
+using CarSparePartSysProject.DAL.Data;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Threading.Tasks;
 
 namespace CarSparePartSysProject.Controllers
 {
@@ -11,10 +15,12 @@ namespace CarSparePartSysProject.Controllers
     public class ShippingController : ControllerBase
     {
         private readonly IShippingService _shippingService;
+        private readonly AppDbContext _context;
 
-        public ShippingController(IShippingService shippingService)
+        public ShippingController(IShippingService shippingService, AppDbContext context)
         {
             _shippingService = shippingService;
+            _context = context;
         }
 
         [HttpGet]
@@ -33,6 +39,38 @@ namespace CarSparePartSysProject.Controllers
                 return NotFound();
             }
             return Ok(shipping);
+        }
+
+        [HttpGet("/api/orders/{orderId:int}/shipping")]
+        public async Task<ActionResult<ShippingDto>> GetByOrderId(int orderId)
+        {
+            var s = await _context.Shippings.FirstOrDefaultAsync(sh => sh.OrderId == orderId);
+            if (s == null)
+            {
+                return Ok(new ShippingDto
+                {
+                    ShippingId = 0,
+                    OrderId = orderId,
+                    Carrier = "Standard Carrier",
+                    TrackingNumber = "PENDING",
+                    ShippingCost = 10.00m,
+                    Status = "Processing",
+                    EstimatedDeliveryDate = DateTime.UtcNow.AddDays(5)
+                });
+            }
+
+            return Ok(new ShippingDto
+            {
+                ShippingId = s.ShippingId,
+                OrderId = s.OrderId,
+                Carrier = s.Carrier,
+                TrackingNumber = s.TrackingNumber,
+                ShippingCost = s.ShippingCost,
+                Status = s.Status,
+                EstimatedDeliveryDate = s.EstimatedDeliveryDate,
+                ShippedAt = s.ShippedAt,
+                DeliveredAt = s.DeliveredAt
+            });
         }
 
         [HttpPost]

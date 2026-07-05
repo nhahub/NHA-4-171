@@ -1,4 +1,4 @@
-﻿using CarSparePartSysProject.Models.Dto.Reviews;
+using CarSparePartSysProject.Models.Dto.Reviews;
 
 namespace CarSparePartSysProject.BL.IServices
 {
@@ -6,7 +6,9 @@ namespace CarSparePartSysProject.BL.IServices
     {
         Task<IEnumerable<ReviewDto>> GetProductReviewsAsync(int productId);
 
-        Task<ReviewDto> AddAsync(CreateReviewRequestDto dto);
+        Task<IEnumerable<ReviewDto>> GetUserReviewsAsync(int userId);
+
+        Task<ReviewDto> AddAsync(int userId, CreateReviewRequestDto dto);
 
         Task<ReviewDto> UpdateAsync(int reviewId, UpdateReviewRequestDto dto);
 

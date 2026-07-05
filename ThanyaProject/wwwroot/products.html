@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Browse our complete catalog of car spare parts. Filter by category, brand, model, and price range." />
+  <title>Products — AutoParts</title>
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>" />
+</head>
+<body>
+  <div class="page-wrapper">
+    <div id="navbar-placeholder"></div>
+
+    <main class="main-content">
+      <div class="container section">
+        <!-- Breadcrumb -->
+        <div id="breadcrumb"></div>
+
+        <!-- Mobile filter toggle -->
+        <button class="btn btn--secondary filters-mobile-toggle" id="filters-mobile-toggle">
+          <span style="width:18px;height:18px" id="filter-icon"></span>
+          Filters
+        </button>
+
+        <!-- Filters overlay (mobile) -->
+        <div class="filters-overlay" id="filters-overlay"></div>
+
+        <div class="products-page">
+          <!-- ── Sidebar Filters ── -->
+          <aside class="filters-sidebar" id="filters-sidebar">
+            <div class="filters-sidebar__header">
+              <h3 class="filters-sidebar__title">
+                <span style="width:18px;height:18px" id="filter-icon-sidebar"></span>
+                Filters
+              </h3>
+              <button class="filters-sidebar__clear" id="clear-filters">Clear All</button>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="filter-group">
+              <div class="filter-group__header" data-toggle="filter-categories">
+                <span class="filter-group__title">Category</span>
+                <span class="filter-group__toggle" id="toggle-categories"></span>
+              </div>
+              <div class="filter-group__body" id="filter-categories">
+                <!-- Loaded dynamically -->
+              </div>
+            </div>
+
+            <!-- Car Brand / Model Filter -->
+            <div class="filter-group">
+              <div class="filter-group__header" data-toggle="filter-compatibility">
+                <span class="filter-group__title">Vehicle Compatibility</span>
+                <span class="filter-group__toggle" id="toggle-compatibility"></span>
+              </div>
+              <div class="filter-group__body" id="filter-compatibility">
+                <div class="form-group">
+                  <select class="form-select" id="filter-brand" aria-label="Select car brand">
+                    <option value="">All Brands</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <select class="form-select" id="filter-model" aria-label="Select car model" disabled>
+                    <option value="">Select Brand First</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Price Range Filter -->
+            <div class="filter-group">
+              <div class="filter-group__header" data-toggle="filter-price">
+                <span class="filter-group__title">Price Range</span>
+                <span class="filter-group__toggle" id="toggle-price"></span>
+              </div>
+              <div class="filter-group__body" id="filter-price">
+                <div class="price-range">
+                  <input type="number" class="price-range__input" id="price-min" placeholder="Min" min="0" aria-label="Minimum price" />
+                  <span class="price-range__sep">—</span>
+                  <input type="number" class="price-range__input" id="price-max" placeholder="Max" min="0" aria-label="Maximum price" />
+                </div>
+                <button class="btn btn--sm btn--outline" id="apply-price" style="margin-top:var(--space-3);width:100%">Apply</button>
+              </div>
+            </div>
+
+            <!-- Supplier Filter -->
+            <div class="filter-group">
+              <div class="filter-group__header" data-toggle="filter-supplier">
+                <span class="filter-group__title">Supplier</span>
+                <span class="filter-group__toggle" id="toggle-supplier"></span>
+              </div>
+              <div class="filter-group__body" id="filter-supplier">
+                <select class="form-select" id="filter-supplier-select" aria-label="Select supplier">
+                  <option value="">All Suppliers</option>
+                </select>
+              </div>
+            </div>
+          </aside>
+
+          <!-- ── Products Content ── -->
+          <div>
+            <!-- Sort bar -->
+            <div class="sort-bar">
+              <div class="sort-bar__info">
+                Showing <strong id="products-count">0</strong> products
+                <span id="search-query-display"></span>
+              </div>
+              <div class="sort-bar__controls">
+                <select class="sort-bar__select" id="sort-select" aria-label="Sort products">
+                  <option value="newest">Newest</option>
+                  <option value="price_asc">Price: Low → High</option>
+                  <option value="price_desc">Price: High → Low</option>
+                  <option value="rating">Top Rated</option>
+                </select>
+                <div class="sort-bar__view-toggle">
+                  <button class="sort-bar__view-btn is-active" id="view-grid" title="Grid view">
+                    <span id="view-grid-icon"></span>
+                  </button>
+                  <button class="sort-bar__view-btn" id="view-list" title="List view">
+                    <span id="view-list-icon"></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Products grid -->
+            <div class="products-grid" id="products-grid">
+              <!-- Products loaded dynamically -->
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/cart.js"></script>
+  <script src="/js/pages/common.js"></script>
+  <script src="/js/pages/products.js"></script>
+</body>
+</html>

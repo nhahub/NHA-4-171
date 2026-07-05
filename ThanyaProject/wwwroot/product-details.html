@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="View product details, specifications, compatibility, reviews, and more." />
+  <title>Product Details — AutoParts</title>
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>" />
+</head>
+<body>
+  <div class="page-wrapper">
+    <div id="navbar-placeholder"></div>
+
+    <main class="main-content">
+      <div class="container section">
+        <div id="breadcrumb"></div>
+        <div class="product-detail" id="product-detail">
+          <!-- Loaded dynamically -->
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="reviews-section" id="reviews-section" style="display:none">
+          <!-- Loaded dynamically -->
+        </div>
+
+        <!-- Related Products -->
+        <div class="related-products" id="related-products" style="display:none">
+          <!-- Loaded dynamically -->
+        </div>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/cart.js"></script>
+  <script src="/js/pages/common.js"></script>
+  <script src="/js/pages/product-detail.js"></script>
+</body>
+</html>

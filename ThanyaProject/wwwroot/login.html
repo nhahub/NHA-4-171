@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Sign in to your AutoParts account." />
+  <title>Login — AutoParts</title>
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>" />
+</head>
+<body>
+  <div class="page-wrapper">
+    <div id="navbar-placeholder"></div>
+    <main class="main-content">
+      <div class="auth-page">
+        <div class="auth-card">
+          <div class="auth-card__logo" id="auth-logo"></div>
+          <h1 class="auth-card__title">Welcome Back</h1>
+          <p class="auth-card__subtitle">Sign in to your account to continue</p>
+
+          <form class="auth-card__form" id="login-form">
+            <div class="form-group">
+              <label class="form-label form-label--required" for="login-email">Email or Username</label>
+              <input type="text" class="form-input" id="login-email" name="email" placeholder="Enter your email or username" required autocomplete="username" />
+            </div>
+            <div class="form-group">
+              <label class="form-label form-label--required" for="login-password">Password</label>
+              <input type="password" class="form-input" id="login-password" name="password" placeholder="Enter your password" required autocomplete="current-password" />
+            </div>
+            <button type="submit" class="btn btn--primary btn--lg" id="login-btn" style="width:100%">
+              Sign In
+            </button>
+          </form>
+
+          <div class="auth-card__footer">
+            Don't have an account? <a href="/register.html">Create one</a>
+          </div>
+        </div>
+      </div>
+    </main>
+    <div id="footer-placeholder"></div>
+  </div>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/cart.js"></script>
+  <script src="/js/pages/common.js"></script>
+  <script src="/js/pages/login.js"></script>
+</body>
+</html>

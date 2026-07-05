@@ -1,4 +1,4 @@
-﻿using CarSparePartSysProject.Models.Dto.Wishlist;
+using CarSparePartSysProject.Models.Dto.Wishlist;
 
 namespace CarSparePartSysProject.BL.IServices
 {
@@ -6,7 +6,7 @@ namespace CarSparePartSysProject.BL.IServices
     {
         Task<IEnumerable<WishlistDto>> GetWishlistAsync(int userId);
 
-        Task AddAsync(AddToWishlistRequestDto dto);
+        Task AddAsync(int userId, AddToWishlistRequestDto dto);
 
         Task RemoveAsync(int wishlistId);
     }

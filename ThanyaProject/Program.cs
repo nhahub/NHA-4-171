@@ -28,9 +28,12 @@ builder.Services.AddSwaggerDocumentation();
 
 var app = builder.Build();
 
+app.UseMiddleware<CarSparePartSysProject.Middleware.ExceptionMiddleware>();
+
 await app.MigrateAndSeedAsync();
 app.UseSwaggerDocumentation();
 app.UseHttpsRedirection();
+app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseCors("AllowFrontend");

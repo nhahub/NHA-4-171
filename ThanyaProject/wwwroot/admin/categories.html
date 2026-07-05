@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Categories — AutoParts Admin</title>
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>" />
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <aside id="admin-sidebar" class="admin-sidebar"></aside>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1 class="admin-header__title">Categories Tree</h1>
+        <div class="admin-header__actions">
+          <button class="btn btn--primary btn--sm" onclick="openCategoryDrawer()">
+            <span style="width:16px;height:16px" id="add-icon"></span>
+            Add New Category
+          </button>
+        </div>
+      </div>
+
+      <!-- Categories Tree Container -->
+      <div class="card" style="flex:1; padding:var(--space-6)">
+        <div class="admin-cat-tree" id="categories-tree-list">
+          <!-- Tree rendered dynamically -->
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Side-Panel Edit/Add Drawer -->
+  <div class="drawer-backdrop" id="category-drawer-backdrop" onclick="closeCategoryDrawer(event)">
+    <div class="drawer" id="category-drawer">
+      <div class="drawer__header">
+        <h3 class="drawer__title" id="drawer-title">Add Category</h3>
+        <button class="drawer__close" onclick="closeCategoryDrawer()">${UI.Icons.close}</button>
+      </div>
+
+      <div class="drawer__body">
+        <form id="category-edit-form" style="display:flex; flex-direction:column; gap:var(--space-4)">
+          <input type="hidden" name="categoryId" id="category-id-input" />
+          
+          <div class="form-group">
+            <label class="form-label form-label--required">Category Name</label>
+            <input type="text" class="form-input" name="categoryName" id="category-name" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea class="form-textarea" name="description" id="category-desc" rows="3"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Parent Category</label>
+            <select class="form-select" name="parentCategoryId" id="category-parent">
+              <option value="">None (Top-Level)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Image URL</label>
+            <input type="url" class="form-input" name="imageUrl" id="category-image-url" />
+          </div>
+        </form>
+      </div>
+
+      <div class="drawer__footer">
+        <button class="btn btn--secondary" onclick="closeCategoryDrawer()">Cancel</button>
+        <button class="btn btn--primary" id="save-category-btn" onclick="saveCategory()">Save Category</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/cart.js"></script>
+  <script src="/js/admin-api.js"></script>
+  <script src="/js/admin/admin-common.js"></script>
+  <script src="/js/admin/categories.js"></script>
+</body>
+</html>

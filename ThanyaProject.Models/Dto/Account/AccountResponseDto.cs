@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +9,8 @@ namespace CarSparePartSysProject.Models.Dto.Account
     public class AccountResponseDto
     {
         public string AccessToken { get; set; } = string.Empty;
+
+        public string Token { get => AccessToken; set => AccessToken = value; }
 
         public string RefreshToken { get; set; } = string.Empty;
 

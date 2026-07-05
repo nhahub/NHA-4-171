@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -17,5 +17,8 @@ namespace CarSparePartSysProject.Models.Dto.CarModels
         public short? YearStart { get; set; }
 
         public short? YearEnd { get; set; }
+
+        [MaxLength(50)]
+        public string? EngineType { get; set; }
     }
 }

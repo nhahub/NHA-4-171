@@ -17,6 +17,8 @@ namespace CarSparePartSysProject.DAL.Repositories.Sql
         public async Task<IEnumerable<Review>> GetReviewsByProductIdAsync(int productId)
         {
             return await _dbSet.AsNoTracking()
+                .Include(r => r.User)
+                .Include(r => r.Product)
                 .Where(r => r.ProductId == productId)
                 .ToListAsync();
         }

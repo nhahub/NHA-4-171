@@ -17,6 +17,7 @@ namespace CarSparePartSysProject.DAL.Repositories.Sql
         public async Task<IEnumerable<Wishlist>> GetWishlistByUserIdAsync(int userId)
         {
             return await _dbSet.AsNoTracking()
+                .Include(w => w.Product)
                 .Where(w => w.UserId == userId)
                 .ToListAsync();
         }

@@ -31,6 +31,7 @@ namespace CarSparePartSysProject.Extensions
 
                 await DbSeed.SeedRolesAsync(roleManager);
                 await DbSeed.SeedAdminAsync(userManager, roleManager, configuration, logger);
+                await DbSeed.SeedLookupDataAsync(context);
             }
             catch (Exception ex)
             {

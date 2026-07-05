@@ -9,7 +9,6 @@ namespace CarSparePartSysProject.Models.Dto.Addresses
 {
     public class CreateAddressRequestDto
     {
-        [Required]
         public int UserId { get; set; }
 
         [Required]
@@ -24,11 +23,9 @@ namespace CarSparePartSysProject.Models.Dto.Addresses
         [Required]
         public string City { get; set; } = string.Empty;
 
-        [Required]
-        public string State { get; set; } = string.Empty;
+        public string? State { get; set; }
 
-        [Required]
-        public string PostalCode { get; set; } = string.Empty;
+        public string? PostalCode { get; set; }
 
         [Required]
         public string Country { get; set; } = string.Empty;

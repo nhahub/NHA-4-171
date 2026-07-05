@@ -24,6 +24,19 @@ namespace CarSparePartSysProject.Controllers
             return Ok(addresses);
         }
 
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<AddressDto>>> GetAll()
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized();
+            }
+
+            var addresses = await _addressService.GetUserAddressesAsync(userId);
+            return Ok(addresses);
+        }
+
         [HttpGet("{id:int}")]
         public async Task<ActionResult<AddressDto>> GetById(int id)
         {
@@ -38,6 +51,13 @@ namespace CarSparePartSysProject.Controllers
         [HttpPost]
         public async Task<ActionResult<AddressDto>> Create(CreateAddressRequestDto dto)
         {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized();
+            }
+
+            dto.UserId = userId;
             var address = await _addressService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = address.AddressId }, address);
         }

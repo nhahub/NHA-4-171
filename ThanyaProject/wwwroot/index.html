@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AutoParts — Quality car spare parts engineered for performance. Browse thousands of parts from top brands for every make and model." />
+  <title>AutoParts — Quality Car Spare Parts</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>" />
+</head>
+<body>
+  <div class="page-wrapper">
+    <!-- Navbar placeholder (injected by common.js) -->
+    <div id="navbar-placeholder"></div>
+
+    <main class="main-content">
+      <!-- ════════════════════════════════════════════
+           HERO SECTION
+           ════════════════════════════════════════════ -->
+      <section class="hero" id="hero">
+        <div class="container">
+          <div class="hero__content">
+            <span class="hero__badge">
+              <span id="hero-badge-icon"></span>
+              Trusted by 10,000+ Customers
+            </span>
+            <h1 class="hero__title">
+              Quality Auto Parts<br />
+              <span>Engineered for Performance</span>
+            </h1>
+            <p class="hero__subtitle">
+              Find genuine spare parts for every make and model. From brakes to engine components — we've got you covered with premium quality and fast delivery.
+            </p>
+
+            <!-- Hero Search -->
+            <div class="hero__search">
+              <span class="hero__search-icon" id="hero-search-icon"></span>
+              <input
+                type="text"
+                class="hero__search-input"
+                id="hero-search-input"
+                placeholder="Search by part name, number, or vehicle..."
+                aria-label="Search products"
+              />
+              <button class="hero__search-btn" id="hero-search-btn">Search</button>
+            </div>
+
+            <!-- Stats -->
+            <div class="hero__stats">
+              <div class="hero__stat">
+                <div class="hero__stat-value" id="stat-products">5,000+</div>
+                <div class="hero__stat-label">Products</div>
+              </div>
+              <div class="hero__stat">
+                <div class="hero__stat-value" id="stat-brands">50+</div>
+                <div class="hero__stat-label">Car Brands</div>
+              </div>
+              <div class="hero__stat">
+                <div class="hero__stat-value" id="stat-customers">10K+</div>
+                <div class="hero__stat-label">Happy Customers</div>
+              </div>
+              <div class="hero__stat">
+                <div class="hero__stat-value" id="stat-delivery">24h</div>
+                <div class="hero__stat-label">Fast Delivery</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ════════════════════════════════════════════
+           TOP CAR BRANDS
+           ════════════════════════════════════════════ -->
+      <section class="section" id="brands-section">
+        <div class="container">
+          <div class="section-header">
+            <div>
+              <h2 class="section-header__title">Top Car Brands</h2>
+              <p class="section-header__subtitle">Find parts for your vehicle</p>
+            </div>
+            <a href="/products.html" class="section-header__action">
+              View All <span style="width:16px;height:16px" id="icon-chevron-right"></span>
+            </a>
+          </div>
+          <div class="brands-carousel">
+            <div class="brands-carousel__track" id="brands-track">
+              <!-- Brands loaded dynamically or skeletons shown -->
+            </div>
+            <div class="brands-carousel__nav">
+              <button class="brands-carousel__btn" id="brands-prev" aria-label="Previous brands">
+                <span id="icon-prev"></span>
+              </button>
+              <button class="brands-carousel__btn" id="brands-next" aria-label="Next brands">
+                <span id="icon-next"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ════════════════════════════════════════════
+           TOP CATEGORIES
+           ════════════════════════════════════════════ -->
+      <section class="section" id="categories-section">
+        <div class="container">
+          <div class="section-header">
+            <div>
+              <h2 class="section-header__title">Shop by Category</h2>
+              <p class="section-header__subtitle">Browse our wide selection of auto parts</p>
+            </div>
+          </div>
+          <div class="categories-grid" id="categories-grid">
+            <!-- Categories loaded dynamically -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ════════════════════════════════════════════
+           FEATURED PRODUCTS
+           ════════════════════════════════════════════ -->
+      <section class="section" id="featured-section">
+        <div class="container">
+          <div class="section-header">
+            <div>
+              <h2 class="section-header__title">Featured Products</h2>
+              <p class="section-header__subtitle">Handpicked parts for quality and value</p>
+            </div>
+            <a href="/products.html" class="section-header__action">
+              Browse All <span style="width:16px;height:16px" id="icon-browse-all"></span>
+            </a>
+          </div>
+          <div class="featured-products" id="featured-grid">
+            <!-- Products loaded dynamically, skeletons shown first -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ════════════════════════════════════════════
+           WHY CHOOSE US
+           ════════════════════════════════════════════ -->
+      <section class="section" style="background: var(--bg-secondary); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+        <div class="container">
+          <div class="section-header" style="justify-content:center">
+            <div style="text-align:center">
+              <h2 class="section-header__title">Why Choose AutoParts?</h2>
+              <p class="section-header__subtitle">We deliver quality you can trust</p>
+            </div>
+          </div>
+          <div class="grid grid--4" id="features-grid">
+            <div class="card" style="text-align:center">
+              <div style="width:48px;height:48px;color:var(--accent);margin:0 auto var(--space-4)" id="feat-icon-1"></div>
+              <h4 style="margin-bottom:var(--space-2)">Genuine Parts</h4>
+              <p class="text--sm">100% authentic OEM and aftermarket parts from trusted manufacturers.</p>
+            </div>
+            <div class="card" style="text-align:center">
+              <div style="width:48px;height:48px;color:var(--accent);margin:0 auto var(--space-4)" id="feat-icon-2"></div>
+              <h4 style="margin-bottom:var(--space-2)">Fast Shipping</h4>
+              <p class="text--sm">Same-day dispatch on orders placed before 2 PM with express delivery options.</p>
+            </div>
+            <div class="card" style="text-align:center">
+              <div style="width:48px;height:48px;color:var(--accent);margin:0 auto var(--space-4)" id="feat-icon-3"></div>
+              <h4 style="margin-bottom:var(--space-2)">Expert Support</h4>
+              <p class="text--sm">Our team of automotive experts is ready to help you find the right part.</p>
+            </div>
+            <div class="card" style="text-align:center">
+              <div style="width:48px;height:48px;color:var(--accent);margin:0 auto var(--space-4)" id="feat-icon-4"></div>
+              <h4 style="margin-bottom:var(--space-2)">Easy Returns</h4>
+              <p class="text--sm">30-day hassle-free return policy on all products. Your satisfaction guaranteed.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer placeholder -->
+    <div id="footer-placeholder"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/cart.js"></script>
+  <script src="/js/pages/common.js"></script>
+  <script src="/js/pages/home.js"></script>
+</body>
+</html>

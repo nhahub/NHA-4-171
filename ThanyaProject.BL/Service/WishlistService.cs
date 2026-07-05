@@ -1,6 +1,12 @@
 using CarSparePartSysProject.BL.IServices;
 using CarSparePartSysProject.Models.Dto.Wishlist;
 using CarSparePartSysProject.DAL.Repositories.Interfaces;
+using CarSparePartSys.Model;
+using CarSparePartSysProject.Models.Dto.Products;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CarSparePartSysProject.BL.Service
 {
@@ -13,19 +19,50 @@ namespace CarSparePartSysProject.BL.Service
             _wishlistRepository = wishlistRepository;
         }
 
-        public Task<IEnumerable<WishlistDto>> GetWishlistAsync(int userId)
+        public async Task<IEnumerable<WishlistDto>> GetWishlistAsync(int userId)
         {
-            throw new NotImplementedException();
+            var items = await _wishlistRepository.GetWishlistByUserIdAsync(userId);
+            return items.Select(w => new WishlistDto
+            {
+                WishlistId = w.WishlistId,
+                Product = new ProductSummaryDto
+                {
+                    ProductId = w.ProductId,
+                    ProductName = w.Product?.ProductName ?? "Unknown Product",
+                    UnitPrice = w.Product?.UnitPrice ?? 0,
+                    ImageUrl = w.Product?.ImageUrl
+                },
+                AddedAt = w.AddedAt
+            }).ToList();
         }
 
-        public Task AddAsync(AddToWishlistRequestDto dto)
+        public async Task AddAsync(int userId, AddToWishlistRequestDto dto)
         {
-            throw new NotImplementedException();
+            var items = await _wishlistRepository.GetWishlistByUserIdAsync(userId);
+            if (items.Any(w => w.ProductId == dto.ProductId))
+            {
+                return; // Already exists in wishlist
+            }
+
+            var item = new Wishlist
+            {
+                UserId = userId,
+                ProductId = dto.ProductId,
+                AddedAt = DateTime.UtcNow
+            };
+
+            await _wishlistRepository.AddAsync(item);
+            await _wishlistRepository.SaveAsync();
         }
 
-        public Task RemoveAsync(int wishlistId)
+        public async Task RemoveAsync(int wishlistId)
         {
-            throw new NotImplementedException();
+            var item = await _wishlistRepository.GetByIdAsync(wishlistId);
+            if (item != null)
+            {
+                _wishlistRepository.Delete(item);
+                await _wishlistRepository.SaveAsync();
+            }
         }
     }
 }

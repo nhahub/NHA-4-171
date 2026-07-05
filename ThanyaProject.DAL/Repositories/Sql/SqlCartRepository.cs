@@ -16,6 +16,7 @@ namespace CarSparePartSysProject.DAL.Repositories.Sql
         {
             return await _dbSet
                 .Include(c => c.CartItems)
+                    .ThenInclude(ci => ci.Product)
                 .FirstOrDefaultAsync(c => c.UserId == userId);
         }
     }

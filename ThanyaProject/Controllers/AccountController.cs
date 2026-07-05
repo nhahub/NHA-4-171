@@ -8,6 +8,7 @@ namespace CarSparePartSysProject.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Route("api/auth")]
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;

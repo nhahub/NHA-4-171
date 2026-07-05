@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Inventory — AutoParts Admin</title>
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>" />
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <aside id="admin-sidebar" class="admin-sidebar"></aside>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1 class="admin-header__title">Inventory & Stock Mappings</h1>
+        <div class="admin-header__actions">
+          <button class="btn btn--primary btn--sm" onclick="openAdjustmentModal()">
+            <span style="width:16px;height:16px" id="add-icon"></span>
+            Adjust Stock Level
+          </button>
+        </div>
+      </div>
+
+      <!-- Split workspace: Inventory levels vs Warehouses -->
+      <div class="compat-mapping-grid" style="margin-bottom:var(--space-6)">
+        
+        <!-- ── Left Column: Warehouses ── -->
+        <div class="card" style="display:flex; flex-direction:column; height:fit-content">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4)">
+            <h3>Warehouses</h3>
+            <button class="btn btn--secondary btn--sm" onclick="openWarehouseDrawer()">
+              Add Warehouse
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table data-table--dense">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Warehouse Name</th>
+                  <th>Location</th>
+                  <th>Active</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="warehouses-list">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── Right Column: Stock Transaction Log ── -->
+        <div class="card" style="display:flex; flex-direction:column; height:350px">
+          <div style="margin-bottom:var(--space-4)">
+            <h3>Recent Stock Transactions</h3>
+          </div>
+          <div class="table-responsive" style="flex:1">
+            <table class="data-table data-table--dense">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Product</th>
+                  <th>Warehouse</th>
+                  <th>Adjustment</th>
+                  <th>Type</th>
+                </tr>
+              </thead>
+              <tbody id="transactions-list">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Stock Levels Database table ── -->
+      <div class="card">
+        <div style="border-bottom:1px solid var(--border); padding-bottom:var(--space-4); margin-bottom:var(--space-4)">
+          <h3>Stock Levels database</h3>
+        </div>
+
+        <!-- Search toolbar -->
+        <div style="display:flex; gap:var(--space-4); align-items:center; margin-bottom:var(--space-4)">
+          <div class="form-group" style="flex:1">
+            <input type="text" class="form-input" id="inventory-search" placeholder="Search product name or SKU..." />
+          </div>
+          <div class="form-group" style="width:200px">
+            <select class="form-select" id="inventory-warehouse-filter">
+              <option value="">All Warehouses</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Table list -->
+        <div class="table-responsive">
+          <table class="data-table data-table--dense">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Product Name</th>
+                <th>SKU</th>
+                <th>Warehouse</th>
+                <th>In Stock</th>
+                <th>Reorder Level</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-list">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" id="inventory-pagination"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Warehouse Drawer -->
+  <div class="drawer-backdrop" id="warehouse-drawer-backdrop" onclick="closeWarehouseDrawer(event)">
+    <div class="drawer" id="warehouse-drawer">
+      <div class="drawer__header">
+        <h3 class="drawer__title" id="wh-drawer-title">Add Warehouse</h3>
+        <button class="drawer__close" onclick="closeWarehouseDrawer()">${UI.Icons.close}</button>
+      </div>
+      <div class="drawer__body">
+        <form id="warehouse-edit-form" style="display:flex; flex-direction:column; gap:var(--space-4)">
+          <input type="hidden" name="warehouseId" id="warehouse-id-input" />
+          <div class="form-group">
+            <label class="form-label form-label--required">Warehouse Name</label>
+            <input type="text" class="form-input" name="warehouseName" id="warehouse-name" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Location</label>
+            <input type="text" class="form-input" name="location" id="warehouse-location" />
+          </div>
+          <div class="form-check">
+            <input type="checkbox" name="isActive" id="warehouse-active" checked />
+            <label for="warehouse-active">Active</label>
+          </div>
+        </form>
+      </div>
+      <div class="drawer__footer">
+        <button class="btn btn--secondary" onclick="closeWarehouseDrawer()">Cancel</button>
+        <button class="btn btn--primary" id="save-warehouse-btn" onclick="saveWarehouse()">Save Warehouse</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/cart.js"></script>
+  <script src="/js/admin-api.js"></script>
+  <script src="/js/admin/admin-common.js"></script>
+  <script src="/js/admin/inventory.js"></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Suppliers — AutoParts Admin</title>
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>" />
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <aside id="admin-sidebar" class="admin-sidebar"></aside>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1 class="admin-header__title">Manage Suppliers</h1>
+        <div class="admin-header__actions">
+          <button class="btn btn--primary btn--sm" onclick="openSupplierDrawer()">
+            <span style="width:16px;height:16px" id="add-icon"></span>
+            Add New Supplier
+          </button>
+        </div>
+      </div>
+
+      <!-- Search Toolbar -->
+      <div class="card" style="margin-bottom:var(--space-5); padding:var(--space-4)">
+        <div style="display:flex; gap:var(--space-4); align-items:center;">
+          <div class="form-group" style="flex:1">
+            <input type="text" class="form-input" id="suppliers-search-input" placeholder="Search by name, contact, or email..." />
+          </div>
+          <button class="btn btn--secondary" onclick="resetFilters()">Reset</button>
+        </div>
+      </div>
+
+      <!-- Data Table -->
+      <div class="card" style="flex:1; display:flex; flex-direction:column">
+        <div class="table-responsive" style="flex:1">
+          <table class="data-table data-table--dense">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Supplier Name</th>
+                <th>Contact Person</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Tax Number</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="suppliers-list">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="suppliers-pagination"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Side-Panel Edit/Add Drawer -->
+  <div class="drawer-backdrop" id="supplier-drawer-backdrop" onclick="closeSupplierDrawer(event)">
+    <div class="drawer" id="supplier-drawer">
+      <div class="drawer__header">
+        <h3 class="drawer__title" id="drawer-title">Add Supplier</h3>
+        <button class="drawer__close" onclick="closeSupplierDrawer()">${UI.Icons.close}</button>
+      </div>
+
+      <div class="drawer__body">
+        <form id="supplier-edit-form" style="display:flex; flex-direction:column; gap:var(--space-4)">
+          <input type="hidden" name="supplierId" id="supplier-id-input" />
+          
+          <div class="form-group">
+            <label class="form-label form-label--required">Supplier Name</label>
+            <input type="text" class="form-input" name="supplierName" id="supplier-name" required />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Contact Person</label>
+              <input type="text" class="form-input" name="contactPerson" id="supplier-contact" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-input" name="email" id="supplier-email" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input type="text" class="form-input" name="phone" id="supplier-phone" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tax Number</label>
+              <input type="text" class="form-input" name="taxNumber" id="supplier-tax" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Address</label>
+            <input type="text" class="form-input" name="address" id="supplier-address" />
+          </div>
+
+          <div class="form-check">
+            <input type="checkbox" name="isActive" id="supplier-active" checked />
+            <label for="supplier-active">Active supplier</label>
+          </div>
+        </form>
+      </div>
+
+      <div class="drawer__footer">
+        <button class="btn btn--secondary" onclick="closeSupplierDrawer()">Cancel</button>
+        <button class="btn btn--primary" id="save-supplier-btn" onclick="saveSupplier()">Save Supplier</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/cart.js"></script>
+  <script src="/js/admin-api.js"></script>
+  <script src="/js/admin/admin-common.js"></script>
+  <script src="/js/admin/suppliers.js"></script>
+</body>
+</html>

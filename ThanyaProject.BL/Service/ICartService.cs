@@ -12,7 +12,7 @@ namespace CarSparePartSysProject.BL.IServices
     {
         Task<CartDto?> GetUserCartAsync(int userId);
 
-        Task AddToCartAsync(AddToCartRequestDto dto);
+        Task AddToCartAsync(int userId, AddToCartRequestDto dto);
 
         Task UpdateQuantityAsync(UpdateCartItemRequesDtot dto);
 

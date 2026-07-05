@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Orders — AutoParts Admin</title>
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>" />
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <aside id="admin-sidebar" class="admin-sidebar"></aside>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1 class="admin-header__title">Manage Orders</h1>
+      </div>
+
+      <!-- Search Toolbar -->
+      <div class="card" style="margin-bottom:var(--space-5); padding:var(--space-4)">
+        <div style="display:flex; gap:var(--space-4); align-items:center; flex-wrap:wrap">
+          <div class="form-group" style="flex:1; min-width:200px">
+            <input type="text" class="form-input" id="orders-search-input" placeholder="Search by Order # or customer name..." />
+          </div>
+          <div class="form-group" style="width:200px">
+            <select class="form-select" id="filter-status-select">
+              <option value="">All Statuses</option>
+              <option value="1">Pending</option>
+              <option value="2">Processing</option>
+              <option value="3">Shipped</option>
+              <option value="4">Delivered</option>
+              <option value="5">Cancelled</option>
+            </select>
+          </div>
+          <button class="btn btn--secondary" onclick="resetFilters()">Reset</button>
+        </div>
+      </div>
+
+      <!-- Data Table -->
+      <div class="card" style="flex:1; display:flex; flex-direction:column">
+        <div class="table-responsive" style="flex:1">
+          <table class="data-table data-table--dense">
+            <thead>
+              <tr>
+                <th>Order Number</th>
+                <th>Customer</th>
+                <th>Order Date</th>
+                <th>Total Amount</th>
+                <th>Paid</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="orders-list">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="orders-pagination"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Side Drawer for Order Details & Actions -->
+  <div class="drawer-backdrop" id="order-drawer-backdrop" onclick="closeOrderDrawer(event)">
+    <div class="drawer" id="order-drawer">
+      <div class="drawer__header">
+        <h3 class="drawer__title" id="order-drawer-title">Order Details</h3>
+        <button class="drawer__close" onclick="closeOrderDrawer()">${UI.Icons.close}</button>
+      </div>
+
+      <div class="drawer__body">
+        <!-- Order info fields -->
+        <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:var(--space-4)">
+          <div>
+            <div id="order-detail-no" style="font-weight:bold; font-size:var(--fs-md)">ORD-0000</div>
+            <div id="order-detail-date" class="text--xs text--muted">Date</div>
+          </div>
+          <div id="order-detail-customer" style="text-align:right">
+            <div style="font-weight:var(--fw-semibold)" id="cust-name">Name</div>
+            <div class="text--xs text--muted" id="cust-email">email@test.com</div>
+          </div>
+        </div>
+
+        <!-- Items Table -->
+        <div style="margin-top:var(--space-4)">
+          <h4 style="margin-bottom:var(--space-2)">Order Items</h4>
+          <div class="table-responsive">
+            <table class="data-table data-table--dense" style="background:var(--bg-tertiary)">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Qty</th>
+                  <th>Price</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody id="order-detail-items">
+                <!-- Loaded dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Totals summary -->
+        <div style="margin-top:var(--space-4); border-bottom:1px solid var(--border); padding-bottom:var(--space-4)">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:var(--fs-sm)">
+            <span class="text--muted">Subtotal</span>
+            <span id="order-subtotal">$0.00</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:var(--fs-sm)">
+            <span class="text--muted">Discount</span>
+            <span id="order-discount">-$0.00</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:var(--fs-sm)">
+            <span class="text--muted">Tax</span>
+            <span id="order-tax">$0.00</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:var(--fs-md); font-weight:bold; color:var(--accent); margin-top:8px">
+            <span>Order Total</span>
+            <span id="order-total">$0.00</span>
+          </div>
+        </div>
+
+        <!-- Status Transition control -->
+        <div style="margin-top:var(--space-4); border-bottom:1px solid var(--border); padding-bottom:var(--space-4)">
+          <h4 style="margin-bottom:var(--space-2)">Update Order Status</h4>
+          <div style="display:flex; gap:var(--space-3)">
+            <select class="form-select" id="order-status-update-select" style="flex:1; height:40px">
+              <option value="1">Pending</option>
+              <option value="2">Processing</option>
+              <option value="3">Shipped</option>
+              <option value="4">Delivered</option>
+              <option value="5">Cancelled</option>
+            </select>
+            <button class="btn btn--primary" onclick="submitStatusUpdate()">Update</button>
+          </div>
+        </div>
+
+        <!-- Shipping Tracker Control -->
+        <div style="margin-top:var(--space-4)">
+          <h4 style="margin-bottom:var(--space-2)">Shipping Logistics</h4>
+          <form id="order-shipping-form" style="display:flex; flex-direction:column; gap:var(--space-3)" onsubmit="submitShippingUpdate(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Carrier</label>
+                <input type="text" class="form-input" name="carrier" id="shipping-carrier" placeholder="e.g. DHL, Aramex" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tracking Number</label>
+                <input type="text" class="form-input" name="trackingNumber" id="shipping-tracking-no" placeholder="e.g. TRK-12345" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Estimated Delivery Date</label>
+              <input type="date" class="form-input" name="estimatedDeliveryDate" id="shipping-est-date" />
+            </div>
+            <button type="submit" class="btn btn--secondary" style="align-self:flex-end">
+              Save Shipping Info
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/cart.js"></script>
+  <script src="/js/admin-api.js"></script>
+  <script src="/js/admin/admin-common.js"></script>
+  <script src="/js/admin/orders.js"></script>
+</body>
+</html>
