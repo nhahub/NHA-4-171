@@ -41,7 +41,15 @@ namespace CarSparePartSysProject.BL.Service
                 CategoryId = p.CategoryId,
                 CategoryName = category?.CategoryName,
                 SupplierId = p.SupplierId ?? 0,
-                SupplierName = supplier?.SupplierName
+                SupplierName = supplier?.SupplierName,
+                Inventories = p.Inventories?.Select(i => new CarSparePartSysProject.Models.Dto.Products.Inventory.InventoryDto
+                {
+                    InventoryId = i.InventoryId,
+                    ProductId = i.ProductId,
+                    QuantityInStock = i.QuantityInStock,
+                    ReorderLevel = i.ReorderLevel,
+                    LastRestocked = i.LastUpdated
+                }).ToList() ?? new()
             };
         }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,5 +27,7 @@ namespace CarSparePartSysProject.Models.Dto.Products
         public int SupplierId { get; set; }
 
         public string? SupplierName { get; set; }
+
+        public List<CarSparePartSysProject.Models.Dto.Products.Inventory.InventoryDto> Inventories { get; set; } = new();
     }
 }

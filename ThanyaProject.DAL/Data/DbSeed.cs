@@ -97,48 +97,78 @@ namespace CarSparePartSysProject.DAL.Data
             await context.SaveChangesAsync();
 
             // Seed Categories
-            if (!await context.Categories.AnyAsync())
+            var categories = new List<Category>();
+            var catNames = new[] { "Engine Parts", "Brakes", "Suspension", "Electrical", "Filters" };
+            var catDescs = new[] {
+                "Pistons, gaskets, valves, and full block components.",
+                "Rotors, calipers, pads, and hydraulic sensors.",
+                "Struts, control arms, shocks, and bushings.",
+                "Alternators, starters, batteries, and wiring.",
+                "Oil filters, cabin air filters, and intake filters."
+            };
+
+            for (int i = 0; i < catNames.Length; i++)
             {
-                var engineParts = new Category { CategoryName = "Engine Parts", Description = "Pistons, gaskets, valves, and full block components.", ImageUrl = "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=400&q=80" };
-                var brakes = new Category { CategoryName = "Brakes", Description = "Rotors, calipers, pads, and hydraulic sensors.", ImageUrl = "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=400&q=80" };
-                var suspension = new Category { CategoryName = "Suspension", Description = "Struts, control arms, shocks, and bushings.", ImageUrl = "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=400&q=80" };
-                var electrical = new Category { CategoryName = "Electrical", Description = "Alternators, starters, batteries, and wiring.", ImageUrl = "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=400&q=80" };
-                var filters = new Category { CategoryName = "Filters", Description = "Oil filters, cabin air filters, and intake filters.", ImageUrl = "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=400&q=80" };
-
-                context.Categories.AddRange(engineParts, brakes, suspension, electrical, filters);
-                await context.SaveChangesAsync();
-
-                var pistonsRings = new Category { CategoryName = "Pistons & Rings", Description = "Internal cylinder engine components.", ParentCategoryId = engineParts.CategoryId, ImageUrl = "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=400&q=80" };
-                var brakePads = new Category { CategoryName = "Brake Pads", Description = "Ceramic and semi-metallic friction pads.", ParentCategoryId = brakes.CategoryId, ImageUrl = "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=400&q=80" };
-
-                context.Categories.AddRange(pistonsRings, brakePads);
-                await context.SaveChangesAsync();
+                var name = catNames[i];
+                var cat = await context.Categories.FirstOrDefaultAsync(c => c.CategoryName == name);
+                if (cat == null)
+                {
+                    cat = new Category { CategoryName = name, Description = catDescs[i], ImageUrl = "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=400&q=80" };
+                    context.Categories.Add(cat);
+                    await context.SaveChangesAsync();
+                }
+                categories.Add(cat);
             }
 
-            // Seed Suppliers
-            if (!await context.Suppliers.AnyAsync())
+            var pistonsRings = await context.Categories.FirstOrDefaultAsync(c => c.CategoryName == "Pistons & Rings");
+            if (pistonsRings == null)
             {
-                context.Suppliers.AddRange(
-                    new Supplier { SupplierName = "Bosch Automotive", ContactPerson = "Sarah Jenkins", Email = "s.jenkins@bosch.com", Phone = "+1-800-267-2401", TaxNumber = "TX-908123-B", Address = "1200 Block Ave, Chicago, IL", IsActive = true },
-                    new Supplier { SupplierName = "Brembo S.p.A.", ContactPerson = "Luca Rossi", Email = "l.rossi@brembo.it", Phone = "+39-035-605-111", TaxNumber = "IT-002145-R", Address = "Viale Europa 2, Stezzano, Italy", IsActive = true },
-                    new Supplier { SupplierName = "Denso Corp", ContactPerson = "Kenji Sato", Email = "k.sato@denso.co.jp", Phone = "+81-566-25-5511", TaxNumber = "JP-987102-D", Address = "1-1 Showa-cho, Kariya, Aichi, Japan", IsActive = true },
-                    new Supplier { SupplierName = "ACDelco", ContactPerson = "Mike Davis", Email = "m.davis@acdelco.com", Phone = "+1-800-223-3526", TaxNumber = "TX-551239-A", Address = "Grand Blanc, Michigan, USA", IsActive = true }
-                );
-                await context.SaveChangesAsync();
+                var engineParts = await context.Categories.FirstOrDefaultAsync(c => c.CategoryName == "Engine Parts");
+                pistonsRings = new Category { CategoryName = "Pistons & Rings", Description = "Internal cylinder engine components.", ParentCategoryId = engineParts?.CategoryId, ImageUrl = "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=400&q=80" };
+                context.Categories.Add(pistonsRings);
+            }
+
+            var brakePads = await context.Categories.FirstOrDefaultAsync(c => c.CategoryName == "Brake Pads");
+            if (brakePads == null)
+            {
+                var brakes = await context.Categories.FirstOrDefaultAsync(c => c.CategoryName == "Brakes");
+                brakePads = new Category { CategoryName = "Brake Pads", Description = "Ceramic and semi-metallic friction pads.", ParentCategoryId = brakes?.CategoryId, ImageUrl = "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=400&q=80" };
+                context.Categories.Add(brakePads);
+            }
+            await context.SaveChangesAsync();
+
+            // Seed Suppliers
+            var suppliers = new[]
+            {
+                new Supplier { SupplierName = "Bosch Automotive", ContactPerson = "Sarah Jenkins", Email = "s.jenkins@bosch.com", Phone = "+1-800-267-2401", TaxNumber = "TX-908123-B", Address = "1200 Block Ave, Chicago, IL", IsActive = true },
+                new Supplier { SupplierName = "Brembo S.p.A.", ContactPerson = "Luca Rossi", Email = "l.rossi@brembo.it", Phone = "+39-035-605-111", TaxNumber = "IT-002145-R", Address = "Viale Europa 2, Stezzano, Italy", IsActive = true },
+                new Supplier { SupplierName = "Denso Corp", ContactPerson = "Kenji Sato", Email = "k.sato@denso.co.jp", Phone = "+81-566-25-5511", TaxNumber = "JP-987102-D", Address = "1-1 Showa-cho, Kariya, Aichi, Japan", IsActive = true },
+                new Supplier { SupplierName = "ACDelco", ContactPerson = "Mike Davis", Email = "m.davis@acdelco.com", Phone = "+1-800-223-3526", TaxNumber = "TX-551239-A", Address = "Grand Blanc, Michigan, USA", IsActive = true }
+            };
+
+            foreach (var sup in suppliers)
+            {
+                var existingSup = await context.Suppliers.FirstOrDefaultAsync(s => s.SupplierName == sup.SupplierName);
+                if (existingSup == null)
+                {
+                    context.Suppliers.Add(sup);
+                    await context.SaveChangesAsync();
+                }
             }
 
             // Seed Products
-            if (!await context.Products.AnyAsync())
+            var catElectrical = await context.Categories.FirstOrDefaultAsync(c => c.CategoryName == "Electrical");
+            var catBrakePads = await context.Categories.FirstOrDefaultAsync(c => c.CategoryName == "Brake Pads");
+            var catEngineParts = await context.Categories.FirstOrDefaultAsync(c => c.CategoryName == "Engine Parts");
+
+            var supBosch = await context.Suppliers.FirstOrDefaultAsync(s => s.SupplierName == "Bosch Automotive");
+            var supBrembo = await context.Suppliers.FirstOrDefaultAsync(s => s.SupplierName == "Brembo S.p.A.");
+            var supDenso = await context.Suppliers.FirstOrDefaultAsync(s => s.SupplierName == "Denso Corp");
+
+            if (catElectrical != null && supBosch != null)
             {
-                var catElectrical = await context.Categories.FirstOrDefaultAsync(c => c.CategoryName == "Electrical");
-                var catBrakePads = await context.Categories.FirstOrDefaultAsync(c => c.CategoryName == "Brake Pads");
-                var catEngineParts = await context.Categories.FirstOrDefaultAsync(c => c.CategoryName == "Engine Parts");
-
-                var supBosch = await context.Suppliers.FirstOrDefaultAsync(s => s.SupplierName == "Bosch Automotive");
-                var supBrembo = await context.Suppliers.FirstOrDefaultAsync(s => s.SupplierName == "Brembo S.p.A.");
-                var supDenso = await context.Suppliers.FirstOrDefaultAsync(s => s.SupplierName == "Denso Corp");
-
-                if (catElectrical != null && supBosch != null)
+                var prod = await context.Products.FirstOrDefaultAsync(p => p.SKU == "SP-BOSCH-PL10");
+                if (prod == null)
                 {
                     context.Products.Add(new Product
                     {
@@ -155,8 +185,12 @@ namespace CarSparePartSysProject.DAL.Data
                         CreatedAt = DateTime.UtcNow
                     });
                 }
+            }
 
-                if (catBrakePads != null && supBrembo != null)
+            if (catBrakePads != null && supBrembo != null)
+            {
+                var prod = await context.Products.FirstOrDefaultAsync(p => p.SKU == "BR-BREMBO-F20");
+                if (prod == null)
                 {
                     context.Products.Add(new Product
                     {
@@ -173,8 +207,12 @@ namespace CarSparePartSysProject.DAL.Data
                         CreatedAt = DateTime.UtcNow
                     });
                 }
+            }
 
-                if (catEngineParts != null && supDenso != null)
+            if (catEngineParts != null && supDenso != null)
+            {
+                var prod = await context.Products.FirstOrDefaultAsync(p => p.SKU == "FI-DENSO-X99");
+                if (prod == null)
                 {
                     context.Products.Add(new Product
                     {
@@ -191,34 +229,45 @@ namespace CarSparePartSysProject.DAL.Data
                         CreatedAt = DateTime.UtcNow
                     });
                 }
-
-                await context.SaveChangesAsync();
             }
+            await context.SaveChangesAsync();
 
             // Seed Warehouses
-            if (!await context.Warehouses.AnyAsync())
+            var warehouses = new[]
             {
-                context.Warehouses.AddRange(
-                    new Warehouse { WarehouseName = "Central Logistics Hub", Location = "Industrial Zone A, Cairo", IsActive = true },
-                    new Warehouse { WarehouseName = "North Delta Warehouse", Location = "Alexandria Road, Tanta", IsActive = true }
-                );
-                await context.SaveChangesAsync();
+                new Warehouse { WarehouseName = "Central Logistics Hub", Location = "Industrial Zone A, Cairo", IsActive = true },
+                new Warehouse { WarehouseName = "North Delta Warehouse", Location = "Alexandria Road, Tanta", IsActive = true }
+            };
+
+            foreach (var wh in warehouses)
+            {
+                var existingWh = await context.Warehouses.FirstOrDefaultAsync(w => w.WarehouseName == wh.WarehouseName);
+                if (existingWh == null)
+                {
+                    context.Warehouses.Add(wh);
+                    await context.SaveChangesAsync();
+                }
             }
 
-            // Seed Inventory for existing products
-            if (!await context.Inventories.AnyAsync())
-            {
-                var prod1 = await context.Products.FirstOrDefaultAsync(p => p.SKU == "SP-BOSCH-PL10");
-                var prod2 = await context.Products.FirstOrDefaultAsync(p => p.SKU == "BR-BREMBO-F20");
-                var warehouse = await context.Warehouses.FirstOrDefaultAsync();
+            // Seed Inventory for seeded products
+            var prod1 = await context.Products.FirstOrDefaultAsync(p => p.SKU == "SP-BOSCH-PL10");
+            var prod2 = await context.Products.FirstOrDefaultAsync(p => p.SKU == "BR-BREMBO-F20");
+            var prod3 = await context.Products.FirstOrDefaultAsync(p => p.SKU == "FI-DENSO-X99");
+            var defaultWh = await context.Warehouses.FirstOrDefaultAsync();
 
-                if (prod1 != null && warehouse != null)
+            if (defaultWh != null)
+            {
+                if (prod1 != null && !await context.Inventories.AnyAsync(i => i.ProductId == prod1.ProductId))
                 {
-                    context.Inventories.Add(new Inventory { ProductId = prod1.ProductId, WarehouseId = warehouse.WarehouseId, QuantityInStock = 150, ReorderLevel = 10 });
+                    context.Inventories.Add(new Inventory { ProductId = prod1.ProductId, WarehouseId = defaultWh.WarehouseId, QuantityInStock = 150, ReorderLevel = 10 });
                 }
-                if (prod2 != null && warehouse != null)
+                if (prod2 != null && !await context.Inventories.AnyAsync(i => i.ProductId == prod2.ProductId))
                 {
-                    context.Inventories.Add(new Inventory { ProductId = prod2.ProductId, WarehouseId = warehouse.WarehouseId, QuantityInStock = 75, ReorderLevel = 5 });
+                    context.Inventories.Add(new Inventory { ProductId = prod2.ProductId, WarehouseId = defaultWh.WarehouseId, QuantityInStock = 75, ReorderLevel = 5 });
+                }
+                if (prod3 != null && !await context.Inventories.AnyAsync(i => i.ProductId == prod3.ProductId))
+                {
+                    context.Inventories.Add(new Inventory { ProductId = prod3.ProductId, WarehouseId = defaultWh.WarehouseId, QuantityInStock = 100, ReorderLevel = 8 });
                 }
                 await context.SaveChangesAsync();
             }
@@ -263,18 +312,18 @@ namespace CarSparePartSysProject.DAL.Data
             // Seed PartCompatibilities
             if (!await context.PartCompatibilities.AnyAsync())
             {
-                var prod1 = await context.Products.FirstOrDefaultAsync(p => p.SKU == "SP-BOSCH-PL10");
-                var prod2 = await context.Products.FirstOrDefaultAsync(p => p.SKU == "BR-BREMBO-F20");
+                var pcProd1 = await context.Products.FirstOrDefaultAsync(p => p.SKU == "SP-BOSCH-PL10");
+                var pcProd2 = await context.Products.FirstOrDefaultAsync(p => p.SKU == "BR-BREMBO-F20");
                 var modelCorolla = await context.CarModels.FirstOrDefaultAsync(m => m.ModelName == "Corolla");
                 var model3Series = await context.CarModels.FirstOrDefaultAsync(m => m.ModelName == "3 Series (F30)");
 
-                if (prod1 != null && modelCorolla != null)
+                if (pcProd1 != null && modelCorolla != null)
                 {
-                    context.PartCompatibilities.Add(new PartCompatibility { ProductId = prod1.ProductId, ModelId = modelCorolla.ModelId, Notes = "Fits 1.8L engines only." });
+                    context.PartCompatibilities.Add(new PartCompatibility { ProductId = pcProd1.ProductId, ModelId = modelCorolla.ModelId, Notes = "Fits 1.8L engines only." });
                 }
-                if (prod2 != null && model3Series != null)
+                if (pcProd2 != null && model3Series != null)
                 {
-                    context.PartCompatibilities.Add(new PartCompatibility { ProductId = prod2.ProductId, ModelId = model3Series.ModelId, Notes = "Requires M-Sport braking kit." });
+                    context.PartCompatibilities.Add(new PartCompatibility { ProductId = pcProd2.ProductId, ModelId = model3Series.ModelId, Notes = "Requires M-Sport braking kit." });
                 }
                 await context.SaveChangesAsync();
             }

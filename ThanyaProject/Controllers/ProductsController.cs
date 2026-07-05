@@ -40,6 +40,7 @@ namespace CarSparePartSysProject.Controllers
                 .Include(p => p.Category)
                 .Include(p => p.Supplier)
                 .Include(p => p.PartCompatibilities)
+                .Include(p => p.Inventories)
                 .AsNoTracking();
 
             // Filters
@@ -76,7 +77,14 @@ namespace CarSparePartSysProject.Controllers
             if (!string.IsNullOrEmpty(search))
             {
                 var s = search.ToLower();
-                query = query.Where(p => p.ProductName.ToLower().Contains(s) || (p.Description != null && p.Description.ToLower().Contains(s)));
+                query = query.Where(p => 
+                    p.ProductName.ToLower().Contains(s) || 
+                    (p.Description != null && p.Description.ToLower().Contains(s)) ||
+                    p.SKU.ToLower().Contains(s) ||
+                    (p.PartNumber != null && p.PartNumber.ToLower().Contains(s)) ||
+                    p.Category.CategoryName.ToLower().Contains(s) ||
+                    (p.Supplier != null && p.Supplier.SupplierName.ToLower().Contains(s))
+                );
             }
 
             // Sorting
@@ -119,7 +127,15 @@ namespace CarSparePartSysProject.Controllers
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.CategoryName,
                 SupplierId = p.SupplierId ?? 0,
-                SupplierName = p.Supplier?.SupplierName
+                SupplierName = p.Supplier?.SupplierName,
+                Inventories = p.Inventories.Select(i => new CarSparePartSysProject.Models.Dto.Products.Inventory.InventoryDto
+                {
+                    InventoryId = i.InventoryId,
+                    ProductId = i.ProductId,
+                    QuantityInStock = i.QuantityInStock,
+                    ReorderLevel = i.ReorderLevel,
+                    LastRestocked = i.LastUpdated
+                }).ToList()
             }).ToList();
 
             int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
@@ -140,7 +156,15 @@ namespace CarSparePartSysProject.Controllers
             var products = await _context.Products
                 .Include(p => p.Category)
                 .Include(p => p.Supplier)
-                .Where(p => p.ProductName.ToLower().Contains(s) || (p.Description != null && p.Description.ToLower().Contains(s)))
+                .Include(p => p.Inventories)
+                .Where(p => 
+                    p.ProductName.ToLower().Contains(s) || 
+                    (p.Description != null && p.Description.ToLower().Contains(s)) ||
+                    p.SKU.ToLower().Contains(s) ||
+                    (p.PartNumber != null && p.PartNumber.ToLower().Contains(s)) ||
+                    p.Category.CategoryName.ToLower().Contains(s) ||
+                    (p.Supplier != null && p.Supplier.SupplierName.ToLower().Contains(s))
+                )
                 .Take(20)
                 .ToListAsync();
 
@@ -155,7 +179,15 @@ namespace CarSparePartSysProject.Controllers
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.CategoryName,
                 SupplierId = p.SupplierId ?? 0,
-                SupplierName = p.Supplier?.SupplierName
+                SupplierName = p.Supplier?.SupplierName,
+                Inventories = p.Inventories.Select(i => new CarSparePartSysProject.Models.Dto.Products.Inventory.InventoryDto
+                {
+                    InventoryId = i.InventoryId,
+                    ProductId = i.ProductId,
+                    QuantityInStock = i.QuantityInStock,
+                    ReorderLevel = i.ReorderLevel,
+                    LastRestocked = i.LastUpdated
+                }).ToList()
             }));
         }
 
@@ -165,6 +197,7 @@ namespace CarSparePartSysProject.Controllers
             var products = await _context.Products
                 .Include(p => p.Category)
                 .Include(p => p.Supplier)
+                .Include(p => p.Inventories)
                 .Where(p => p.IsActive)
                 .Take(8)
                 .ToListAsync();
@@ -180,26 +213,88 @@ namespace CarSparePartSysProject.Controllers
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.CategoryName,
                 SupplierId = p.SupplierId ?? 0,
-                SupplierName = p.Supplier?.SupplierName
+                SupplierName = p.Supplier?.SupplierName,
+                Inventories = p.Inventories.Select(i => new CarSparePartSysProject.Models.Dto.Products.Inventory.InventoryDto
+                {
+                    InventoryId = i.InventoryId,
+                    ProductId = i.ProductId,
+                    QuantityInStock = i.QuantityInStock,
+                    ReorderLevel = i.ReorderLevel,
+                    LastRestocked = i.LastUpdated
+                }).ToList()
             }));
         }
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<ProductDto>> GetById(int id)
         {
-            var product = await _productService.GetByIdAsync(id);
+            var product = await _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Supplier)
+                .Include(p => p.Inventories)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
+
             if (product == null)
             {
                 return NotFound();
             }
-            return Ok(product);
+
+            var dto = new ProductDto
+            {
+                ProductId = product.ProductId,
+                ProductName = product.ProductName,
+                Description = product.Description,
+                UnitPrice = product.UnitPrice,
+                ImageUrl = product.ImageUrl,
+                IsActive = product.IsActive,
+                CategoryId = product.CategoryId,
+                CategoryName = product.Category?.CategoryName,
+                SupplierId = product.SupplierId ?? 0,
+                SupplierName = product.Supplier?.SupplierName,
+                Inventories = product.Inventories.Select(i => new CarSparePartSysProject.Models.Dto.Products.Inventory.InventoryDto
+                {
+                    InventoryId = i.InventoryId,
+                    ProductId = i.ProductId,
+                    QuantityInStock = i.QuantityInStock,
+                    ReorderLevel = i.ReorderLevel,
+                    LastRestocked = i.LastUpdated
+                }).ToList()
+            };
+
+            return Ok(dto);
         }
 
         [HttpGet("category/{categoryId:int}")]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetByCategory(int categoryId)
         {
-            var products = await _productService.GetByCategoryAsync(categoryId);
-            return Ok(products);
+            var products = await _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Supplier)
+                .Include(p => p.Inventories)
+                .Where(p => p.CategoryId == categoryId)
+                .ToListAsync();
+
+            return Ok(products.Select(p => new ProductDto
+            {
+                ProductId = p.ProductId,
+                ProductName = p.ProductName,
+                Description = p.Description,
+                UnitPrice = p.UnitPrice,
+                ImageUrl = p.ImageUrl,
+                IsActive = p.IsActive,
+                CategoryId = p.CategoryId,
+                CategoryName = p.Category?.CategoryName,
+                SupplierId = p.SupplierId ?? 0,
+                SupplierName = p.Supplier?.SupplierName,
+                Inventories = p.Inventories.Select(i => new CarSparePartSysProject.Models.Dto.Products.Inventory.InventoryDto
+                {
+                    InventoryId = i.InventoryId,
+                    ProductId = i.ProductId,
+                    QuantityInStock = i.QuantityInStock,
+                    ReorderLevel = i.ReorderLevel,
+                    LastRestocked = i.LastUpdated
+                }).ToList()
+            }));
         }
 
         [HttpPost]
