@@ -1,4 +1,4 @@
-# Thanya Car Spare Part System
+# Car Spare Part e-commerce website
 
 [![Build Status](https://github.com/nhahub/NHA-4-171/actions/workflows/dotnet.yml/badge.svg)](https://github.com/nhahub/NHA-4-171/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
