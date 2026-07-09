@@ -138,6 +138,28 @@ async function addToWishlist(productId) {
   }
 }
 
+/**
+ * Remove product from wishlist.
+ * @param {number} wishlistId
+ */
+async function removeFromWishlist(wishlistId) {
+  try {
+    await API.Wishlist.remove(wishlistId);
+    UI.showToast('Removed from wishlist!', 'success');
+    
+    // Check if we are on account page, reload tab content
+    if (window.location.pathname.includes('account.html') && typeof loadTabContent === 'function') {
+      loadTabContent('wishlist');
+    } else {
+      window.location.reload();
+    }
+    return true;
+  } catch (err) {
+    UI.handleApiError(err);
+    return false;
+  }
+}
+
 // ── Export ──
 window.Cart = {
   formatPrice,
@@ -145,6 +167,7 @@ window.Cart = {
   calculateCartSummary,
   addToCart,
   addToWishlist,
+  removeFromWishlist,
 };
 
 // Also export formatPrice as a global for convenience

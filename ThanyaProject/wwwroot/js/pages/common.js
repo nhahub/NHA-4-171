@@ -166,7 +166,7 @@ function getFooterHTML() {
             Get the latest deals and new arrivals straight to your inbox.
           </p>
           <div class="footer__newsletter">
-            <form class="footer__newsletter-form" id="newsletter-form" onsubmit="event.preventDefault(); UI.showToast('Thanks for subscribing!', 'success');">
+            <form class="footer__newsletter-form" id="newsletter-form" onsubmit="handleNewsletterSubmit(event)">
               <input type="email" class="footer__newsletter-input" placeholder="Enter your email" required aria-label="Email for newsletter" />
               <button type="submit" class="btn btn--primary btn--sm">Subscribe</button>
             </form>
@@ -266,8 +266,55 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ================================================================
+//  NEWSLETTER HANDLER
+// ================================================================
+
+async function handleNewsletterSubmit(event) {
+  event.preventDefault();
+  const form = event.target;
+  const input = form.querySelector('.footer__newsletter-input');
+  if (!input) return;
+  const email = input.value.trim();
+  if (!email) return;
+
+  const button = form.querySelector('button[type="submit"]');
+  if (button) button.disabled = true;
+
+  try {
+    const response = await fetch('/api/newsletter/subscribe', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ Email: email })
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to subscribe');
+    }
+    
+    const data = await response.json();
+    UI.showToast(data.message || 'Successfully subscribed!', 'success');
+    input.value = '';
+  } catch (err) {
+    UI.showToast('Could not subscribe. Please try again.', 'error');
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+window.handleNewsletterSubmit = handleNewsletterSubmit;
+
+// ================================================================
 //  MEGA MENU RENDERING
 // ================================================================
+
+const categoryFallbackItems = {
+  'Suspension': ['Shock Absorbers', 'Control Arms', 'Coil Springs', 'Struts & Shocks', 'Sway Bar Links', 'Suspension Bushings'],
+  'Electrical': ['Batteries', 'Alternators', 'Starters', 'Sensors & Wiring', 'Spark Plugs', 'Ignition Coils'],
+  'Filters': ['Oil Filters', 'Air Filters', 'Cabin Filters', 'Fuel Filters', 'Transmission Filters'],
+  'Engine Parts': ['Pistons & Rings', 'Gaskets & Seals', 'Timing Belts', 'Valves & Lifters', 'Engine Mounts'],
+  'Brakes': ['Brake Pads', 'Rotors & Discs', 'Calipers & Brackets', 'Brake Lines', 'ABS Sensors']
+};
 
 function renderMegaMenu(categories) {
   const grid = document.getElementById('mega-menu-grid');
@@ -287,16 +334,31 @@ function renderMegaMenu(categories) {
     .slice(0, 8)
     .map((cat) => {
       const subs = categories.filter((c) => c.parentCategoryId === cat.categoryId);
-      return `
-      <div class="mega-menu__category">
-        <a href="/products.html?categoryId=${cat.categoryId}" class="mega-menu__category-title">${cat.categoryName}</a>
-        ${subs
+      
+      let subItemsHTML = '';
+      if (subs.length > 0) {
+        subItemsHTML = subs
           .slice(0, 6)
           .map(
             (sub) =>
               `<a href="/products.html?categoryId=${sub.categoryId}" class="mega-menu__link">${sub.categoryName}</a>`
           )
-          .join('')}
+          .join('');
+      } else {
+        // Individual Category Fallback if empty in the database
+        const fallbacks = categoryFallbackItems[cat.categoryName] || ['All Parts', 'New Arrivals', 'Featured Products'];
+        subItemsHTML = fallbacks
+          .map(
+            (item) =>
+              `<a href="/products.html?categoryId=${cat.categoryId}&search=${encodeURIComponent(item)}" class="mega-menu__link">${item}</a>`
+          )
+          .join('');
+      }
+
+      return `
+      <div class="mega-menu__category">
+        <a href="/products.html?categoryId=${cat.categoryId}" class="mega-menu__category-title">${cat.categoryName}</a>
+        ${subItemsHTML}
         ${subs.length > 6 ? `<a href="/products.html?categoryId=${cat.categoryId}" class="mega-menu__link" style="color:var(--accent)">View all →</a>` : ''}
       </div>`;
     })
@@ -424,15 +486,13 @@ function initSearchAutocomplete() {
  * @param {Object} product - Product data
  * @returns {string} Product card HTML
  */
-function renderProductCard(product) {
+function renderProductCard(product, options = {}) {
   const primaryImage = product.images?.find((img) => img.isPrimary) || product.images?.[0];
   const imageUrl = primaryImage?.imageUrl || product.imageUrl || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%231C2333%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%236B7685%22 font-size=%2214%22%3ENo Image%3C/text%3E%3C/svg%3E';
 
-  // Calculate average rating
-  const reviews = product.reviews || [];
-  const avgRating = reviews.length > 0
-    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-    : 0;
+  // Calculate average rating supporting both flat and relation formats
+  const reviewsCount = product.reviewsCount !== undefined ? product.reviewsCount : (product.reviews?.length || 0);
+  const avgRating = product.averageRating !== undefined ? product.averageRating : (product.reviews?.length > 0 ? product.reviews.reduce((sum, r) => sum + r.rating, 0) / product.reviews.length : 0);
 
   // Check stock
   const inventories = product.inventories || [];
@@ -442,24 +502,29 @@ function renderProductCard(product) {
   return `
     <div class="product-card" data-product-id="${product.productId}">
       <div class="product-card__image-wrapper">
-        <img src="${imageUrl}" alt="${product.productName}" class="product-card__image" loading="lazy" />
+        <img src="${imageUrl}" alt="${product.productName}" class="product-card__image" loading="lazy" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%231C2333%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%236B7685%22 font-size=%2214%22%3ENo Image%3C/text%3E%3C/svg%3E';" />
         <div class="product-card__badges">
           ${inStock
             ? '<span class="badge badge--stock">In Stock</span>'
             : '<span class="badge badge--out-of-stock">Out of Stock</span>'}
         </div>
-        <button class="product-card__wishlist" onclick="event.preventDefault(); Cart.addToWishlist(${product.productId})" title="Add to Wishlist">
-          ${UI.Icons.heart}
-        </button>
+        ${options.isWishlist
+          ? `<button class="product-card__wishlist" onclick="event.preventDefault(); Cart.removeFromWishlist(${product.wishlistId})" title="Remove from Wishlist" style="color:var(--error)">
+               ${UI.Icons.trash}
+             </button>`
+          : `<button class="product-card__wishlist" onclick="event.preventDefault(); Cart.addToWishlist(${product.productId})" title="Add to Wishlist">
+               ${UI.Icons.heart}
+             </button>`
+        }
       </div>
       <div class="product-card__body">
-        <span class="product-card__category">${product.category?.categoryName || ''}</span>
+        <span class="product-card__category">${product.categoryName || product.category?.categoryName || ''}</span>
         <h3 class="product-card__name">
           <a href="/product-details.html?id=${product.productId}">${product.productName}</a>
         </h3>
         <div class="product-card__rating">
           ${UI.renderStars(avgRating)}
-          <span class="product-card__rating-count">(${reviews.length})</span>
+          <span class="product-card__rating-count">(${reviewsCount})</span>
         </div>
       </div>
       <div class="product-card__footer">

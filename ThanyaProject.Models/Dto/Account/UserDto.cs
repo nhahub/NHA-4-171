@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,5 +21,9 @@ namespace CarSparePartSysProject.Models.Dto.Account
         public string? Phone { get; set; }
 
         public string Role { get; set; } = string.Empty;
+
+        public bool IsActive { get; set; } = true;
+
+        public DateTime? CreatedAt { get; set; }
     }
 }

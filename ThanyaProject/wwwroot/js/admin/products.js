@@ -124,17 +124,21 @@ async function loadProducts() {
     }
 
     tbody.innerHTML = items.map(p => {
-      const img = p.imageUrl || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22%3E%3Crect fill=%22%231C2333%22 width=%2240%22 height=%2240%22/%3E%3C/svg%3E';
+      const img = p.imageUrl
+        ? p.imageUrl
+        : 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22%3E%3Crect fill=%22%231C2333%22 width=%2240%22 height=%2240%22/%3E%3Ctext x=%2250%25%22 y=%2255%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2218%22 fill=%22%23555%22%3E%3F%3C%2Ftext%3E%3C%2Fsvg%3E';
+      const catName = p.categoryName || p.category?.categoryName || '—';
+      const supName = p.supplierName || p.supplier?.supplierName || '—';
       return `
         <tr>
           <td>${p.productId}</td>
-          <td><img src="${img}" alt="" style="width:36px; height:36px; object-fit:cover; border-radius:4px; background:var(--bg-tertiary);" /></td>
+          <td><img src="${img}" alt="" style="width:36px; height:36px; object-fit:cover; border-radius:4px; background:var(--bg-tertiary);" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22%3E%3Crect fill=%22%231C2333%22 width=%2240%22 height=%2240%22/%3E%3C%2Fsvg%3E'" /></td>
           <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${p.productName}"><strong>${p.productName}</strong></td>
-          <td><code>${p.sku}</code></td>
+          <td><code>${p.sku || '—'}</code></td>
           <td>${p.partNumber || '—'}</td>
           <td class="text--accent text--bold">${formatPrice(p.unitPrice)}</td>
-          <td>${p.category?.categoryName || '—'}</td>
-          <td>${p.supplier?.supplierName || '—'}</td>
+          <td>${catName}</td>
+          <td>${supName}</td>
           <td>${p.isActive ? '<span class="badge badge--success">Active</span>' : '<span class="badge badge--error">Inactive</span>'}</td>
           <td class="admin-table-actions">
             <button class="btn btn--icon btn--ghost" onclick="openProductDrawer(${p.productId})" title="Edit">${UI.Icons.edit}</button>
@@ -210,6 +214,8 @@ window.openProductDrawer = async function(id = null) {
         document.getElementById('product-category').value = p.categoryId;
         document.getElementById('product-supplier').value = p.supplierId;
         document.getElementById('product-image-url').value = p.imageUrl || '';
+        // Show image preview if URL is available
+        if (p.imageUrl) window.updateImagePreview(p.imageUrl);
         document.getElementById('product-active').checked = p.isActive;
 
         // Load specs
@@ -230,10 +236,25 @@ window.openProductDrawer = async function(id = null) {
 };
 
 window.closeProductDrawer = function(e) {
-  if (e && e.target !== document.getElementById('product-drawer-backdrop')) return;
+  // If called with an event (backdrop click), only close if clicking the backdrop itself
+  if (e && e.target && e.target !== document.getElementById('product-drawer-backdrop')) return;
   const backdrop = document.getElementById('product-drawer-backdrop');
-  backdrop.classList.remove('is-active');
+  if (backdrop) backdrop.classList.remove('is-active');
   document.body.style.overflow = '';
+};
+
+// ── Live Image Preview ──
+window.updateImagePreview = function(url) {
+  const previewContainer = document.getElementById('product-image-preview');
+  const previewImg = document.getElementById('product-preview-img');
+  if (!previewContainer || !previewImg) return;
+  if (url && url.trim()) {
+    previewImg.src = url.trim();
+    // display will be toggled by img onload/onerror events
+  } else {
+    previewContainer.style.display = 'none';
+    previewImg.src = '';
+  }
 };
 
 // ── Specifications dynamic rows ──
@@ -265,10 +286,14 @@ window.saveProduct = async function() {
   const fd = new FormData(form);
   const data = Object.fromEntries(fd.entries());
 
-  data.unitPrice = parseFloat(data.unitPrice);
+  // Remove fields that shouldn't be in the body or need special handling
+  delete data.productId;
+  delete data.isActive; // Will be set below as boolean
+
+  data.unitPrice = parseFloat(data.unitPrice) || 0;
   data.costPrice = data.costPrice ? parseFloat(data.costPrice) : null;
-  data.categoryId = parseInt(data.categoryId, 10);
-  data.supplierId = parseInt(data.supplierId, 10);
+  data.categoryId = parseInt(data.categoryId, 10) || null;
+  data.supplierId = data.supplierId ? parseInt(data.supplierId, 10) : null;
   data.isActive = document.getElementById('product-active').checked;
 
   // Gather specs key/value pairs

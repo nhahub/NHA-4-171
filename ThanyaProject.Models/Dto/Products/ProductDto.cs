@@ -29,5 +29,9 @@ namespace CarSparePartSysProject.Models.Dto.Products
         public string? SupplierName { get; set; }
 
         public List<CarSparePartSysProject.Models.Dto.Products.Inventory.InventoryDto> Inventories { get; set; } = new();
+
+        public double AverageRating { get; set; }
+
+        public int ReviewsCount { get; set; }
     }
 }

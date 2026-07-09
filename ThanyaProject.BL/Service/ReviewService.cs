@@ -25,7 +25,7 @@ namespace CarSparePartSysProject.BL.Service
         public async Task<IEnumerable<ReviewDto>> GetProductReviewsAsync(int productId)
         {
             var reviews = await _reviewRepository.GetReviewsByProductIdAsync(productId);
-            return reviews.Select(r => new ReviewDto
+            return reviews.Where(r => r.IsVerified).Select(r => new ReviewDto
             {
                 ReviewId = r.ReviewId,
                 ProductId = r.ProductId,
@@ -164,6 +164,58 @@ namespace CarSparePartSysProject.BL.Service
                 IsVerified = r.IsVerified,
                 CreatedAt = r.CreatedAt
             }).ToList();
+        }
+
+        public async Task<IEnumerable<ReviewDto>> GetAllReviewsAsync()
+        {
+            var reviews = await _context.Reviews
+                .Include(r => r.Product)
+                .Include(r => r.User)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+
+            return reviews.Select(r => new ReviewDto
+            {
+                ReviewId = r.ReviewId,
+                ProductId = r.ProductId,
+                ProductName = r.Product?.ProductName ?? "Unknown Product",
+                UserId = r.UserId,
+                CustomerName = r.User != null ? $"{r.User.FirstName} {r.User.LastName}".Trim() : "Anonymous",
+                Rating = r.Rating,
+                Comment = r.Comment,
+                IsVerified = r.IsVerified,
+                CreatedAt = r.CreatedAt
+            }).ToList();
+        }
+
+        public async Task<ReviewDto> ToggleVerifyAsync(int reviewId)
+        {
+            var review = await _context.Reviews
+                .Include(r => r.Product)
+                .Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.ReviewId == reviewId);
+
+            if (review == null)
+            {
+                throw new KeyNotFoundException("Review not found.");
+            }
+
+            review.IsVerified = !review.IsVerified;
+            _context.Reviews.Update(review);
+            await _context.SaveChangesAsync();
+
+            return new ReviewDto
+            {
+                ReviewId = review.ReviewId,
+                ProductId = review.ProductId,
+                ProductName = review.Product?.ProductName ?? "",
+                UserId = review.UserId,
+                CustomerName = review.User != null ? $"{review.User.FirstName} {review.User.LastName}".Trim() : "Anonymous",
+                Rating = review.Rating,
+                Comment = review.Comment,
+                IsVerified = review.IsVerified,
+                CreatedAt = review.CreatedAt
+            };
         }
     }
 }

@@ -5,8 +5,9 @@
    ============================================================ */
 
 // ── Configuration ──
-const API_BASE_URL = window.location.origin.startsWith('http://localhost:3000') 
-  ? 'http://localhost:8080/api' 
+const LOCAL_FRONTEND_PORTS = ['3000', '5173', '4200'];
+const API_BASE_URL = LOCAL_FRONTEND_PORTS.includes(window.location.port) && ['localhost', '127.0.0.1'].includes(window.location.hostname)
+  ? 'http://localhost:8085/api'
   : '/api';
 
 // ── Core request helper ──
@@ -40,14 +41,57 @@ async function request(method, endpoint, body = null, isFormData = false) {
     let data;
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
-      data = await response.json();
+      try {
+        data = await response.json();
+      } catch {
+        data = null;
+      }
     } else {
-      data = await response.text();
+      const text = await response.text();
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = text;
+      }
     }
 
     // Throw on non-2xx
     if (!response.ok) {
-      const error = new Error(data?.message || data?.title || `Request failed`);
+      let msg = '';
+      if (data && typeof data === 'object') {
+        msg = data.message || data.Message || data.title || data.Title || '';
+        const errors = data.errors || data.Errors;
+        if (errors && typeof errors === 'object') {
+          const errorMsgs = [];
+          Object.entries(errors).forEach(([field, messages]) => {
+            if (Array.isArray(messages)) {
+              errorMsgs.push(...messages);
+            } else if (typeof messages === 'string') {
+              errorMsgs.push(messages);
+            }
+          });
+          if (errorMsgs.length > 0) {
+            msg = (msg ? msg + ' ' : '') + errorMsgs.join(' ');
+          }
+        }
+      } else if (typeof data === 'string' && data.trim()) {
+        msg = data;
+      }
+
+      if (!msg) {
+        msg = `Request failed`;
+      }
+      
+      // Log to console for debugging
+      console.error('API Request Failed:', {
+        url,
+        status: response.status,
+        statusText: response.statusText,
+        data,
+        parsedMessage: msg
+      });
+
+      const error = new Error(`${msg} (Status: ${response.status})`);
       error.status = response.status;
       error.data = data;
       throw error;
@@ -169,8 +213,13 @@ const OrdersAPI = {
   getById: (id) => request('GET', `/orders/${id}`),
   create: (data) => request('POST', '/orders', data),
   // Admin
-  updateStatus: (id, statusId) =>
-    request('PUT', `/orders/${id}/status`, { statusId }),
+  updateStatus: (id, statusId, cancelReason = null) => {
+    const body = { statusId };
+    if (cancelReason) body.cancelReason = cancelReason;
+    return request('PUT', `/orders/${id}/status`, body);
+  },
+  updatePaymentStatus: (id, isPaid) =>
+    request('PUT', `/orders/${id}/payment-status`, { isPaid }),
   getAllAdmin: (filters = {}) => {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, val]) => {
@@ -223,6 +272,8 @@ const ReviewsAPI = {
   create: (productId, data) => request('POST', `/products/${productId}/reviews`, data),
   getUserReviews: () => request('GET', '/reviews/mine'),
   delete: (id) => request('DELETE', `/reviews/${id}`),
+  getAllAdmin: () => request('GET', '/reviews/admin'),
+  toggleVerify: (id) => request('PUT', `/reviews/${id}/toggle-verify`),
 };
 
 // ================================================================
@@ -269,6 +320,8 @@ const InventoryAPI = {
   getByProduct: (productId) => request('GET', `/inventory/product/${productId}`),
   // Admin
   update: (id, data) => request('PUT', `/inventory/${id}`, data),
+  getTransactions: () => request('GET', '/inventory/transactions'),
+  adjustStock: (data) => request('POST', '/inventory/adjust', data),
 };
 
 const WarehousesAPI = {
@@ -284,6 +337,15 @@ const OrderStatusesAPI = {
   getAll: () => request('GET', '/orderstatuses'),
   create: (data) => request('POST', '/orderstatuses', data),
   update: (id, data) => request('PUT', `/orderstatuses/${id}`, data),
+};
+
+// ================================================================
+//  COMPATIBILITY
+// ================================================================
+const CompatibilityAPI = {
+  getAll: () => request('GET', '/compatibility'),
+  create: (data) => request('POST', '/compatibility', data),
+  delete: (id) => request('DELETE', `/compatibility/${id}`),
 };
 
 // ── Export all API modules ──
@@ -307,4 +369,5 @@ window.API = {
   Inventory: InventoryAPI,
   Warehouses: WarehousesAPI,
   OrderStatuses: OrderStatusesAPI,
+  Compatibility: CompatibilityAPI,
 };

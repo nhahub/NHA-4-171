@@ -9,7 +9,6 @@ const TABS = [
   { id: 'addresses', label: 'Addresses', icon: 'mapPin' },
   { id: 'orders', label: 'Orders', icon: 'package' },
   { id: 'invoices', label: 'Invoices', icon: 'invoice' },
-  { id: 'returns', label: 'Returns', icon: 'returnIcon' },
   { id: 'wishlist', label: 'Wishlist', icon: 'heart' },
   { id: 'reviews', label: 'My Reviews', icon: 'star' },
 ];
@@ -188,7 +187,7 @@ window.saveAddressAccount = async function() {
   const form = document.getElementById('add-address-form-acc');
   const fd = new FormData(form);
   const data = Object.fromEntries(fd.entries());
-  data.type = 0;
+  data.type = "Shipping";
   try {
     await API.Addresses.create(data);
     UI.closeModal();
@@ -235,7 +234,17 @@ async function renderOrders(container) {
           <span class="order-card__date">${new Date(o.orderDate).toLocaleDateString()}</span>
         </div>
         <div style="display:flex;align-items:center;gap:var(--space-3)">
-          <span class="badge badge--${o.status?.statusName === 'Delivered' ? 'success' : o.status?.statusName === 'Cancelled' ? 'error' : 'accent'}">${o.status?.statusName || 'Processing'}</span>
+        ${(() => {
+            const rawStatus = o.statusName || o.status || 'Pending';
+            let label = rawStatus;
+            let badgeClass = 'accent';
+            if (rawStatus === 'Pending') { label = 'Pending'; badgeClass = 'warning'; }
+            else if (rawStatus === 'Processing') { label = 'Processing'; badgeClass = 'accent'; }
+            else if (rawStatus === 'Shipped') { label = 'Shipped'; badgeClass = 'info'; }
+            else if (rawStatus === 'Delivered') { label = 'Completed'; badgeClass = 'success'; }
+            else if (rawStatus === 'Cancelled') { label = 'Cancelled'; badgeClass = 'error'; }
+            return `<span class="badge badge--${badgeClass}">${label}</span>`;
+          })()}
           ${o.isPaid ? '<span class="badge badge--success">Paid</span>' : '<span class="badge badge--warning">Unpaid</span>'}
           <span class="order-card__total">${formatPrice(o.totalAmount)}</span>
           <span style="width:16px;height:16px;color:var(--text-muted)">${UI.Icons.chevronDown}</span>
@@ -271,6 +280,17 @@ async function renderOrders(container) {
             ${o.shipping.trackingNumber ? `<div class="shipping-tracker__tracking">Tracking: ${o.shipping.trackingNumber}</div>` : ''}
             ${o.shipping.estimatedDeliveryDate ? `<div class="text--xs text--muted">Est. delivery: ${new Date(o.shipping.estimatedDeliveryDate).toLocaleDateString()}</div>` : ''}
           </div>
+        </div>` : ''}
+        ${(o.statusName === 'Cancelled' || o.status === 'Cancelled') ? `
+        <div style="margin-top:var(--space-4); background:rgba(var(--error-rgb,239,68,68),0.08); border:1px solid var(--error); border-radius:var(--radius-md); padding:var(--space-4)">
+          <div style="font-weight:var(--fw-semibold); color:var(--error); margin-bottom:var(--space-2); display:flex; align-items:center; gap:var(--space-2)">
+            <span style="width:16px;height:16px">${UI.Icons.close || '✕'}</span> Order Cancelled
+          </div>
+          ${o.cancelReason ? `<p class="text--sm" style="color:var(--text-secondary); margin-bottom:var(--space-3)"><strong>Reason:</strong> ${o.cancelReason}</p>` : ''}
+          <p class="text--sm" style="color:var(--text-secondary)">
+            To dispute this cancellation or for assistance, please contact our support team:
+            <a href="mailto:admin@CrSys.com" style="color:var(--accent); font-weight:var(--fw-semibold)">admin@CrSys.com</a>
+          </p>
         </div>` : ''}
       </div>
     </div>`).join('');
@@ -361,7 +381,8 @@ async function renderWishlist(container) {
     <div class="featured-products">
       ${items.map(item => {
         const p = item.product || item;
-        return renderProductCard(p);
+        p.wishlistId = item.wishlistId;
+        return renderProductCard(p, { isWishlist: true });
       }).join('')}
     </div>`;
 }

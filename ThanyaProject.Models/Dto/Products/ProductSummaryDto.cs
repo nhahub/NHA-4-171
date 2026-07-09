@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,5 +15,9 @@ namespace CarSparePartSysProject.Models.Dto.Products
         public decimal UnitPrice { get; set; }
 
         public string? ImageUrl { get; set; }
+
+        public double AverageRating { get; set; }
+
+        public int ReviewsCount { get; set; }
     }
 }

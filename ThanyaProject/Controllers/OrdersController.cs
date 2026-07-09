@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using CarSparePartSysProject.BL.IServices;
 using CarSparePartSysProject.Models.Dto.Orders;
 using System.Security.Claims;
 using CarSparePartSysProject.DAL.Data;
+using CarSparePartSys.Model;
 
 namespace CarSparePartSysProject.Controllers
 {
@@ -65,13 +67,44 @@ namespace CarSparePartSysProject.Controllers
         [HttpPut("{id:int}/status")]
         public async Task<IActionResult> UpdateStatus(int id, UpdateOrderStatusRequestDto dto)
         {
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _context.Orders
+                .Include(o => o.OrderDetails)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
             if (order == null)
             {
                 return NotFound();
             }
 
             order.StatusId = dto.StatusId;
+            if (!string.IsNullOrWhiteSpace(dto.CancelReason))
+            {
+                order.CancelReason = dto.CancelReason;
+            }
+
+            // Auto-create invoice when order is marked as Delivered/Completed (statusId 4)
+            if (dto.StatusId == 4)
+            {
+                var existingInvoice = await _context.Invoices
+                    .FirstOrDefaultAsync(i => i.OrderId == id);
+
+                if (existingInvoice == null)
+                {
+                    var invoice = new Invoice
+                    {
+                        OrderId = id,
+                        InvoiceNumber = "INV-" + Guid.NewGuid().ToString().Substring(0, 8).ToUpper(),
+                        InvoiceDate = DateTime.UtcNow,
+                        TaxRate = 10,
+                        SubTotal = order.SubTotal,
+                        TaxAmount = order.TaxAmount,
+                        TotalAmount = order.TotalAmount,
+                        IsPaid = order.IsPaid,
+                        GeneratedBy = order.CustomerId
+                    };
+                    await _context.Invoices.AddAsync(invoice);
+                }
+            }
+
             _context.Orders.Update(order);
             await _context.SaveChangesAsync();
             return NoContent();
@@ -108,6 +141,22 @@ namespace CarSparePartSysProject.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id:int}/payment-status")]
+        public async Task<IActionResult> UpdatePaymentStatus(int id, UpdateOrderPaymentStatusRequestDto dto)
+        {
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            order.IsPaid = dto.IsPaid;
+            _context.Orders.Update(order);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
         // --- Original user-specific orders endpoint (retained for compatibility) ---
 
         [HttpGet("user/{userId:int}")]
@@ -116,5 +165,10 @@ namespace CarSparePartSysProject.Controllers
             var orders = await _orderService.GetUserOrdersAsync(userId);
             return Ok(orders);
         }
+    }
+
+    public class UpdateOrderPaymentStatusRequestDto
+    {
+        public bool IsPaid { get; set; }
     }
 }

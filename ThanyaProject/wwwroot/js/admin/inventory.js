@@ -195,8 +195,11 @@ async function loadInventory() {
     }
 
     tbody.innerHTML = items.map(inv => {
-      const stock = inv.quantityInStock;
-      const reorder = inv.reorderLevel;
+      const stock = inv.quantityInStock || 0;
+      const reorder = inv.reorderLevel || 10;
+      const pName = inv.productName || inv.product?.productName || 'Product #' + inv.productId;
+      const pSku = inv.sku || inv.product?.sku || '—';
+      const whName = inv.warehouse?.warehouseName || (inv.warehouseId ? 'Warehouse #' + inv.warehouseId : 'N/A');
       
       let statusBadge = '<span class="badge badge--success">Good</span>';
       if (stock === 0) {
@@ -210,14 +213,14 @@ async function loadInventory() {
       return `
         <tr>
           <td>${inv.inventoryId}</td>
-          <td><strong>${inv.product?.productName || 'Product #' + inv.productId}</strong></td>
-          <td><code>${inv.product?.sku || '—'}</code></td>
-          <td>${inv.warehouse?.warehouseName || '—'}</td>
+          <td><strong>${pName}</strong></td>
+          <td><code>${pSku}</code></td>
+          <td>${whName}</td>
           <td style="font-weight:bold">${stock}</td>
           <td>${reorder}</td>
           <td>${statusBadge}</td>
           <td>
-            <button class="btn btn--outline btn--sm" onclick="openAdjustmentModal(${inv.productId}, ${inv.warehouseId})">
+            <button class="btn btn--outline btn--sm" onclick="openAdjustmentModal(${inv.productId}, ${inv.warehouseId || 1})">
               Adjust
             </button>
           </td>

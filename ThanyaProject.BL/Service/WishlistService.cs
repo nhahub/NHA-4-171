@@ -30,7 +30,9 @@ namespace CarSparePartSysProject.BL.Service
                     ProductId = w.ProductId,
                     ProductName = w.Product?.ProductName ?? "Unknown Product",
                     UnitPrice = w.Product?.UnitPrice ?? 0,
-                    ImageUrl = w.Product?.ImageUrl
+                    ImageUrl = w.Product?.ImageUrl,
+                    AverageRating = w.Product?.Reviews != null && w.Product.Reviews.Any() ? Math.Round(w.Product.Reviews.Average(r => (double)r.Rating), 1) : 0.0,
+                    ReviewsCount = w.Product?.Reviews?.Count ?? 0
                 },
                 AddedAt = w.AddedAt
             }).ToList();

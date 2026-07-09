@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
     logo.innerHTML = `<span style="width:32px;height:32px;color:var(--accent)">${UI.Icons.gear}</span> Auto<span>Admin</span>`;
   }
 
+
+
   const form = document.getElementById('admin-login-form');
   if (form) {
     form.addEventListener('submit', async (e) => {
@@ -33,27 +35,29 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
           // Failover to local mock verification
           console.warn('Backend API offline. Using mock admin login...');
-          if (email === 'admin@autoparts.com' || email === 'admin') {
+          if (email === 'admin@CrSys.com' || email === 'admin') {
             // Build a mock JWT token with role claim "Admin"
             const payload = {
               sub: '1',
-              email: 'admin@autoparts.com',
+              email: 'admin@CrSys.com',
               role: 'Admin',
               exp: Math.floor(Date.now() / 1000) + 86400, // 24h
             };
             const token = 'mock_jwt_header.' + btoa(JSON.stringify(payload)) + '.mock_signature';
             response = {
               token: token,
-              user: { firstName: 'Ahmad', lastName: 'Ali', email: 'admin@autoparts.com', username: 'admin' },
+              user: { firstName: 'Ahmad', lastName: 'Ali', email: 'admin@CrSys.com', username: 'admin' },
             };
           } else {
-            throw new Error('Invalid credentials. Use admin@autoparts.com / any password.');
+            throw new Error('Invalid credentials. Use admin@CrSys.com / Admin@123.');
           }
         }
 
         // Save token and profile
-        Auth.saveToken(response.token);
-        Auth.saveUser(response.user);
+        const token = response?.accessToken || response?.AccessToken || response?.token || response?.Token || response?.access_token;
+        const user = response?.user || response?.User || response?.profile || response?.Profile || response?.userDto || null;
+        if (token) Auth.saveToken(token);
+        if (user) Auth.saveUser(user);
 
         // Verify if admin role exists
         if (Auth.isAdmin()) {

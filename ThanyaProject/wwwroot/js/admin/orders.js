@@ -82,9 +82,13 @@ async function loadOrders() {
         : '<span class="badge badge--warning">Unpaid</span>';
       
       let statusClass = 'accent';
-      if (o.statusName === 'Delivered') statusClass = 'success';
-      if (o.statusName === 'Cancelled') statusClass = 'error';
-      const statusBadge = `<span class="badge badge--${statusClass}">${o.statusName || 'Processing'}</span>`;
+      let statusLabel = o.statusName || 'Processing';
+      if (o.statusName === 'Pending') { statusClass = 'warning'; statusLabel = 'Pending'; }
+      else if (o.statusName === 'Processing') { statusClass = 'accent'; statusLabel = 'تحت التنفيذ'; }
+      else if (o.statusName === 'Shipped') { statusClass = 'info'; statusLabel = 'Shipped'; }
+      else if (o.statusName === 'Delivered') { statusClass = 'success'; statusLabel = 'Completed'; }
+      else if (o.statusName === 'Cancelled') { statusClass = 'error'; statusLabel = 'Cancelled'; }
+      const statusBadge = `<span class="badge badge--${statusClass}">${statusLabel}</span>`;
 
       return `
         <tr>
@@ -192,6 +196,19 @@ window.openOrderDrawer = async function(id) {
     // Status select value
     document.getElementById('order-status-update-select').value = order.statusId;
 
+    // Cancel reason row
+    const cancelRow = document.getElementById('cancel-reason-row');
+    const cancelText = document.getElementById('cancel-reason-text');
+    if (order.statusId === 5 && order.cancelReason && cancelRow && cancelText) {
+      cancelRow.style.display = 'block';
+      cancelText.textContent = order.cancelReason;
+    } else if (cancelRow) {
+      cancelRow.style.display = 'none';
+    }
+
+    // Payment select value
+    document.getElementById('order-payment-status-select').value = order.isPaid ? 'true' : 'false';
+
     // Show Drawer
     backdrop.classList.add('is-active');
     document.body.style.overflow = 'hidden';
@@ -215,11 +232,61 @@ window.submitStatusUpdate = async function() {
   if (!currentActiveOrderId) return;
   const select = document.getElementById('order-status-update-select');
   const statusId = parseInt(select.value, 10);
-  const statusName = select.options[select.selectedIndex].text;
+
+  // If Cancelled (statusId 5), show reason modal first
+  if (statusId === 5) {
+    UI.openModal({
+      title: 'Cancel Order — Provide Reason',
+      content: `
+        <div style="display:flex;flex-direction:column;gap:var(--space-3)">
+          <p class="text--sm" style="color:var(--text-secondary)">Please provide a reason for cancelling this order. This will be visible to the customer.</p>
+          <div class="form-group">
+            <label class="form-label form-label--required">Cancellation Reason</label>
+            <textarea id="cancel-reason-input" class="form-input" rows="4" placeholder="e.g. Out of stock, customer request, payment issue..." style="resize:vertical;"></textarea>
+          </div>
+        </div>`,
+      footer: `
+        <button class="btn btn--secondary" onclick="UI.closeModal()">Back</button>
+        <button class="btn btn--danger" id="confirm-cancel-btn">Confirm Cancellation</button>
+      `
+    });
+
+    document.getElementById('confirm-cancel-btn')?.addEventListener('click', async () => {
+      const reason = document.getElementById('cancel-reason-input')?.value?.trim();
+      if (!reason) {
+        UI.showToast('Please enter a cancellation reason.', 'error');
+        return;
+      }
+      try {
+        await AdminAPI.Orders.updateStatus(currentActiveOrderId, statusId, reason);
+        UI.closeModal();
+        UI.showToast('Order cancelled successfully.', 'success');
+        loadOrders();
+      } catch (err) {
+        UI.handleApiError(err);
+      }
+    });
+    return;
+  }
+
+  // Non-cancel statuses — update directly
+  try {
+    await AdminAPI.Orders.updateStatus(currentActiveOrderId, statusId, null);
+    UI.showToast('Order status updated!', 'success');
+    loadOrders();
+  } catch (err) {
+    UI.handleApiError(err);
+  }
+};
+
+window.submitPaymentStatusUpdate = async function() {
+  if (!currentActiveOrderId) return;
+  const select = document.getElementById('order-payment-status-select');
+  const isPaid = select.value === 'true';
 
   try {
-    await AdminAPI.Orders.updateStatus(currentActiveOrderId, statusId, statusName);
-    UI.showToast('Order status updated!', 'success');
+    await AdminAPI.Orders.updatePaymentStatus(currentActiveOrderId, isPaid);
+    UI.showToast('Payment status updated!', 'success');
     loadOrders();
   } catch (err) {
     UI.handleApiError(err);

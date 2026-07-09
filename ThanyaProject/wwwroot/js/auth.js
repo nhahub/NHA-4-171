@@ -165,8 +165,11 @@ function redirectIfLoggedIn(destination = '/index.html') {
 
 /** Handle successful login response */
 function handleLoginSuccess(response) {
-  if (response.token) saveToken(response.token);
-  if (response.user) saveUser(response.user);
+  const token = response?.accessToken || response?.AccessToken || response?.token || response?.Token || response?.access_token || response?.accessToken;
+  const user = response?.user || response?.User || response?.profile || response?.Profile || response?.userDto || null;
+
+  if (token) saveToken(token);
+  if (user) saveUser(user);
 
   // Update navbar auth state
   updateNavbarAuthState();

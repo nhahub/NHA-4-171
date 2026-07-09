@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -11,5 +11,7 @@ namespace CarSparePartSysProject.Models.Dto.Orders
     {
         [Required]
         public int StatusId { get; set; }
+
+        public string? CancelReason { get; set; }
     }
 }

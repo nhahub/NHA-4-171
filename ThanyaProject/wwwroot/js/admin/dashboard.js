@@ -12,7 +12,6 @@ function injectKpiIcons() {
     'kpi-icon-rev': UI.Icons.invoice,
     'kpi-icon-ord': UI.Icons.cart,
     'kpi-icon-stock': UI.Icons.warehouse,
-    'kpi-icon-ret': UI.Icons.returnIcon,
   };
   Object.entries(icons).forEach(([id, svg]) => {
     const el = document.getElementById(id);
@@ -34,9 +33,14 @@ async function loadDashboardStats() {
     document.getElementById('kpi-orders').textContent = totalOrders;
 
     // ── Fetch inventory & check low stock ──
-    const inventoryResult = await AdminAPI.Inventory.getAll('', '', 1, 100);
-    const inventory = inventoryResult?.items || [];
-    const lowStockCount = inventory.filter(i => i.quantityInStock <= i.reorderLevel).length;
+    let lowStockCount = 0;
+    try {
+      const inventoryResult = await AdminAPI.Inventory.getAll('', '', 1, 500);
+      const inventory = inventoryResult?.items || [];
+      lowStockCount = inventory.filter(i => (i.quantityInStock || 0) <= (i.reorderLevel || 10)).length;
+    } catch (invErr) {
+      console.warn('Dashboard: could not load inventory stats:', invErr);
+    }
     document.getElementById('kpi-lowstock').textContent = lowStockCount;
 
     // Adjust low stock indicator color
@@ -49,11 +53,7 @@ async function loadDashboardStats() {
       lowstockTrend.textContent = 'Normal';
     }
 
-    // ── Fetch return requests ──
-    const returnsResult = await AdminAPI.Returns.getAllAdmin('', 1, 100);
-    const returns = returnsResult?.items || [];
-    const pendingReturns = returns.filter(r => r.status === 'Requested').length;
-    document.getElementById('kpi-returns').textContent = pendingReturns;
+
 
     // ── Render recent orders ──
     renderRecentOrders(orders.slice(0, 5));
@@ -77,9 +77,13 @@ function renderRecentOrders(orders) {
       : '<span class="badge badge--warning">Unpaid</span>';
     
     let statusClass = 'accent';
-    if (o.statusName === 'Delivered') statusClass = 'success';
-    if (o.statusName === 'Cancelled') statusClass = 'error';
-    const statusBadge = `<span class="badge badge--${statusClass}">${o.statusName || 'Processing'}</span>`;
+    let statusLabel = o.statusName || 'Processing';
+    if (o.statusName === 'Pending') { statusClass = 'warning'; statusLabel = 'Pending'; }
+    else if (o.statusName === 'Processing') { statusClass = 'accent'; statusLabel = 'تحت التنفيذ'; }
+    else if (o.statusName === 'Shipped') { statusClass = 'info'; statusLabel = 'Shipped'; }
+    else if (o.statusName === 'Delivered') { statusClass = 'success'; statusLabel = 'Completed'; }
+    else if (o.statusName === 'Cancelled') { statusClass = 'error'; statusLabel = 'Cancelled'; }
+    const statusBadge = `<span class="badge badge--${statusClass}">${statusLabel}</span>`;
 
     return `
       <tr>

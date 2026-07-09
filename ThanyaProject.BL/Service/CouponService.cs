@@ -32,7 +32,9 @@ namespace CarSparePartSysProject.BL.Service
                 MaxDiscountAmount = c.MaxDiscountAmount,
                 StartDate = c.StartDate,
                 EndDate = c.EndDate,
-                IsActive = c.IsActive
+                IsActive = c.IsActive,
+                UsageLimit = c.UsageLimit,
+                UsedCount = c.UsedCount
             });
         }
 
@@ -51,7 +53,9 @@ namespace CarSparePartSysProject.BL.Service
                 MaxDiscountAmount = c.MaxDiscountAmount,
                 StartDate = c.StartDate,
                 EndDate = c.EndDate,
-                IsActive = c.IsActive
+                IsActive = c.IsActive,
+                UsageLimit = c.UsageLimit,
+                UsedCount = c.UsedCount
             };
         }
 
@@ -70,7 +74,9 @@ namespace CarSparePartSysProject.BL.Service
                 MaxDiscountAmount = c.MaxDiscountAmount,
                 StartDate = c.StartDate,
                 EndDate = c.EndDate,
-                IsActive = c.IsActive
+                IsActive = c.IsActive,
+                UsageLimit = c.UsageLimit,
+                UsedCount = c.UsedCount
             };
         }
 
@@ -86,7 +92,9 @@ namespace CarSparePartSysProject.BL.Service
                 MaxDiscountAmount = dto.MaxDiscountAmount,
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
-                IsActive = dto.IsActive
+                IsActive = dto.IsActive,
+                UsageLimit = dto.UsageLimit,
+                UsedCount = 0
             };
 
             await _couponRepository.AddAsync(c);
@@ -103,7 +111,9 @@ namespace CarSparePartSysProject.BL.Service
                 MaxDiscountAmount = c.MaxDiscountAmount,
                 StartDate = c.StartDate,
                 EndDate = c.EndDate,
-                IsActive = c.IsActive
+                IsActive = c.IsActive,
+                UsageLimit = c.UsageLimit,
+                UsedCount = c.UsedCount
             };
         }
 
@@ -127,6 +137,7 @@ namespace CarSparePartSysProject.BL.Service
             c.StartDate = dto.StartDate ?? c.StartDate;
             c.EndDate = dto.EndDate ?? c.EndDate;
             c.IsActive = dto.IsActive ?? c.IsActive;
+            c.UsageLimit = dto.UsageLimit ?? c.UsageLimit;
 
             _couponRepository.Update(c);
             await _couponRepository.SaveAsync();
@@ -142,7 +153,9 @@ namespace CarSparePartSysProject.BL.Service
                 MaxDiscountAmount = c.MaxDiscountAmount,
                 StartDate = c.StartDate,
                 EndDate = c.EndDate,
-                IsActive = c.IsActive
+                IsActive = c.IsActive,
+                UsageLimit = c.UsageLimit,
+                UsedCount = c.UsedCount
             };
         }
 

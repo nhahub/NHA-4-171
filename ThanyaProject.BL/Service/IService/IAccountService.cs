@@ -22,5 +22,11 @@ namespace CarSparePartSysProject.BL.Service.IService
         Task<UserDto> UpdateProfileAsync(int userId, UpdateProfileRequestDto dto);
 
         Task ChangePasswordAsync(int userId, ChangePasswordRequestDto dto);
+
+        Task<(List<UserDto> Items, int TotalCount, int TotalPages)> GetAllUsersAsync(string? search, int page, int pageSize);
+
+        Task UpdateUserRoleAsync(int userId, string role);
+
+        Task ToggleUserActiveAsync(int userId);
     }
 }

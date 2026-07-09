@@ -1,4 +1,4 @@
-﻿using CarSparePartSysProject.Models.Dto.Addresses;
+using CarSparePartSysProject.Models.Dto.Addresses;
 
 namespace CarSparePartSysProject.BL.IServices
 {
@@ -13,5 +13,6 @@ namespace CarSparePartSysProject.BL.IServices
         Task<AddressDto> UpdateAsync(int id, UpdateAddressRequestDto dto);
 
         Task DeleteAsync(int id);
+        Task SetDefaultAsync(int id, int userId);
     }
 }

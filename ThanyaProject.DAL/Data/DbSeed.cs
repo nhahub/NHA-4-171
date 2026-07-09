@@ -31,15 +31,9 @@ namespace CarSparePartSysProject.DAL.Data
             Microsoft.Extensions.Configuration.IConfiguration configuration,
             ILogger logger)
         {
-            var adminEmail = configuration["Admin:Email"] ?? "admin@thanya.com";
-            var adminPassword = configuration["Admin:Password"];
-
-            if (string.IsNullOrEmpty(adminPassword))
-            {
-                logger.LogWarning("Admin:Password configuration is missing. Skipping administrator account seeding.");
-                return;
-            }
-
+            var adminEmail = "admin@CrSys.com";
+            var adminPassword = "Admin@123";
+            
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
             if (adminUser == null)
@@ -47,7 +41,7 @@ namespace CarSparePartSysProject.DAL.Data
                 var adminRole = await roleManager.FindByNameAsync("Admin");
                 var newAdmin = new User
                 {
-                    UserName = "admin",
+                    UserName = "admin@CrSys.com",
                     Email = adminEmail,
                     EmailConfirmed = true,
                     FirstName = "System",
@@ -66,6 +60,24 @@ namespace CarSparePartSysProject.DAL.Data
                 else
                 {
                     logger.LogWarning("Failed to seed admin user: {Errors}", string.Join(", ", System.Linq.Enumerable.Select(result.Errors, e => e.Description)));
+                }
+            }
+            else
+            {
+                // Reset admin password to appsettings password to ensure it matches
+                var token = await userManager.GeneratePasswordResetTokenAsync(adminUser);
+                await userManager.ResetPasswordAsync(adminUser, token, adminPassword);
+            }
+
+            // Reset passwords for other existing test accounts so they are known
+            var testUsernames = new[] { "m_9", "m_10", "m" };
+            foreach (var username in testUsernames)
+            {
+                var user = await userManager.FindByNameAsync(username);
+                if (user != null)
+                {
+                    var token = await userManager.GeneratePasswordResetTokenAsync(user);
+                    await userManager.ResetPasswordAsync(user, token, "TestPassword123!");
                 }
             }
         }
@@ -113,7 +125,7 @@ namespace CarSparePartSysProject.DAL.Data
                 var cat = await context.Categories.FirstOrDefaultAsync(c => c.CategoryName == name);
                 if (cat == null)
                 {
-                    cat = new Category { CategoryName = name, Description = catDescs[i], ImageUrl = "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=400&q=80" };
+                    cat = new Category { CategoryName = name, Description = catDescs[i], ImageUrl = "https://images.unsplash.com/photo-1616422285623-13ff0162193c?auto=format&fit=crop&w=400&q=80" };
                     context.Categories.Add(cat);
                     await context.SaveChangesAsync();
                 }
@@ -124,7 +136,7 @@ namespace CarSparePartSysProject.DAL.Data
             if (pistonsRings == null)
             {
                 var engineParts = await context.Categories.FirstOrDefaultAsync(c => c.CategoryName == "Engine Parts");
-                pistonsRings = new Category { CategoryName = "Pistons & Rings", Description = "Internal cylinder engine components.", ParentCategoryId = engineParts?.CategoryId, ImageUrl = "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=400&q=80" };
+                pistonsRings = new Category { CategoryName = "Pistons & Rings", Description = "Internal cylinder engine components.", ParentCategoryId = engineParts?.CategoryId, ImageUrl = "https://images.unsplash.com/photo-1616422285623-13ff0162193c?auto=format&fit=crop&w=400&q=80" };
                 context.Categories.Add(pistonsRings);
             }
 
@@ -132,7 +144,7 @@ namespace CarSparePartSysProject.DAL.Data
             if (brakePads == null)
             {
                 var brakes = await context.Categories.FirstOrDefaultAsync(c => c.CategoryName == "Brakes");
-                brakePads = new Category { CategoryName = "Brake Pads", Description = "Ceramic and semi-metallic friction pads.", ParentCategoryId = brakes?.CategoryId, ImageUrl = "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=400&q=80" };
+                brakePads = new Category { CategoryName = "Brake Pads", Description = "Ceramic and semi-metallic friction pads.", ParentCategoryId = brakes?.CategoryId, ImageUrl = "https://images.unsplash.com/photo-1606577924006-27d39b132ae2?auto=format&fit=crop&w=400&q=80" };
                 context.Categories.Add(brakePads);
             }
             await context.SaveChangesAsync();
@@ -180,7 +192,7 @@ namespace CarSparePartSysProject.DAL.Data
                         CostPrice = 6.50m,
                         CategoryId = catElectrical.CategoryId,
                         SupplierId = supBosch.SupplierId,
-                        ImageUrl = "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=400&q=80",
+                        ImageUrl = "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=400&q=80",
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow
                     });
@@ -202,7 +214,7 @@ namespace CarSparePartSysProject.DAL.Data
                         CostPrice = 130.00m,
                         CategoryId = catBrakePads.CategoryId,
                         SupplierId = supBrembo.SupplierId,
-                        ImageUrl = "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=400&q=80",
+                        ImageUrl = "https://images.unsplash.com/photo-1606577924006-27d39b132ae2?auto=format&fit=crop&w=400&q=80",
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow
                     });
@@ -224,7 +236,7 @@ namespace CarSparePartSysProject.DAL.Data
                         CostPrice = 40.00m,
                         CategoryId = catEngineParts.CategoryId,
                         SupplierId = supDenso.SupplierId,
-                        ImageUrl = "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=400&q=80",
+                        ImageUrl = "https://images.unsplash.com/photo-1517524206127-48bbd363f3d7?auto=format&fit=crop&w=400&q=80",
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow
                     });

@@ -49,7 +49,9 @@ namespace CarSparePartSysProject.BL.Service
                     QuantityInStock = i.QuantityInStock,
                     ReorderLevel = i.ReorderLevel,
                     LastRestocked = i.LastUpdated
-                }).ToList() ?? new()
+                }).ToList() ?? new(),
+                AverageRating = p.Reviews != null && p.Reviews.Any(r => r.IsVerified) ? Math.Round(p.Reviews.Where(r => r.IsVerified).Average(r => (double)r.Rating), 1) : 0.0,
+                ReviewsCount = p.Reviews?.Count(r => r.IsVerified) ?? 0
             };
         }
 

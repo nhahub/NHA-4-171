@@ -12,8 +12,7 @@
 }
 
 .admin-layout {
-  display: grid;
-  grid-template-columns: var(--sidebar-width, 260px) 1fr;
+  display: block;
   min-height: 100vh;
 }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,5 +27,9 @@ namespace CarSparePartSysProject.Models.Dto.Coupons
         public DateTime EndDate { get; set; }
 
         public bool IsActive { get; set; }
+
+        public int? UsageLimit { get; set; }
+
+        public int UsedCount { get; set; }
     }
 }

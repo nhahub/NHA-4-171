@@ -88,5 +88,28 @@ namespace CarSparePartSysProject.Controllers
                 return NotFound();
             }
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("admin")]
+        public async Task<ActionResult<IEnumerable<ReviewDto>>> GetAdminReviews()
+        {
+            var reviews = await _reviewService.GetAllReviewsAsync();
+            return Ok(reviews);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id:int}/toggle-verify")]
+        public async Task<ActionResult<ReviewDto>> ToggleVerify(int id)
+        {
+            try
+            {
+                var review = await _reviewService.ToggleVerifyAsync(id);
+                return Ok(review);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
     }
 }

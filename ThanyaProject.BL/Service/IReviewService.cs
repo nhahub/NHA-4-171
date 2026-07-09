@@ -13,5 +13,9 @@ namespace CarSparePartSysProject.BL.IServices
         Task<ReviewDto> UpdateAsync(int reviewId, UpdateReviewRequestDto dto);
 
         Task DeleteAsync(int reviewId);
+
+        Task<IEnumerable<ReviewDto>> GetAllReviewsAsync();
+
+        Task<ReviewDto> ToggleVerifyAsync(int reviewId);
     }
 }

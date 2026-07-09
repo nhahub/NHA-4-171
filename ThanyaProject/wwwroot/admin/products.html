@@ -80,7 +80,7 @@
     <div class="drawer" id="product-drawer">
       <div class="drawer__header">
         <h3 class="drawer__title" id="drawer-title">Add Product</h3>
-        <button class="drawer__close" onclick="closeProductDrawer()">${UI.Icons.close}</button>
+        <button class="drawer__close" onclick="closeProductDrawer()" id="drawer-close-btn" title="Close" style="font-size:20px;line-height:1;">&times;</button>
       </div>
 
       <div class="drawer__body">
@@ -136,7 +136,10 @@
 
           <div class="form-group">
             <label class="form-label">Image URL</label>
-            <input type="url" class="form-input" name="imageUrl" id="product-image-url" />
+            <input type="url" class="form-input" name="imageUrl" id="product-image-url" placeholder="https://..." oninput="updateImagePreview(this.value)" />
+            <div id="product-image-preview" style="margin-top:var(--space-2);display:none;border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;max-width:200px;">
+              <img id="product-preview-img" src="" alt="Product preview" style="width:100%;height:140px;object-fit:cover;display:block;" onerror="this.closest('#product-image-preview').style.display='none'" onload="this.closest('#product-image-preview').style.display='block'" />
+            </div>
           </div>
 
           <div class="form-check">

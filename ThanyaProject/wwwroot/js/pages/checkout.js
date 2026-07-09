@@ -4,6 +4,7 @@
    ============================================================ */
 
 let checkoutData = { addresses: [], paymentMethods: [], cartItems: [], selectedAddressId: null, selectedPaymentId: null };
+let appliedCoupon = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   if (!Auth.requireAuth()) return;
@@ -32,6 +33,17 @@ async function loadCheckoutData() {
     checkoutData.addresses = Array.isArray(addresses) ? addresses : addresses?.items || [];
     checkoutData.paymentMethods = Array.isArray(paymentMethods) ? paymentMethods : paymentMethods?.items || [];
 
+    const storedCoupon = sessionStorage.getItem('applied_coupon');
+    if (storedCoupon) {
+      try {
+        appliedCoupon = JSON.parse(storedCoupon);
+      } catch (e) {
+        appliedCoupon = null;
+      }
+    } else {
+      appliedCoupon = null;
+    }
+
     if (checkoutData.cartItems.length === 0) {
       UI.renderEmptyState(content, 'cart');
       return;
@@ -53,7 +65,7 @@ async function loadCheckoutData() {
 
 function renderCheckout() {
   const content = document.getElementById('checkout-content');
-  const summary = Cart.calculateCartSummary(checkoutData.cartItems);
+  const summary = Cart.calculateCartSummary(checkoutData.cartItems, appliedCoupon);
 
   content.innerHTML = `
     <div class="checkout-page">
@@ -138,6 +150,11 @@ function renderCheckout() {
             <span class="cart-summary__row-label">Subtotal</span>
             <span class="cart-summary__row-value">${formatPrice(summary.subtotal)}</span>
           </div>
+          ${appliedCoupon ? `
+          <div class="cart-summary__row cart-summary__row--discount">
+            <span class="cart-summary__row-label">Discount (${appliedCoupon.code})</span>
+            <span class="cart-summary__row-value">-${formatPrice(summary.discount)}</span>
+          </div>` : ''}
           <div class="cart-summary__row">
             <span class="cart-summary__row-label">Tax</span>
             <span class="cart-summary__row-value">${formatPrice(summary.tax)}</span>
@@ -199,7 +216,7 @@ async function saveNewAddress() {
   if (!form) return;
   const fd = new FormData(form);
   const data = Object.fromEntries(fd.entries());
-  data.type = 0; // Shipping
+  data.type = "Shipping";
 
   if (!data.fullName || !data.phone || !data.street || !data.city || !data.country) {
     UI.showToast('Please fill in all required fields.', 'warning');
@@ -234,8 +251,10 @@ async function placeOrder() {
     const order = await API.Orders.create({
       shippingAddressId: checkoutData.selectedAddressId,
       paymentMethodId: checkoutData.selectedPaymentId,
+      couponCode: appliedCoupon ? appliedCoupon.code : null
     });
 
+    sessionStorage.removeItem('applied_coupon');
     UI.showToast('Order placed successfully!', 'success');
     Cart.updateCartBadge();
 

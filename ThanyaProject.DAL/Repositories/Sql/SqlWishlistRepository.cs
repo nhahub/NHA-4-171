@@ -18,6 +18,7 @@ namespace CarSparePartSysProject.DAL.Repositories.Sql
         {
             return await _dbSet.AsNoTracking()
                 .Include(w => w.Product)
+                    .ThenInclude(p => p.Reviews)
                 .Where(w => w.UserId == userId)
                 .ToListAsync();
         }

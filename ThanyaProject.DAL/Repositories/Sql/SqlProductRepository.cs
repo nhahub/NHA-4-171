@@ -14,9 +14,27 @@ namespace CarSparePartSysProject.DAL.Repositories.Sql
         {
         }
 
+        public override async Task<IEnumerable<Product>> GetAllAsync()
+        {
+            return await _dbSet.AsNoTracking()
+                .Include(p => p.Reviews)
+                .Include(p => p.Inventories)
+                .ToListAsync();
+        }
+
+        public override async Task<Product?> GetByIdAsync(int id)
+        {
+            return await _dbSet
+                .Include(p => p.Reviews)
+                .Include(p => p.Inventories)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
+        }
+
         public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId)
         {
             return await _dbSet.AsNoTracking()
+                .Include(p => p.Reviews)
+                .Include(p => p.Inventories)
                 .Where(p => p.CategoryId == categoryId)
                 .ToListAsync();
         }

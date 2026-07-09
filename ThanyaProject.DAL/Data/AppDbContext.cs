@@ -52,6 +52,7 @@ namespace CarSparePartSysProject.DAL.Data
         public DbSet<ReturnRequest> ReturnRequests { get; set; }
 
         public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<NewsletterSubscription> NewsletterSubscriptions { get; set; }
 
 
         #endregion

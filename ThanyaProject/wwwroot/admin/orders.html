@@ -127,6 +127,12 @@
           </div>
         </div>
 
+        <!-- Cancel Reason Display (shown only for cancelled orders) -->
+        <div id="cancel-reason-row" style="display:none; margin-top:var(--space-4); background:rgba(239,68,68,0.08); border:1px solid var(--error); border-radius:var(--radius-md); padding:var(--space-4)">
+          <div style="font-weight:var(--fw-semibold); color:var(--error); margin-bottom:var(--space-2)">⛔ Cancelled — Reason:</div>
+          <p id="cancel-reason-text" class="text--sm" style="color:var(--text-secondary); margin:0;">—</p>
+        </div>
+
         <!-- Status Transition control -->
         <div style="margin-top:var(--space-4); border-bottom:1px solid var(--border); padding-bottom:var(--space-4)">
           <h4 style="margin-bottom:var(--space-2)">Update Order Status</h4>
@@ -135,10 +141,22 @@
               <option value="1">Pending</option>
               <option value="2">Processing</option>
               <option value="3">Shipped</option>
-              <option value="4">Delivered</option>
+              <option value="4">Delivered (Complete)</option>
               <option value="5">Cancelled</option>
             </select>
             <button class="btn btn--primary" onclick="submitStatusUpdate()">Update</button>
+          </div>
+        </div>
+
+        <!-- Payment Status control -->
+        <div style="margin-top:var(--space-4); border-bottom:1px solid var(--border); padding-bottom:var(--space-4)">
+          <h4 style="margin-bottom:var(--space-2)">Update Payment Status</h4>
+          <div style="display:flex; gap:var(--space-3)">
+            <select class="form-select" id="order-payment-status-select" style="flex:1; height:40px">
+              <option value="false">Unpaid</option>
+              <option value="true">Paid</option>
+            </select>
+            <button class="btn btn--primary" onclick="submitPaymentStatusUpdate()">Update</button>
           </div>
         </div>
 

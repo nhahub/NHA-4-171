@@ -149,7 +149,7 @@ const initialData = {
   ],
 
   users: [
-    { userId: 1, firstName: 'Ahmad', lastName: 'Ali', username: 'ahmad_admin', email: 'admin@autoparts.com', phone: '01012345678', role: 'Admin', isActive: true, createdAt: '2026-01-01T12:00:00Z' },
+    { userId: 1, firstName: 'Ahmad', lastName: 'Ali', username: 'ahmad_admin', email: 'admin@CrSys.com', phone: '01012345678', role: 'Admin', isActive: true, createdAt: '2026-01-01T12:00:00Z' },
     { userId: 2, firstName: 'Sherif', lastName: 'Kamal', username: 'sherif_k', email: 'sherif@gmail.com', phone: '01122334455', role: 'Customer', isActive: true, createdAt: '2026-03-12T14:30:00Z' },
     { userId: 3, firstName: 'Mona', lastName: 'Saad', username: 'mona_s', email: 'mona@yahoo.com', phone: '01233445566', role: 'Customer', isActive: false, createdAt: '2026-04-01T10:00:00Z' },
   ],
@@ -787,102 +787,193 @@ const UsersService = {
   },
 };
 
+// ── Helper: normalize paginated API response ──
+function normalizePaginated(res) {
+  // If the API returns { items, totalCount, totalPages } already
+  if (res && Array.isArray(res.items)) return res;
+  // If the API returns an array directly
+  if (Array.isArray(res)) return { items: res, totalCount: res.length, totalPages: 1 };
+  // Fallback
+  return { items: [], totalCount: 0, totalPages: 1 };
+}
+
 // ── Export all admin services ──
 window.AdminAPI = {
   Products: {
-    getAll: (search = '', categoryId = '', supplierId = '', page = 1, pageSize = 10) => 
-      window.API.Products.getAll({ search, categoryId, supplierId, page, pageSize }),
+    getAll: (search = '', categoryId = '', supplierId = '', page = 1, pageSize = 10) =>
+      window.API.Products.getAll({ search, categoryId, supplierId, page, pageSize }).then(normalizePaginated),
     getById: (id) => window.API.Products.getById(id),
     create: (data) => window.API.Products.create(data),
     update: (id, data) => window.API.Products.update(id, data),
     delete: (id) => window.API.Products.delete(id)
   },
   Categories: {
-    getAll: () => window.API.Categories.getAll(),
+    getAll: () => window.API.Categories.getAll().then(res => Array.isArray(res) ? res : res?.items || []),
     getById: (id) => window.API.Categories.getById(id),
     create: (data) => window.API.Categories.create(data),
     update: (id, data) => window.API.Categories.update(id, data),
     delete: (id) => window.API.Categories.delete(id)
   },
   Suppliers: {
-    getAll: (search = '', page = 1, pageSize = 100) => window.API.Suppliers.getAll().then(res => ({
-      items: res.filter(s => !search || s.supplierName.toLowerCase().includes(search.toLowerCase())),
-      totalCount: res.length,
-      totalPages: 1
-    })),
+    getAll: (search = '', page = 1, pageSize = 100) =>
+      window.API.Suppliers.getAll().then(res => {
+        const list = Array.isArray(res) ? res : res?.items || [];
+        const filtered = search ? list.filter(s => s.supplierName?.toLowerCase().includes(search.toLowerCase())) : list;
+        const start = (page - 1) * pageSize;
+        const items = filtered.slice(start, start + pageSize);
+        return { items, totalCount: filtered.length, totalPages: Math.ceil(filtered.length / pageSize) || 1 };
+      }),
     create: (data) => window.API.Suppliers.create(data),
     update: (id, data) => window.API.Suppliers.update(id, data),
     delete: (id) => window.API.Suppliers.delete(id)
   },
   CarBrands: {
-    getAll: () => window.API.CarBrands.getAll(),
+    getAll: () => window.API.CarBrands.getAll().then(res => Array.isArray(res) ? res : res?.items || []),
     create: (data) => window.API.CarBrands.create(data),
     update: (id, data) => window.API.CarBrands.update(id, data),
     delete: (id) => window.API.CarBrands.delete(id)
   },
   CarModels: {
-    getAll: () => window.API.CarModels.getAll(),
+    getAll: () => window.API.CarModels.getAll().then(res => Array.isArray(res) ? res : res?.items || []),
     create: (data) => window.API.CarModels.create(data),
     update: (id, data) => window.API.CarModels.update(id, data),
     delete: (id) => window.API.CarModels.delete(id)
   },
   Compatibility: {
-    getAll: () => request('GET', '/compatibility'),
-    create: (data) => request('POST', '/compatibility', data),
-    delete: (id) => request('DELETE', `/compatibility/${id}`)
+    getAll: () => window.API.Compatibility.getAll(),
+    create: (data) => window.API.Compatibility.create(data),
+    delete: (id) => window.API.Compatibility.delete(id)
   },
   Inventory: {
-    getAll: () => window.API.Products.getAll().then(res => ({
-      items: res.items.map(p => ({
-        inventoryId: p.productId,
-        productId: p.productId,
-        productName: p.productName,
-        quantityInStock: 100, // stock simulator
-        reorderLevel: 10
-      })),
-      totalCount: res.totalCount,
-      totalPages: res.totalPages
-    })),
-    update: (id, data) => Promise.resolve({})
+    getAll: (search = '', warehouseId = '', page = 1, pageSize = 10) =>
+      window.API.Products.getAll({ search, page, pageSize }).then(res => {
+        const products = normalizePaginated(res);
+        // Map products with their inventory data
+        const items = products.items.map(p => {
+          const inv = p.inventories && p.inventories.length > 0 ? p.inventories[0] : null;
+          return {
+            inventoryId: inv ? inv.inventoryId : p.productId,
+            productId: p.productId,
+            productName: p.productName,
+            sku: p.sku,
+            quantityInStock: inv ? inv.quantityInStock : 0,
+            reorderLevel: inv ? inv.reorderLevel : 10,
+            lastRestocked: inv ? inv.lastRestocked : null,
+            product: p
+          };
+        });
+        return { items, totalCount: products.totalCount, totalPages: products.totalPages };
+      }),
+    update: (id, data) => window.API.Inventory.update(id, data),
+    getTransactions: () => window.API.Inventory.getTransactions(),
+    updateStock: (productId, warehouseId, quantity, transactionType) =>
+      window.API.Inventory.adjustStock({ productId, warehouseId, quantity, transactionType })
   },
   Warehouses: {
-    getAll: () => window.API.Warehouses.getAll(),
+    getAll: () => window.API.Warehouses.getAll().then(res => Array.isArray(res) ? res : res?.items || []),
     create: (data) => window.API.Warehouses.create(data),
     update: (id, data) => window.API.Warehouses.update(id, data)
   },
   Orders: {
-    getAllAdmin: (filters = {}) => window.API.Orders.getAllAdmin(filters).then(res => ({
-      items: res,
-      totalCount: res.length,
-      totalPages: 1
-    })),
-    updateStatus: (id, statusId) => window.API.Orders.updateStatus(id, statusId)
+    getAllAdmin: (search = '', statusId = '', page = 1, pageSize = 10) => {
+      const filters = {};
+      if (search) filters.search = search;
+      if (statusId) filters.statusId = statusId;
+      filters.page = page;
+      filters.pageSize = pageSize;
+      return window.API.Orders.getAllAdmin(filters).then(normalizePaginated);
+    },
+    updateStatus: (id, statusId, cancelReason) => window.API.Orders.updateStatus(id, statusId, cancelReason),
+    updatePaymentStatus: (id, isPaid) => window.API.Orders.updatePaymentStatus(id, isPaid),
+    updateShipping: (id, data) => Promise.resolve({})
   },
   Coupons: {
-    getAll: () => window.API.Coupons.getAll(),
+    getAll: (search = '', page = 1, pageSize = 10) =>
+      window.API.Coupons.getAll().then(res => {
+        const list = Array.isArray(res) ? res : res?.items || [];
+        const filtered = search ? list.filter(c => c.code?.toLowerCase().includes(search.toLowerCase())) : list;
+        const start = (page - 1) * pageSize;
+        return { items: filtered.slice(start, start + pageSize), totalCount: filtered.length, totalPages: Math.ceil(filtered.length / pageSize) || 1 };
+      }),
     create: (data) => window.API.Coupons.create(data),
     update: (id, data) => window.API.Coupons.update(id, data),
     delete: (id) => window.API.Coupons.delete(id)
   },
   Returns: {
-    getAllAdmin: () => window.API.Returns.getAllAdmin().then(res => ({
-      items: res,
-      totalCount: res.length,
-      totalPages: 1
-    })),
+    getAllAdmin: (search = '', page = 1, pageSize = 10) =>
+      window.API.Returns.getAllAdmin().then(res => {
+        const list = Array.isArray(res) ? res : res?.items || [];
+        const filtered = search
+          ? list.filter(r => (r.orderDetail?.product?.productName || '').toLowerCase().includes(search.toLowerCase()))
+          : list;
+        const start = (page - 1) * pageSize;
+        return { items: filtered.slice(start, start + pageSize), totalCount: filtered.length, totalPages: Math.ceil(filtered.length / pageSize) || 1 };
+      }),
     updateStatus: (id, data) => window.API.Returns.updateStatus(id, data)
   },
   Reviews: {
-    getAllAdmin: () => window.API.Reviews.getUserReviews().then(res => ({
-      items: res,
-      totalCount: res.length,
-      totalPages: 1
-    })),
+    getAllAdmin: (search = '', page = 1, pageSize = 10) =>
+      window.API.Reviews.getAllAdmin().then(res => {
+        const list = (Array.isArray(res) ? res : res?.items || []).map(r => ({
+          ...r,
+          user: r.user || { firstName: r.customerName || 'User', lastName: '' },
+          product: r.product || { productName: r.productName || 'Product' }
+        }));
+        const filtered = search
+          ? list.filter(r => (r.comment || '').toLowerCase().includes(search.toLowerCase()) || (r.product?.productName || '').toLowerCase().includes(search.toLowerCase()) || (r.user?.firstName || '').toLowerCase().includes(search.toLowerCase()))
+          : list;
+        const start = (page - 1) * pageSize;
+        return { items: filtered.slice(start, start + pageSize), totalCount: filtered.length, totalPages: Math.ceil(filtered.length / pageSize) || 1 };
+      }),
+    verifyToggle: (id) => window.API.Reviews.toggleVerify(id),
     delete: (id) => window.API.Reviews.delete(id)
   },
   Users: {
-    getAll: () => Promise.resolve({ items: [], totalCount: 0, totalPages: 1 }),
-    updateRole: (id, role) => Promise.resolve({}),
-    toggleActive: (id) => Promise.resolve({})
+    // Fetches users list from the API
+    getAll: (search = '', page = 1, pageSize = 10) => {
+      // Try to fetch from API — endpoint may require admin role
+      return fetch(`${window.location.origin}/api/account/users?search=${encodeURIComponent(search || '')}&page=${page}&pageSize=${pageSize}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('csps_token') || ''}`,
+          'Content-Type': 'application/json'
+        }
+      }).then(res => {
+        if (!res.ok) throw new Error('Unauthorized or not available');
+        return res.json();
+      }).then(normalizePaginated).catch(() => {
+        // Fallback: return empty list with a message logged
+        console.warn('AdminAPI.Users.getAll: /api/account/users endpoint not available. Returning empty list.');
+        return { items: [], totalCount: 0, totalPages: 1 };
+      });
+    },
+    updateRole: (id, role) =>
+      fetch(`${window.location.origin}/api/account/users/${id}/role`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('csps_token') || ''}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ role })
+      }).then(res => {
+        if (!res.ok) throw new Error('Failed to update role');
+        return res.json().catch(() => {});
+      }).catch(err => {
+        console.warn('AdminAPI.Users.updateRole:', err.message);
+        return {};
+      }),
+    toggleActive: (id) =>
+      fetch(`${window.location.origin}/api/account/users/${id}/toggle-active`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('csps_token') || ''}`,
+          'Content-Type': 'application/json'
+        }
+      }).then(res => {
+        if (!res.ok) throw new Error('Failed to toggle status');
+        return res.json().catch(() => {});
+      }).catch(err => {
+        console.warn('AdminAPI.Users.toggleActive:', err.message);
+        return {};
+      })
   }
 };

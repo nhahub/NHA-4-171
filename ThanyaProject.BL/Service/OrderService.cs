@@ -26,23 +26,80 @@ namespace CarSparePartSysProject.BL.Service
 
         private AppDbContext Context => _context ?? throw new InvalidOperationException("DbContext is not initialized.");
 
+        private OrderDto MapToDto(Order o)
+        {
+            var payment = o.Payments?.FirstOrDefault();
+            var statusName = o.Status?.StatusName ?? "Pending";
+            
+            var details = o.OrderDetails?.Select(od => new OrderItemDto
+            {
+                ProductId = od.ProductId,
+                ProductName = od.Product?.ProductName ?? "Product #" + od.ProductId,
+                ImageUrl = od.Product?.ImageUrl,
+                Quantity = od.Quantity,
+                UnitPrice = od.UnitPrice,
+                TotalPrice = od.LineTotal
+            }).ToList() ?? new List<OrderItemDto>();
+
+            var customer = o.Customer != null ? new CarSparePartSysProject.Models.Dto.Account.UserDto
+            {
+                UserId = o.Customer.Id,
+                FirstName = o.Customer.FirstName,
+                LastName = o.Customer.LastName,
+                Username = o.Customer.UserName ?? string.Empty,
+                Email = o.Customer.Email ?? string.Empty,
+                Phone = o.Customer.PhoneNumber
+            } : null;
+
+            var shipping = o.Shipping != null ? new CarSparePartSysProject.Models.Dto.Shipping.ShippingDto
+            {
+                ShippingId = o.Shipping.ShippingId,
+                OrderId = o.Shipping.OrderId,
+                Carrier = o.Shipping.Carrier,
+                TrackingNumber = o.Shipping.TrackingNumber,
+                ShippingCost = o.Shipping.ShippingCost,
+                Status = o.Shipping.Status,
+                EstimatedDeliveryDate = o.Shipping.EstimatedDeliveryDate,
+                ShippedAt = o.Shipping.ShippedAt,
+                DeliveredAt = o.Shipping.DeliveredAt
+            } : null;
+
+            return new OrderDto
+            {
+                OrderId = o.OrderId,
+                OrderNumber = o.OrderNumber,
+                OrderDate = o.OrderDate,
+                SubTotal = o.SubTotal,
+                TaxAmount = o.TaxAmount,
+                DiscountAmount = o.DiscountAmount,
+                TotalAmount = o.TotalAmount,
+                IsPaid = o.IsPaid,
+                Status = statusName,
+                StatusId = o.StatusId,
+                StatusName = statusName,
+                PaymentMethod = payment?.PaymentMethod?.MethodName ?? "Stripe",
+                Customer = customer,
+                OrderDetails = details,
+                Items = details,
+                Shipping = shipping,
+                CancelReason = o.CancelReason
+            };
+        }
+
         public async Task<IEnumerable<OrderDto>> GetAllAsync()
         {
             var orders = await Context.Orders
                 .Include(o => o.Status)
                 .Include(o => o.Payments)
                     .ThenInclude(p => p.PaymentMethod)
+                .Include(o => o.Customer)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                .Include(o => o.Shipping)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 
-            return orders.Select(o => new OrderDto
-            {
-                OrderId = o.OrderId,
-                OrderDate = o.OrderDate,
-                TotalAmount = o.TotalAmount,
-                Status = o.Status?.StatusName ?? "Pending",
-                PaymentMethod = o.Payments?.FirstOrDefault()?.PaymentMethod?.MethodName ?? "Stripe"
-            }).ToList();
+            return orders.Select(MapToDto).ToList();
         }
 
         public async Task<OrderDetailsDto?> GetByIdAsync(int id)
@@ -51,28 +108,33 @@ namespace CarSparePartSysProject.BL.Service
                 .Include(o => o.Status)
                 .Include(o => o.Payments)
                     .ThenInclude(p => p.PaymentMethod)
+                .Include(o => o.Customer)
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Product)
+                .Include(o => o.Shipping)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
 
             if (o == null) return null;
 
+            var dto = MapToDto(o);
             return new OrderDetailsDto
             {
-                OrderId = o.OrderId,
-                OrderDate = o.OrderDate,
-                TotalAmount = o.TotalAmount,
-                Status = o.Status?.StatusName ?? "Pending",
-                PaymentMethod = o.Payments?.FirstOrDefault()?.PaymentMethod?.MethodName ?? "Stripe",
-                Items = o.OrderDetails.Select(od => new OrderItemDto
-                {
-                    ProductId = od.ProductId,
-                    ProductName = od.Product?.ProductName ?? "Unknown Product",
-                    ImageUrl = od.Product?.ImageUrl,
-                    Quantity = od.Quantity,
-                    UnitPrice = od.UnitPrice,
-                    TotalPrice = od.LineTotal
-                }).ToList()
+                OrderId = dto.OrderId,
+                OrderNumber = dto.OrderNumber,
+                OrderDate = dto.OrderDate,
+                SubTotal = dto.SubTotal,
+                TaxAmount = dto.TaxAmount,
+                DiscountAmount = dto.DiscountAmount,
+                TotalAmount = dto.TotalAmount,
+                IsPaid = dto.IsPaid,
+                Status = dto.Status,
+                StatusId = dto.StatusId,
+                StatusName = dto.StatusName,
+                PaymentMethod = dto.PaymentMethod,
+                Customer = dto.Customer,
+                OrderDetails = dto.OrderDetails,
+                Items = dto.Items,
+                Shipping = dto.Shipping
             };
         }
 
@@ -82,18 +144,15 @@ namespace CarSparePartSysProject.BL.Service
                 .Include(o => o.Status)
                 .Include(o => o.Payments)
                     .ThenInclude(p => p.PaymentMethod)
+                .Include(o => o.Customer)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                .Include(o => o.Shipping)
                 .Where(o => o.CustomerId == userId)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 
-            return orders.Select(o => new OrderDto
-            {
-                OrderId = o.OrderId,
-                OrderDate = o.OrderDate,
-                TotalAmount = o.TotalAmount,
-                Status = o.Status?.StatusName ?? "Pending",
-                PaymentMethod = o.Payments?.FirstOrDefault()?.PaymentMethod?.MethodName ?? "Stripe"
-            }).ToList();
+            return orders.Select(MapToDto).ToList();
         }
 
         public async Task<OrderDto> CreateAsync(int userId, CreateOrderRequestDto dto)
@@ -151,7 +210,7 @@ namespace CarSparePartSysProject.BL.Service
                 TaxAmount = taxAmount,
                 DiscountAmount = discountAmount,
                 TotalAmount = totalAmount,
-                IsPaid = false,
+                IsPaid = (dto.PaymentMethodId == 1 || dto.PaymentMethodId == 2),
                 CustomerId = userId,
                 StatusId = 1, // Pending
                 ShippingAddressId = dto.AddressId,
@@ -182,14 +241,17 @@ namespace CarSparePartSysProject.BL.Service
             }
             await Context.SaveChangesAsync();
 
-            return new OrderDto
-            {
-                OrderId = order.OrderId,
-                OrderDate = order.OrderDate,
-                TotalAmount = order.TotalAmount,
-                Status = "Pending",
-                PaymentMethod = "Stripe"
-            };
+            var savedOrder = await Context.Orders
+                .Include(o => o.Status)
+                .Include(o => o.Payments)
+                    .ThenInclude(p => p.PaymentMethod)
+                .Include(o => o.Customer)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                .Include(o => o.Shipping)
+                .FirstOrDefaultAsync(o => o.OrderId == order.OrderId);
+
+            return MapToDto(savedOrder ?? order);
         }
 
         public async Task CancelAsync(int orderId)

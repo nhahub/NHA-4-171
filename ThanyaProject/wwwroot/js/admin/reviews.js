@@ -72,6 +72,9 @@ async function loadReviews() {
           <td>${verifiedBtn}</td>
           <td>${new Date(r.createdAt).toLocaleDateString()}</td>
           <td class="admin-table-actions">
+            <button class="btn btn--icon btn--ghost" onclick="openReviewDetails(${r.reviewId})" title="View Details">
+              ${UI.Icons.eye}
+            </button>
             <button class="btn btn--icon btn--ghost" onclick="deleteReview(${r.reviewId})" title="Delete Inappropriate Review">
               ${UI.Icons.trash}
             </button>
@@ -135,4 +138,53 @@ window.deleteReview = function(id) {
     UI.showToast('Review permanently deleted.', 'success');
     loadReviews();
   });
+};
+
+window.openReviewDetails = async function(id) {
+  try {
+    const res = await AdminAPI.Reviews.getAllAdmin('', 1, 100);
+    const review = res?.items.find(x => x.reviewId === id);
+    if (!review) throw new Error('Review not found');
+
+    const verifiedText = review.isVerified ? 'Verified Purchase' : 'Not Verified';
+    const verifiedClass = review.isVerified ? 'text--success' : 'text--muted';
+
+    UI.openModal({
+      title: `Review Details #${review.reviewId}`,
+      content: `
+        <div style="display:flex; flex-direction:column; gap:var(--space-3); line-height:var(--lh-relaxed)">
+          <div>
+            <span style="font-weight:bold; color:var(--text-secondary)">Customer:</span>
+            <span>${review.user?.firstName || 'User'} ${review.user?.lastName || ''}</span>
+          </div>
+          <div>
+            <span style="font-weight:bold; color:var(--text-secondary)">Product:</span>
+            <span>${review.product?.productName || 'Product'}</span>
+          </div>
+          <div>
+            <span style="font-weight:bold; color:var(--text-secondary)">Rating:</span>
+            <span>${UI.renderStars(review.rating)}</span>
+          </div>
+          <div>
+            <span style="font-weight:bold; color:var(--text-secondary)">Status:</span>
+            <span class="${verifiedClass}" style="font-weight:600">${verifiedText}</span>
+          </div>
+          <div>
+            <span style="font-weight:bold; color:var(--text-secondary)">Date Posted:</span>
+            <span>${new Date(review.createdAt).toLocaleString()}</span>
+          </div>
+          <div style="border-top: 1px solid var(--border-color); padding-top:var(--space-3); margin-top:var(--space-2)">
+            <span style="font-weight:bold; color:var(--text-secondary); display:block; margin-bottom:var(--space-1)">Comment:</span>
+            <p style="background:var(--bg-secondary); padding:var(--space-3); border-radius:var(--radius-md); white-space:pre-wrap; border:1px solid var(--border-color); color:var(--text-primary); margin:0;">${review.comment || '—'}</p>
+          </div>
+        </div>
+      `,
+      footer: `
+        <button class="btn btn--secondary" onclick="UI.closeModal()">Close</button>
+        <button class="btn btn--danger" onclick="UI.closeModal(); deleteReview(${review.reviewId})">Delete Review</button>
+      `
+    });
+  } catch (err) {
+    UI.showToast('Failed to load review details.', 'error');
+  }
 };

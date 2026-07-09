@@ -41,6 +41,7 @@ namespace CarSparePartSysProject.Controllers
                 .Include(p => p.Supplier)
                 .Include(p => p.PartCompatibilities)
                 .Include(p => p.Inventories)
+                .Include(p => p.Reviews)
                 .AsNoTracking();
 
             // Filters
@@ -135,7 +136,9 @@ namespace CarSparePartSysProject.Controllers
                     QuantityInStock = i.QuantityInStock,
                     ReorderLevel = i.ReorderLevel,
                     LastRestocked = i.LastUpdated
-                }).ToList()
+                }).ToList(),
+                AverageRating = p.Reviews.Any(r => r.IsVerified) ? Math.Round(p.Reviews.Where(r => r.IsVerified).Average(r => (double)r.Rating), 1) : 0.0,
+                ReviewsCount = p.Reviews.Count(r => r.IsVerified)
             }).ToList();
 
             int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
@@ -157,6 +160,7 @@ namespace CarSparePartSysProject.Controllers
                 .Include(p => p.Category)
                 .Include(p => p.Supplier)
                 .Include(p => p.Inventories)
+                .Include(p => p.Reviews)
                 .Where(p => 
                     p.ProductName.ToLower().Contains(s) || 
                     (p.Description != null && p.Description.ToLower().Contains(s)) ||
@@ -187,7 +191,9 @@ namespace CarSparePartSysProject.Controllers
                     QuantityInStock = i.QuantityInStock,
                     ReorderLevel = i.ReorderLevel,
                     LastRestocked = i.LastUpdated
-                }).ToList()
+                }).ToList(),
+                AverageRating = p.Reviews.Any(r => r.IsVerified) ? Math.Round(p.Reviews.Where(r => r.IsVerified).Average(r => (double)r.Rating), 1) : 0.0,
+                ReviewsCount = p.Reviews.Count(r => r.IsVerified)
             }));
         }
 
@@ -198,6 +204,7 @@ namespace CarSparePartSysProject.Controllers
                 .Include(p => p.Category)
                 .Include(p => p.Supplier)
                 .Include(p => p.Inventories)
+                .Include(p => p.Reviews)
                 .Where(p => p.IsActive)
                 .Take(8)
                 .ToListAsync();
@@ -221,7 +228,9 @@ namespace CarSparePartSysProject.Controllers
                     QuantityInStock = i.QuantityInStock,
                     ReorderLevel = i.ReorderLevel,
                     LastRestocked = i.LastUpdated
-                }).ToList()
+                }).ToList(),
+                AverageRating = p.Reviews.Any(r => r.IsVerified) ? Math.Round(p.Reviews.Where(r => r.IsVerified).Average(r => (double)r.Rating), 1) : 0.0,
+                ReviewsCount = p.Reviews.Count(r => r.IsVerified)
             }));
         }
 
@@ -232,6 +241,7 @@ namespace CarSparePartSysProject.Controllers
                 .Include(p => p.Category)
                 .Include(p => p.Supplier)
                 .Include(p => p.Inventories)
+                .Include(p => p.Reviews)
                 .FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product == null)
@@ -258,7 +268,9 @@ namespace CarSparePartSysProject.Controllers
                     QuantityInStock = i.QuantityInStock,
                     ReorderLevel = i.ReorderLevel,
                     LastRestocked = i.LastUpdated
-                }).ToList()
+                }).ToList(),
+                AverageRating = product.Reviews.Any(r => r.IsVerified) ? Math.Round(product.Reviews.Where(r => r.IsVerified).Average(r => (double)r.Rating), 1) : 0.0,
+                ReviewsCount = product.Reviews.Count(r => r.IsVerified)
             };
 
             return Ok(dto);
@@ -271,6 +283,7 @@ namespace CarSparePartSysProject.Controllers
                 .Include(p => p.Category)
                 .Include(p => p.Supplier)
                 .Include(p => p.Inventories)
+                .Include(p => p.Reviews)
                 .Where(p => p.CategoryId == categoryId)
                 .ToListAsync();
 
@@ -293,7 +306,9 @@ namespace CarSparePartSysProject.Controllers
                     QuantityInStock = i.QuantityInStock,
                     ReorderLevel = i.ReorderLevel,
                     LastRestocked = i.LastUpdated
-                }).ToList()
+                }).ToList(),
+                AverageRating = p.Reviews.Any(r => r.IsVerified) ? Math.Round(p.Reviews.Where(r => r.IsVerified).Average(r => (double)r.Rating), 1) : 0.0,
+                ReviewsCount = p.Reviews.Count(r => r.IsVerified)
             }));
         }
 

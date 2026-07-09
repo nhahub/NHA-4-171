@@ -38,6 +38,15 @@ async function loadCart() {
       return;
     }
 
+    const storedCoupon = sessionStorage.getItem('applied_coupon');
+    if (storedCoupon) {
+      try {
+        appliedCoupon = JSON.parse(storedCoupon);
+      } catch (e) {
+        appliedCoupon = null;
+      }
+    }
+
     renderCart();
   } catch (err) {
     UI.renderEmptyState(content, 'cart');
@@ -150,10 +159,12 @@ async function applyCoupon() {
   try {
     const coupon = await API.Coupons.validate(code);
     appliedCoupon = coupon;
+    sessionStorage.setItem('applied_coupon', JSON.stringify(coupon));
     UI.showToast(`Coupon "${code}" applied!`, 'success');
     renderCart();
   } catch (err) {
     appliedCoupon = null;
+    sessionStorage.removeItem('applied_coupon');
     UI.showToast(err.message || 'Invalid or expired coupon.', 'error');
     renderCart();
   }

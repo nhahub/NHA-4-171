@@ -105,5 +105,51 @@ namespace CarSparePartSysProject.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [Authorize(Policy = "RequireAdmin")]
+        [HttpGet("users")]
+        public async Task<ActionResult> GetAllUsers([FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var result = await _accountService.GetAllUsersAsync(search, page, pageSize);
+            return Ok(new { items = result.Items, totalCount = result.TotalCount, totalPages = result.TotalPages });
+        }
+
+        [Authorize(Policy = "RequireAdmin")]
+        [HttpPut("users/{id}/role")]
+        public async Task<IActionResult> UpdateUserRole(int id, [FromBody] RoleUpdateRequestDto dto)
+        {
+            try
+            {
+                await _accountService.UpdateUserRoleAsync(id, dto.Role);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize(Policy = "RequireAdmin")]
+        [HttpPut("users/{id}/toggle-active")]
+        public async Task<IActionResult> ToggleUserActive(int id)
+        {
+            try
+            {
+                await _accountService.ToggleUserActiveAsync(id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

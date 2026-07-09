@@ -79,5 +79,43 @@ namespace CarSparePartSysProject.Controllers
                 return NotFound();
             }
         }
+
+        [HttpPost("validate")]
+        public async Task<ActionResult<CouponDto>> Validate([FromBody] ValidateCouponRequestDto dto)
+        {
+            var coupon = await _couponService.GetByCodeAsync(dto.Code);
+            if (coupon == null)
+            {
+                return BadRequest(new { message = "Invalid coupon code." });
+            }
+
+            if (!coupon.IsActive)
+            {
+                return BadRequest(new { message = "This coupon is currently inactive." });
+            }
+
+            if (coupon.StartDate > DateTime.UtcNow)
+            {
+                return BadRequest(new { message = "This coupon has not started yet." });
+            }
+
+            if (coupon.EndDate < DateTime.UtcNow)
+            {
+                return BadRequest(new { message = "This coupon has expired." });
+            }
+
+            if (coupon.UsageLimit.HasValue && coupon.UsedCount >= coupon.UsageLimit.Value)
+            {
+                return BadRequest(new { message = "This coupon has reached its usage limit." });
+            }
+
+            return Ok(coupon);
+        }
+    }
+
+    public class ValidateCouponRequestDto
+    {
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Code { get; set; } = string.Empty;
     }
 }

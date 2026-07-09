@@ -51,8 +51,17 @@ async function loadUsers() {
     const totalPages = res?.totalPages || 1;
 
     if (items.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="9" class="text--center text--muted" style="padding:var(--space-8)">No users found.</td></tr>`;
-      document.getElementById('users-pagination').innerHTML = '';
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="9" class="text--center" style="padding:var(--space-8)">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:var(--space-3)">
+              <span style="font-size:2rem">👥</span>
+              <p class="text--muted">${filterState.search ? 'No users match your search.' : 'No users found. The Users API endpoint may not be implemented yet.'}</p>
+            </div>
+          </td>
+        </tr>`;
+      const pag = document.getElementById('users-pagination');
+      if (pag) pag.innerHTML = '';
       return;
     }
 
@@ -67,11 +76,11 @@ async function loadUsers() {
       return `
         <tr>
           <td>${u.userId}</td>
-          <td><strong>${u.firstName} ${u.lastName}</strong></td>
-          <td><code>${u.username}</code></td>
-          <td>${u.email}</td>
+          <td><strong>${u.firstName || ''} ${u.lastName || ''}</strong></td>
+          <td><code>${u.username || '—'}</code></td>
+          <td>${u.email || '—'}</td>
           <td>${u.phone || '—'}</td>
-          <td>${new Date(u.createdAt).toLocaleDateString()}</td>
+          <td>${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td>
           <td>
             <select class="form-select" style="padding:4px 8px; height:32px; font-size:12px; min-width:110px;" onchange="changeUserRole(${u.userId}, this.value)">
               <option value="Customer" ${u.role === 'Customer' ? 'selected' : ''}>Customer</option>
@@ -90,7 +99,7 @@ async function loadUsers() {
 
     renderPagination(totalPages);
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="9" class="text--center text--danger" style="padding:var(--space-8)">Failed to load users directory.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" class="text--center text--danger" style="padding:var(--space-8)">Failed to load users directory. ${err?.message || ''}</td></tr>`;
   }
 }
 

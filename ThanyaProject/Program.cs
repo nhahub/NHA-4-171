@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(int.Parse(Environment.GetEnvironmentVariable("PORT") ?? "8080"));
+    options.ListenAnyIP(int.Parse(Environment.GetEnvironmentVariable("PORT") ?? "8085"));
 });
 
 // Service registrations

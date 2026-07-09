@@ -104,13 +104,13 @@ function renderProductDetail(product) {
     <!-- Gallery -->
     <div class="gallery">
       <div class="gallery__main">
-        <img src="${mainImage || placeholderImg}" alt="${product.productName}" class="gallery__main-image" id="main-image" />
+        <img src="${mainImage || placeholderImg}" alt="${product.productName}" class="gallery__main-image" id="main-image" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%231C2333%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%236B7685%22 font-size=%2214%22%3ENo Image%3C/text%3E%3C/svg%3E';" />
       </div>
       ${sortedImages.length > 1 ? `
       <div class="gallery__thumbs">
         ${sortedImages.map((img, i) => `
           <button class="gallery__thumb ${i === 0 ? 'is-active' : ''}" data-image-url="${img.imageUrl}" onclick="switchImage(this)">
-            <img src="${img.imageUrl}" alt="Thumbnail ${i + 1}" />
+            <img src="${img.imageUrl}" alt="Thumbnail ${i + 1}" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%231C2333%22 width=%22400%22 height=%22300%22/%3E%3C/svg%3E';" />
           </button>
         `).join('')}
       </div>` : ''}
@@ -323,7 +323,7 @@ async function submitReview(event, productId) {
   try {
     await API.Reviews.create(productId, { rating, comment });
     UI.showToast('Review submitted successfully!', 'success');
-    loadReviews(productId);
+    loadProduct(productId);
   } catch (err) {
     UI.handleApiError(err);
   }

@@ -138,5 +138,16 @@ namespace CarSparePartSysProject.BL.Service
                 await _addressRepository.SaveAsync();
             }
         }
+
+        public async Task SetDefaultAsync(int id, int userId)
+        {
+            var addresses = await _addressRepository.GetAddressesByUserIdAsync(userId);
+            foreach (var addr in addresses)
+            {
+                addr.IsDefault = (addr.AddressId == id);
+                _addressRepository.Update(addr);
+            }
+            await _addressRepository.SaveAsync();
+        }
     }
 }

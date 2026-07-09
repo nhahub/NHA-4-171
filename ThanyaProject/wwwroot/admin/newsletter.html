@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Newsletter Subscriptions — AutoParts Admin</title>
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✉️</text></svg>" />
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <aside id="admin-sidebar" class="admin-sidebar"></aside>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1 class="admin-header__title">Newsletter Subscriptions</h1>
+      </div>
+
+      <!-- Search Toolbar -->
+      <div class="card" style="margin-bottom:var(--space-5); padding:var(--space-4)">
+        <div style="display:flex; gap:var(--space-4); align-items:center;">
+          <div class="form-group" style="flex:1">
+            <input type="text" class="form-input" id="newsletter-search-input" placeholder="Search by email address..." />
+          </div>
+          <button class="btn btn--secondary" onclick="resetFilters()">Reset</button>
+        </div>
+      </div>
+
+      <!-- Data Table -->
+      <div class="card" style="flex:1; display:flex; flex-direction:column">
+        <div class="table-responsive" style="flex:1">
+          <table class="data-table data-table--dense">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Email Address</th>
+                <th>Subscribed Date</th>
+                <th>Contacted</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="newsletter-list">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="newsletter-pagination"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/cart.js"></script>
+  <script src="/js/admin-api.js"></script>
+  <script src="/js/admin/admin-common.js"></script>
+  <script src="/js/admin/newsletter.js"></script>
+</body>
+</html>

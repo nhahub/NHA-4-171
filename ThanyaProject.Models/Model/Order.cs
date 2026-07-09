@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace CarSparePartSys.Model
 {
@@ -32,9 +32,10 @@ namespace CarSparePartSys.Model
         public Shipping? Shipping { get; set; }
         public Invoice? Invoice { get; set; }
 
+        public string? CancelReason { get; set; }
+
         public ICollection<Payment> Payments { get; set; } = new List<Payment>();
         public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
-
     }
 }
 

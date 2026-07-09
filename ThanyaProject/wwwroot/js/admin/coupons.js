@@ -59,8 +59,9 @@ async function loadCoupons() {
     }
 
     tbody.innerHTML = items.map(c => {
-      const typeText = c.discountType === 0 ? 'Percentage' : 'Fixed Amount';
-      const valText = c.discountType === 0 ? `${c.discountValue}%` : formatPrice(c.discountValue);
+      const isPercentage = c.discountType === 'Percentage' || c.discountType === 0 || c.discountType === '0';
+      const typeText = isPercentage ? 'Percentage' : 'Fixed Amount';
+      const valText = isPercentage ? `${c.discountValue}%` : formatPrice(c.discountValue);
       const minText = c.minOrderAmount ? formatPrice(c.minOrderAmount) : 'None';
       const validity = `${new Date(c.startDate).toLocaleDateString()} – ${new Date(c.endDate).toLocaleDateString()}`;
       const usedStats = `${c.usedCount} used ${c.usageLimit ? '/ ' + c.usageLimit + ' max' : '(unlimited)'}`;
@@ -149,7 +150,6 @@ window.saveCoupon = async function() {
   const data = Object.fromEntries(fd.entries());
 
   data.code = data.code.toUpperCase();
-  data.discountType = parseInt(data.discountType, 10);
   data.discountValue = parseFloat(data.discountValue);
   data.minOrderAmount = data.minOrderAmount ? parseFloat(data.minOrderAmount) : null;
   data.maxDiscountAmount = data.maxDiscountAmount ? parseFloat(data.maxDiscountAmount) : null;

@@ -19,5 +19,7 @@ namespace CarSparePartSysProject.Models.Dto.Orders
         public decimal UnitPrice { get; set; }
 
         public decimal TotalPrice { get; set; }
+
+        public decimal LineTotal => TotalPrice;
     }
 }

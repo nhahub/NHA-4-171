@@ -12,6 +12,8 @@ namespace CarSparePartSysProject.BL.Service
 {
     public class CartService : ICartService
     {
+        private static readonly System.Threading.SemaphoreSlim _cartLock = new(1, 1);
+
         private readonly ICartRepository _cartRepository;
         private readonly IRepository<CartItem> _cartItemRepository;
         private readonly IRepository<Product> _productRepository;
@@ -31,9 +33,21 @@ namespace CarSparePartSysProject.BL.Service
             var cart = await _cartRepository.GetCartByUserIdAsync(userId);
             if (cart == null)
             {
-                cart = new Cart { UserId = userId, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow };
-                await _cartRepository.AddAsync(cart);
-                await _cartRepository.SaveAsync();
+                await _cartLock.WaitAsync();
+                try
+                {
+                    cart = await _cartRepository.GetCartByUserIdAsync(userId);
+                    if (cart == null)
+                    {
+                        cart = new Cart { UserId = userId, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow };
+                        await _cartRepository.AddAsync(cart);
+                        await _cartRepository.SaveAsync();
+                    }
+                }
+                finally
+                {
+                    _cartLock.Release();
+                }
             }
 
             var cartItemDtos = cart.CartItems.Select(ci => new CartItemDto
@@ -66,9 +80,21 @@ namespace CarSparePartSysProject.BL.Service
             var cart = await _cartRepository.GetCartByUserIdAsync(userId);
             if (cart == null)
             {
-                cart = new Cart { UserId = userId, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow };
-                await _cartRepository.AddAsync(cart);
-                await _cartRepository.SaveAsync();
+                await _cartLock.WaitAsync();
+                try
+                {
+                    cart = await _cartRepository.GetCartByUserIdAsync(userId);
+                    if (cart == null)
+                    {
+                        cart = new Cart { UserId = userId, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow };
+                        await _cartRepository.AddAsync(cart);
+                        await _cartRepository.SaveAsync();
+                    }
+                }
+                finally
+                {
+                    _cartLock.Release();
+                }
             }
 
             var cartItem = cart.CartItems.FirstOrDefault(ci => ci.ProductId == dto.ProductId);

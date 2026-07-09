@@ -76,6 +76,30 @@ namespace CarSparePartSysProject.Controllers
             }
         }
 
+        [HttpPut("{id:int}/default")]
+        public async Task<IActionResult> SetDefault(int id)
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized();
+            }
+
+            var address = await _addressService.GetByIdAsync(id);
+            if (address == null)
+            {
+                return NotFound();
+            }
+
+            if (address.UserId != userId)
+            {
+                return Forbid();
+            }
+
+            await _addressService.SetDefaultAsync(id, userId);
+            return NoContent();
+        }
+
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {

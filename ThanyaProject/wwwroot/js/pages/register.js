@@ -31,8 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      if (data.password.length < 6) {
-        UI.showToast('Password must be at least 6 characters.', 'warning');
+      if (data.password.length < 8) {
+        UI.showToast('Password must be at least 8 characters.', 'warning');
         return;
       }
 
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await API.Auth.register(data);
 
         // If the backend returns a token directly, log in
-        if (response?.token) {
+        if (response?.accessToken || response?.AccessToken || response?.token || response?.Token || response?.access_token) {
           Auth.handleLoginSuccess(response);
         } else {
           UI.showToast('Account created successfully! Please log in.', 'success');

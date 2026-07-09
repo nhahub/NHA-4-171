@@ -67,10 +67,6 @@ function setupAdminSidebar() {
         <span style="width:18px;height:18px">${UI.Icons.tag}</span>
         Coupons
       </a>
-      <a href="/admin/returns.html" class="admin-sidebar__link ${getActive('returns.html')}">
-        <span style="width:18px;height:18px">${UI.Icons.returnIcon}</span>
-        Returns Queue
-      </a>
 
       <div class="admin-sidebar__section-title">Operations</div>
       <a href="/admin/inventory.html" class="admin-sidebar__link ${getActive('inventory.html')}">
@@ -80,6 +76,10 @@ function setupAdminSidebar() {
       <a href="/admin/reviews.html" class="admin-sidebar__link ${getActive('reviews.html')}">
         <span style="width:18px;height:18px">${UI.Icons.star}</span>
         Moderation
+      </a>
+      <a href="/admin/newsletter.html" class="admin-sidebar__link ${getActive('newsletter.html')}">
+        <span style="width:18px;height:18px">${UI.Icons.mail}</span>
+        Newsletter
       </a>
       <a href="/admin/users.html" class="admin-sidebar__link ${getActive('users.html')}">
         <span style="width:18px;height:18px">${UI.Icons.users}</span>
