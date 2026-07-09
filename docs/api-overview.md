@@ -20,8 +20,9 @@ Authorization: Bearer <your_jwt_token_here>
 ### A. Authentication & Accounts (`api/auth` or `api/account`)
 
 #### 1. Register User
-- **Method**: `POST`
-- **Path**: `/api/auth/register`
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| POST | `/api/auth/register` | Register User |
 - **Request Body (JSON)**:
   ```json
   {
@@ -43,8 +44,9 @@ Authorization: Bearer <your_jwt_token_here>
   ```
 
 #### 2. User Login
-- **Method**: `POST`
-- **Path**: `/api/auth/login`
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| POST | `/api/auth/login` | User Login |
 - **Request Body (JSON)**:
   ```json
   {
@@ -55,8 +57,9 @@ Authorization: Bearer <your_jwt_token_here>
 - **Response (JSON)**: Matches Register Response structure.
 
 #### 3. Log Out
-- **Method**: `POST`
-- **Path**: `/api/auth/logout`
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| POST | `/api/auth/logout` | Log Out |
 - **Headers**: JWT token required.
 - **Response**: `240 NoContent` status code on success.
 
@@ -65,8 +68,9 @@ Authorization: Bearer <your_jwt_token_here>
 ### B. Products Catalog (`api/products`)
 
 #### 1. Query Products
-- **Method**: `GET`
-- **Path**: `/api/products`
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| GET | `/api/products` | Query Products |
 - **Query Parameters**:
   - `categoryId` (int, optional)
   - `brandId` (int, optional) - Filters by compatible car brand
@@ -99,8 +103,9 @@ Authorization: Bearer <your_jwt_token_here>
 ### C. Vehicle Compatibility (`api/compatibility`)
 
 #### 1. List Compatibility Logs
-- **Method**: `GET`
-- **Path**: `/api/compatibility`
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| GET | `/api/compatibility` | List Compatibility Logs |
 - **Response (JSON)**:
   ```json
   [
@@ -114,8 +119,9 @@ Authorization: Bearer <your_jwt_token_here>
   ```
 
 #### 2. Create Compatibility Mapping
-- **Method**: `POST`
-- **Path**: `/api/compatibility`
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| POST | `/api/compatibility` | Create Compatibility Mapping |
 - **Headers**: JWT Admin privileges required.
 - **Request Body (JSON)**:
   ```json
@@ -132,8 +138,9 @@ Authorization: Bearer <your_jwt_token_here>
 ### D. Payments & Stripe Checkout (`api/stripe`)
 
 #### 1. Generate Checkout Session
-- **Method**: `POST`
-- **Path**: `/api/stripe/checkout-session/{orderId}`
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| POST | `/api/stripe/checkout-session/{orderId}` | Generate Checkout Session |
 - **Query Parameters**:
   - `successUrl` (string, required) - Redirect url on successful checkout
   - `cancelUrl` (string, required) - Redirect url on cancelled checkout
@@ -145,8 +152,9 @@ Authorization: Bearer <your_jwt_token_here>
   ```
 
 #### 2. Stripe Webhook Handler
-- **Method**: `POST`
-- **Path**: `/api/stripe/webhook`
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| POST | `/api/stripe/webhook` | Stripe Webhook Handler |
 - **Headers**: Requires `Stripe-Signature` header.
 - **Request Body**: Raw JSON string from Stripe platform.
 - **Response**: `200 OK` on successful handling.

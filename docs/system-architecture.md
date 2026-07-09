@@ -6,16 +6,12 @@ carSparePartSys Car Spare Part System is designed around Clean Architecture and 
 
 The solution is divided into four main layers:
 
-```
-┌────────────────────────────────────────────────────────┐
-│               carSparePartSysProject (API/UI)                   │
-├────────────────────────────────────────────────────────┤
-│             carSparePartSysProject.BL (Business Logic)          │
-├────────────────────────────────────────────────────────┤
-│             carSparePartSysProject.DAL (Data Access)            │
-├────────────────────────────────────────────────────────┤
-│             carSparePartSysProject.Models (Entities & DTOs)     │
-└────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    API["carSparePartSysProject (API/UI)"] --> BL["carSparePartSysProject.BL (Business Logic)"]
+    BL --> DAL["carSparePartSysProject.DAL (Data Access)"]
+    BL --> Models["carSparePartSysProject.Models (Entities & DTOs)"]
+    DAL --> Models
 ```
 
 ### 1. Presentation & API Layer (`carSparePartSysProject`)

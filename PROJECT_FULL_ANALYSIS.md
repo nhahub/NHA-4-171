@@ -5,26 +5,27 @@
 ## 1. Executive Summary
 
 ### What is this project?
-The carSparePartSys Car Spare Part System is an enterprise e-commerce platform and inventory system specifically designed for the automotive spare parts industry. The system provides a headless REST API backend built in ASP.NET Core 9.0, connected to a Microsoft SQL Server database, and combined with an interactive, lightweight customer and administrator frontend in vanilla CSS and JavaScript.
+The **carSparePartSys Car Spare Part System** is an enterprise-grade e-commerce platform and inventory management system designed specifically for the automotive spare parts industry. The system features a headless REST API backend built in **ASP.NET Core 9.0** and connected to a **Microsoft SQL Server 2022** database, paired with an interactive, lightweight customer and administrator frontend built in vanilla HTML5, CSS3, and JavaScript.
 
 ### What does it solve?
-Automotive retail is highly complex due to strict vehicle-to-part compatibility. A simple oil filter or brake rotor might fit a 2015 Toyota Corolla 1.8L but fail to fit a 2015 Toyota Corolla 2.0L. Standard retail catalogs do not support these relational constraints, resulting in high order return rates, lost shipping costs, and customer frustration. carSparePartSys solves this by providing:
-- Relational vehicle compatibility filtering (by brand, model, and year range) directly at the database and API levels.
-- Real-time inventory tracking across multiple regional warehouses.
-- Automated order processing and secure billing via Stripe checkout.
+Automotive retail is uniquely complex due to strict vehicle-to-part compatibility constraints. Standard e-commerce setups treat catalogs as flat entities, which leads to high return rates when customers accidentally purchase incompatible parts. carSparePartSys resolves this problem by implementing:
+- **Relational Vehicle Compatibility Filtering**: Links catalog parts directly to specific car brands, models, and year ranges at the database schema level.
+- **Multi-Warehouse Stock Tracking**: Manages physical inventory across multiple regional warehouses with automated reorder levels.
+- **Stripe Payment Gateway Integration**: Handles secure card checkouts, webhook listening, and automated invoice printing.
 
 ### Who are the users?
-1. **Customers & Auto Repair Shops**: Browse and verify compatible parts, manage carts and wishlists, and pay securely online.
-2. **Logistics Operators**: Track inventory, manage warehouses, and adjust stock counts.
-3. **Suppliers**: Manage supplied items and view generated invoices.
-4. **Administrators**: Control users, manage compatibility rules, track orders, and process returns.
+1. **Customers & Auto Repair Shops**: Browse compatible parts by entering their car's make, model, and year, manage shopping carts and wishlists, and purchase parts securely.
+2. **Logistics Operators**: Track inventory counts, manage warehouses, and adjust stock counts.
+3. **Suppliers**: Manage supplied items and view generated supply invoices.
+4. **Administrators**: Control users, manage compatibility rules, track orders, and process return requests.
 
 ### Business Value
-- **Reduces Returns**: Preventing purchase mistakes reduces return shipping overhead.
+- **Reduces Returns**: Preventing purchase mistakes reduces return shipping overhead and improves customer satisfaction.
 - **Improves Inventory Management**: Real-time stock counts across warehouses prevent over-stocking and out-of-stock situations.
-- **Automates Operations**: Automated checkouts and invoice generation reduce manual administrative tasks.
+- **Automates Operations**: Automated checkout pipelines and invoice generation reduce manual administrative overhead.
 
 ---
+
 
 ## 2. Project Story
 
@@ -39,38 +40,40 @@ This design makes it easy for developers to add features (such as Redis caching 
 
 ---
 
+
 ## 3. Real World Scenario
 
 1. A mechanic at a garage needs a front pair of sport brake rotors for a **BMW 3-Series (F30)**.
-2. The mechanic opens the carSparePartSys system and selects: Brand: BMW, Model: 3 Series (F30), Year: 2015.
-3. The compatibility engine queries the PartCompatibilities table and shows the compatible product: Brembo Sport Brake Rotor (Front Pair), SKU BR-BREMBO-F20, along with the note: "Requires M-Sport braking kit."
+2. The mechanic opens the carSparePartSys system and selects: Brand: **BMW**, Model: **3 Series (F30)**, Year: **2015**.
+3. The compatibility engine queries the `PartCompatibilities` table and shows the compatible product: **Brembo Sport Brake Rotor (Front Pair)**, SKU `BR-BREMBO-F20`, along with the note: *"Requires M-Sport braking kit."*
 4. The mechanic adds the item to the cart, enters shipping details, and selects credit card checkout.
 5. The system validates stock availability, creates a Stripe Checkout session, and redirects the client to Stripe for secure payment.
-6. On payment completion, Stripe triggers the backend webhook. The database updates the order status to Processing, reduces the warehouse inventory count by 2, and generates an invoice.
+6. On payment completion, Stripe triggers the backend webhook. The database updates the order status to `Processing`, reduces the warehouse inventory count by 2, and generates an invoice.
 7. The warehouse team receives the order, picks the parts, and ships them to the garage.
 
 ---
 
+
 ## 4. Functional Requirements
 
-### 1. Compatibility Checker
+### 1. Vehicle Compatibility Checker
 - **Purpose**: Restricts search results to parts that fit the customer's vehicle.
-- **How it Works**: Connects the product catalog to vehicle brands and models via PartCompatibility links.
+- **How it Works**: Connects the product catalog to vehicle brands and models via `PartCompatibility` links.
 - **Benefit**: Prevents purchasing errors by verifying compatibility before checkout.
 
 ### 2. Multi-Warehouse Inventory Management
 - **Purpose**: Tracks inventory counts across different regional warehouses.
-- **How it Works**: The Inventories table maps products to warehouses and records all stock adjustments in the StockTransactions table.
+- **How it Works**: The `Inventories` table maps products to warehouses and records all stock adjustments in the `StockTransactions` table.
 - **Benefit**: Helps logistics teams monitor physical stock locations and set reorder alerts.
 
 ### 3. Cart & Wishlist Synchronization
 - **Purpose**: Persists customer carts across sessions and devices.
-- **How it Works**: Guest carts are stored locally in the browser. When the user logs in, the client syncs these items with the database's Carts table.
+- **How it Works**: Guest carts are stored locally in the browser. When the user logs in, the client syncs these items with the database's `Carts` table.
 - **Benefit**: Improves conversion rates by preventing cart abandonment.
 
 ### 4. Stripe Online Payments
 - **Purpose**: Securely processes online payments.
-- **How it Works**: Connects to the Stripe SDK to generate checkout pages and handles webhook events (checkout.session.completed) to confirm payment status.
+- **How it Works**: Connects to the Stripe SDK to generate checkout pages and handles webhook events (`checkout.session.completed`) to confirm payment status.
 - **Benefit**: Offloads payment card handling to Stripe to maintain PCI compliance.
 
 ### 5. Return Request Pipeline
@@ -80,33 +83,35 @@ This design makes it easy for developers to add features (such as Redis caching 
 
 ### 6. Newsletter Subscription
 - **Purpose**: Allows visitors to sign up for promotional mailings.
-- **How it Works**: Stores email registrations in the NewsletterSubscriptions table.
+- **How it Works**: Stores email registrations in the `NewsletterSubscriptions` table.
 - **Benefit**: Helps build a marketing audience and keeps customers updated on promotions.
 
 ---
 
-## 5. Non-Functional Requirements
+
+## 5. Non Functional Requirements
 
 ### Performance
-- **Asynchronous Execution**: Uses async database queries (ToListAsync, SaveChangesAsync) to prevent thread exhaustion under heavy loads.
+- **Asynchronous Execution**: Uses async database queries (`ToListAsync`, `SaveChangesAsync`) to prevent thread exhaustion under heavy loads.
 - **Database Pagination**: Large search results are paginated on the database server to minimize memory overhead.
-- **AsNoTracking**: Used on read-only queries to speed up database response times.
+- **AsNoTracking**: Used on read-only queries to speed up database response times and avoid unnecessary EF entity tracking.
 
 ### Security
 - **Identity Framework**: Uses ASP.NET Core Identity for secure account management.
 - **Password Security**: Uses PBKDF2 hashing for password storage.
-- **JWT Protection**: Tokens are signed using HMAC-SHA256.
-- **Input Sanitization**: Validates payloads on controllers and DTOs to protect against SQL Injection and Cross-Site Scripting (XSS).
+- **JWT Protection**: Tokens are signed using HMAC-SHA256 and validate issuer, audience, and lifetime claims.
+- **Input Sanitization & Validation**: Validates payloads on controllers and DTOs to protect against SQL Injection and Cross-Site Scripting (XSS).
 
 ### Reliability & Availability
 - **Transactional Integrity**: Uses database transactions to ensure orders are only created if stock is successfully allocated.
-- **Global Error Handling**: Middleware captures unhandled exceptions to prevent system crashes and log error details.
+- **Global Error Handling**: Custom `ExceptionMiddleware` captures unhandled exceptions to prevent system crashes, log error details, and return unified JSON errors.
 
 ### Maintainability
 - **Decoupled Design**: Layers are separated using Clean Architecture principles, making it easy to swap database engines or UI frameworks.
 - **Dependency Injection**: Registered dependencies are resolved automatically at runtime.
 
 ---
+
 
 ## 6. Technology Stack
 
@@ -122,90 +127,102 @@ This design makes it easy for developers to add features (such as Redis caching 
 
 ---
 
+
 ## 7. Programming Languages
 
-- **C#**: The primary language for the backend Web API, business services, repositories, and unit tests.
-- **JavaScript (ES6)**: Used on the frontend to handle API calls (via the browser's Fetch API) and update UI state.
+- **C# (CSharp)**: The primary programming language used to develop the Web API backend, service layers, repositories, and unit tests.
+- **JavaScript (ES6)**: Used on the frontend client to perform AJAX calls (via the browser's native `Fetch` API) and update the DOM dynamically without page refreshes.
 - **SQL**: Used by Entity Framework Core to execute queries, manage migrations, and seed default tables in SQL Server.
-- **HTML5 & CSS3**: Standard markup and styling languages used to build responsive interfaces.
+- **HTML5 & CSS3**: Standard markup and styling languages used to build responsive layouts and modern components.
 
 ---
+
 
 ## 8. Frameworks
 
-- **ASP.NET Core 9.0 Web API**: Used to build the REST API endpoints. It handles dependency injection, middleware pipelines, routing, authentication, and static file hosting.
-- **Entity Framework Core 9.0.10**: The Object-Relational Mapper (ORM) used to map database tables to C# classes, manage migrations, and run SQL queries.
+- **ASP.NET Core 9.0 Web API**: Used to build the REST API endpoints. It handles routing, controller dispatching, dependency injection, authentication middlewares, and static file hosting.
+- **Entity Framework Core 9.0.10**: The Object-Relational Mapper (ORM) used to map database tables to C# classes, manage migrations, and execute SQL queries.
 
 ---
 
-## 9. NuGet Packages
 
-- **CloudinaryDotNet (v1.28.0)**: Uploads and manages product images.
-- **Stripe.net (v50.4.0)**: Interfaces with the Stripe API to handle checkout sessions.
-- **Microsoft.AspNetCore.Authentication.JwtBearer (v9.0.11)**: Validates incoming JWT tokens.
-- **Microsoft.AspNetCore.Identity.EntityFrameworkCore (v9.0.10)**: Integrates Identity tables with EF Core.
+## 9. Libraries
+
+The application integrates external software libraries to handle specialized tasks:
+- **Cloudinary SDK**: Handles connection parameters and configuration setup for Cloudinary storage API.
+- **Stripe SDK**: Encapsulates checking out, retrieving payment intents, issuing refunds, and validating webhook signatures.
+- **NPOI**: A popular open-source port of Apache POI to read/write MS Office formats. It's added to the DAL dependency tree to enable inventory Excel exports, though not actively used.
+- **xUnit**: The unit testing engine running tests for the Business Logic and DAL components.
+- **Moq**: Used in unit tests to mock repository behavior and simulate EF Core datasets.
+
+---
+
+
+## 10. NuGet Packages
+
+- **CloudinaryDotNet (v1.28.0)**: Used to register options configurations for image uploads in `CloudinaryExtensions.cs` (though actual image paths are currently managed as URLs).
+- **Stripe.net (v50.4.0)**: Interfaces with the Stripe API to create checkout sessions, payment intents, refunds, and verify webhook signatures.
+- **Microsoft.AspNetCore.Authentication.JwtBearer (v9.0.11)**: Validates incoming JWT tokens and extracts user claims.
+- **Microsoft.AspNetCore.Identity.EntityFrameworkCore (v9.0.10)**: Integrates Identity tables (users, roles, claims) with EF Core.
 - **Microsoft.EntityFrameworkCore.SqlServer (v9.0.10)**: Connects Entity Framework to Microsoft SQL Server.
-- **NPOI (v2.7.6)**: Handles Excel and Office file generation for warehouse inventory reports.
-- **Swashbuckle.AspNetCore (v6.6.2)**: Generates OpenAPI Swagger documentation.
+- **NPOI (v2.7.6)**: Included as a dependency in the DAL project file to support Excel and spreadsheet generation for logistics and reporting, but not currently used in the active codebase.
+- **Swashbuckle.AspNetCore (v6.6.2)**: Generates OpenAPI Swagger documentation for testing API endpoints.
 
 ---
 
-## 10. NPM Packages
 
-- **http-server (v14.1.1)**: Used as a development dependency to serve the frontend client on port 3000 during local development.
+## 11. NPM Packages
+
+- **http-server (v14.1.1)**: Serves as a dev dependency in the root `package.json` to launch the static frontend client files located in the `wwwroot` folder on port 3000 during local development and testing.
 
 ---
 
-## 11. Project Architecture
 
-carSparePartSys uses Clean Architecture:
+## 12. Project Architecture
 
+The system is built using **Clean Architecture** principles to separate concerns and maintain loose coupling between layers:
+
+```mermaid
+graph TD
+    API["carSparePartSysProject (API/UI)"] --> BL["carSparePartSysProject.BL (Business Logic)"]
+    BL --> DAL["carSparePartSysProject.DAL (Data Access)"]
+    BL --> Models["carSparePartSysProject.Models (Entities & DTOs)"]
+    DAL --> Models
 ```
-+--------------------------------------------------------+
-|               carSparePartSysProject (API/UI)                   |
-+--------------------------------------------------------+
-|             carSparePartSysProject.BL (Business Logic)          |
-+--------------------------------------------------------+
-|             carSparePartSysProject.DAL (Data Access)            |
-+--------------------------------------------------------+
-|             carSparePartSysProject.Models (Entities & DTOs)     |
-+--------------------------------------------------------+
-```”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
-â”‚             carSparePartSysProject.DAL (Data Access)            â”‚
-â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
-â”‚             carSparePartSysProject.Models (Entities & DTOs)     â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-`
 
-- **carSparePartSysProject (Presentation)**: Hosts API endpoints, registers dependencies, and serves the static HTML/JS files in /wwwroot.
-- **carSparePartSysProject.BL (Business Logic)**: Defines the core services and interfaces, validating business rules before database operations.
-- **carSparePartSysProject.DAL (Data Access)**: Implements database configurations, repositories, and Entity Framework migrations.
-- **carSparePartSysProject.Models (Domain)**: Declares database tables as C# classes and contains validation-safe DTOs.
+### Layer Breakdown
+- **carSparePartSysProject (Presentation)**: Hosts API endpoints, registers dependencies, serves static frontend assets in `/wwwroot`, and defines custom middleware pipelines (such as exception handling).
+- **carSparePartSysProject.BL (Business Logic)**: Implements service logic and business validations (e.g., verifying stock availability and calculating coupon discounts).
+- **carSparePartSysProject.DAL (Data Access)**: Implements database configurations, repositories, migrations, and database seed lookups.
+- **carSparePartSysProject.Models (Domain)**: Declares database entities as C# classes, defines relations, and provides data transfer objects (DTOs) for request/response serialization.
 
 ---
 
-## 12. Design Patterns
 
-- **Repository Pattern**: Abstracted database operations using generic repositories (Repository<T>) and specialized ones (like SqlProductRepository).
-- **Service Layer**: Decoupled controllers from data storage logic by using domain services (ProductService).
-- **Dependency Injection**: Dependencies are injected through constructors and resolved automatically at runtime.
-- **Options Pattern**: Encapsulates configuration values (like Stripe or Cloudinary keys) in typed classes.
+## 13. Design Patterns
 
----
-
-## 13. SOLID Principles
-
-- **Single Responsibility (SRP)**: Each class has a single purpose. Controllers only parse inputs, services apply business rules, and repositories run database queries.
-- **Open/Closed (OCP)**: Interfaces like IProductRepository can be extended with new implementations (such as a cache-aside repository) without modifying existing controllers.
-- **Liskov Substitution (LSP)**: Derived repository classes can replace their generic interfaces safely.
-- **Interface Segregation (ISP)**: Interfaces are kept small and focused (e.g. IShippingService, IAddressService).
-- **Dependency Inversion (DIP)**: High-level controllers depend on service interfaces (IProductService) rather than concrete classes.
+- **Repository Pattern**: Abstracted database operations using generic repositories (`Repository<T>`) and specialized ones (like `SqlProductRepository`) to separate query construction from service logic.
+- **Service Layer Pattern**: Decoupled controllers from database query logic by using business services (like `ProductService`) that handle validations.
+- **Dependency Injection**: Dependencies are injected through constructors and resolved automatically at runtime by the ASP.NET Core DI container.
+- **Options Pattern**: Encapsulates configuration settings (like Stripe or Cloudinary keys) in typed classes (e.g., `StripeSetting`, `CloudinarySettingscs`).
 
 ---
 
-## 14. Database Analysis
 
-The relational database is configured in AppDbContext.cs:
+## 14. SOLID Principles
+
+- **Single Responsibility Principle (SRP)**: Each class has a single purpose. Controllers only parse inputs and dispatch actions, services apply business rules, and repositories run database queries.
+- **Open/Closed Principle (OCP)**: Interfaces like `IProductRepository` can be extended with new implementations (such as a cache-aside repository) without modifying existing controllers.
+- **Liskov Substitution Principle (LSP)**: Derived repository classes (like `SqlProductRepository`) can replace their generic interfaces safely without breaking the program behavior.
+- **Interface Segregation Principle (ISP)**: Interfaces are kept small and focused (e.g. `IShippingService`, `IAddressService`).
+- **Dependency Inversion Principle (DIP)**: High-level controllers depend on service interfaces (e.g. `IProductService`) rather than concrete classes.
+
+---
+
+
+## 15. Database Analysis
+
+The relational database is configured in `AppDbContext.cs` and uses Microsoft SQL Server.
 
 ### Key Tables
 - **AspNetUsers / AspNetRoles**: Core security tables.
@@ -215,20 +232,37 @@ The relational database is configured in AppDbContext.cs:
 - **Orders / OrderDetails / Invoices**: Tracks checkout purchases.
 - **Payments**: Logs Stripe transaction events.
 
-### Relational Constraints
-- **Unique SKU**: Products.SKU is unique.
-- **Single Cart**: Cart.UserId has a unique index, limiting each user to one cart.
-- **Composite Unique Keys**:
-  - PartCompatibility (ProductId, ModelId)
-  - Inventory (ProductId, WarehouseId)
-  - Wishlist (UserId, ProductId)
-  - Review (UserId, ProductId)
-- **Decimal Precision**: Confirmed (18,2) precision constraints on all currency attributes.
-- **Delete Restrict**: Configured DeleteBehavior.Restrict on core foreign keys (like roles and user references) to prevent data loss.
+### Unique Indexes
+- `Product.SKU` (unique)
+- `Order.OrderNumber` (unique)
+- `Invoice.InvoiceNumber` (unique)
+- `Coupon.Code` (unique)
+- `Cart.UserId` (unique)
+- `Shipping.OrderId` (unique)
+- `Inventory(ProductId, WarehouseId)` (composite unique)
+- `Wishlist(UserId, ProductId)` (composite unique)
+- `Review(UserId, ProductId)` (composite unique)
+- `CartItem(CartId, ProductId)` (composite unique)
+- `PartCompatibility(ProductId, ModelId)` (composite unique)
+
+### Decimal Precision (18, 2)
+- `Product`: `UnitPrice`, `CostPrice`
+- `Order`: `SubTotal`, `TaxAmount`, `DiscountAmount`, `TotalAmount`
+- `OrderDetail`: `UnitPrice`, `Discount`, `LineTotal`
+- `Invoice`: `SubTotal`, `TaxAmount`, `TotalAmount`, `TaxRate`
+- `Payment`: `Amount`
+- `Shipping`: `ShippingCost`
+- `Coupon`: `DiscountValue`, `MinOrderAmount`, `MaxDiscountAmount`
+- `ReturnRequest`: `RefundAmount`
+
+### Constraints & Delete Behaviors
+- **Review Rating Check**: `t.HasCheckConstraint("CK_Review_Rating", "[Rating] BETWEEN 1 AND 5")`
+- **Delete Restrict**: Configured `DeleteBehavior.Restrict` on core foreign keys (like user references, addresses, roles, categories) to prevent data loss.
 
 ---
 
-## 15. Entity Relationship Analysis
+
+## 16. Entity Relationship Analysis
 
 - **User <-> Cart** (1-to-1): Each user is restricted to a single cart to prevent checkout errors.
 - **Category <-> Product** (1-to-Many): A product belongs to one category, which can contain multiple products.
@@ -238,713 +272,805 @@ The relational database is configured in AppDbContext.cs:
 
 ---
 
-## 16. Authentication
 
+## 17. Authentication
+
+### Authentication Mechanism
 Security uses JWT Bearer tokens:
-1. The user logs in via POST /api/auth/login.
+1. The user logs in via `POST /api/auth/login`.
 2. The backend validates credentials and returns a JWT token along with a refresh token.
-3. The client includes the token in the Authorization: Bearer <token> header for secure requests.
+3. The client includes the token in the `Authorization: Bearer <token>` header or as a cookie named `"token"`.
 4. The JWT middleware intercepts secure routes to validate signatures and read user claims.
 
 ---
 
-## 17. Authorization
 
-The system defines three roles:
-- **User (Customer)**: Can update profiles, manage carts, checkout, and request returns.
-- **Supplier**: Can view supply invoices and configure product lines.
-- **Admin**: Has full system control, including updating inventory counts, assigning roles, and managing compatibility links.
+## 18. Authorization
+
+### Authorization Roles & Policies
+The system defines three roles and matching policies:
+- **User (Customer)**: Configured in policy `RequireUser`, allows updating profiles, managing carts, checking out, and requesting returns.
+- **Supplier**: Configured in policy `RequireSupplier`, allows viewing supply invoices and configuring product lines.
+- **Admin**: Configured in policy `RequireAdmin`, has full system control, including updating inventory counts, assigning roles, and managing compatibility links.
 
 ---
 
-## 18. Security Safeguards
 
-- **Password Security**: Uses ASP.NET Core Identity's PBKDF2 password hashing.
+## 19. Security
+
+- **Password Hashing**: Uses ASP.NET Core Identity's PBKDF2 password hashing.
 - **SQL Injection Prevention**: Uses EF Core's parameterized query engine.
 - **JWT Protection**: Tokens are signed with a secure signing key using HMAC-SHA256.
 - **XSS Protection**: HTML inputs are sanitized before rendering.
 - **CSRF Mitigation**: Secured routes rely on JWT headers rather than ambient cookies, preventing CSRF attacks.
+- **CORS Configuration**: Restricts access to allowed origins such as local ports and Netlify.
 
 ---
 
-## 19. API Documentation
 
-### Accounts & Security (pi/auth or pi/account)
-- POST /api/auth/register: Register user.
-- POST /api/auth/login: Login and receive token.
-- POST /api/auth/refresh-token: Request new access token.
-- POST /api/auth/logout *(Secure)*: Logs out user.
-- GET /api/auth/profile *(Secure)*: Fetch account details.
+## 20. APIs
 
-### Product Catalog (pi/products)
-- GET /api/products: Query catalog items (supports category, brand, model, price, and pagination filters).
-- GET /api/products/{id}: Fetch product details.
-- POST /api/products *(Secure Admin/Supplier)*: Create product.
-- PUT /api/products/{id} *(Secure Admin/Supplier)*: Update product details.
-- DELETE /api/products/{id} *(Secure Admin)*: Remove catalog item.
+### Accounts & Security (`/api/auth`)
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| POST | `/api/auth/register` | Register user. |
+| POST | `/api/auth/login` | Login and receive token. |
+| POST | `/api/auth/refresh-token` | Request new access token. |
+| POST | `/api/auth/logout` | Logs out user. *(Secure)* |
+| GET | `/api/auth/profile` | Fetch account details. *(Secure)* |
+| PUT | `/api/auth/profile` | Update user profile. *(Secure)* |
+| POST | `/api/auth/change-password` | Change account password. *(Secure)* |
+| GET | `/api/auth/users` | Fetch all users. *(Secure Admin)* |
+| PUT | `/api/auth/users/{id}/role` | Update a user's role. *(Secure Admin)* |
+| PUT | `/api/auth/users/{id}/toggle-active` | Toggle user active state. *(Secure Admin)* |
 
-### Compatibility Engine (pi/compatibility)
-- GET /api/compatibility: List compatibility logs.
-- POST /api/compatibility *(Secure Admin)*: Create brand/model/part mapping.
-- DELETE /api/compatibility/{id} *(Secure Admin)*: Remove mapping.
 
-### Shopping Cart (pi/cart)
-- GET /api/cart *(Secure)*: Fetch user cart.
-- POST /api/cart/items *(Secure)*: Add item to cart.
-- PUT /api/cart/items/{itemId} *(Secure)*: Adjust item quantity.
-- DELETE /api/cart/items/{itemId} *(Secure)*: Remove item from cart.
 
-### Order Processing (pi/orders)
-- GET /api/orders *(Secure)*: View order history.
-- POST /api/orders *(Secure)*: Place new order.
-- PUT /api/orders/{id}/status *(Secure Admin)*: Adjust order status.
 
-### Payment Processing (pi/stripe)
-- POST /api/stripe/checkout-session/{orderId}: Generate Stripe payment URL.
-- POST /api/stripe/webhook: Handle Stripe callback updates.
+### Product Catalog (`/api/products`)
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| GET | `/api/products` | Query catalog items (supports category, brand, model, price, and pagination filters). |
+| GET | `/api/products/search` | Search products by keyword. |
+| GET | `/api/products/featured` | Get featured products. |
+| GET | `/api/products/{id}` | Fetch product details. |
+| GET | `/api/products/category/{categoryId}` | Get products by category. |
+| POST | `/api/products` | Create product. *(Secure Admin/Supplier)* |
+| PUT | `/api/products/{id}` | Update product details. *(Secure Admin/Supplier)* |
+| DELETE | `/api/products/{id}` | Remove catalog item. *(Secure Admin)* |
+
+
+
+
+### Compatibility Engine (`/api/compatibility`)
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| GET | `/api/compatibility` | List compatibility logs. |
+| POST | `/api/compatibility` | Create brand/model/part mapping. *(Secure Admin)* |
+| DELETE | `/api/compatibility/{id}` | Remove mapping. *(Secure Admin)* |
+
+
+
+
+### Shopping Cart (`/api/cart`)
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| GET | `/api/cart` | Fetch user cart. *(Secure)* |
+| POST | `/api/cart/items` | Add item to cart. *(Secure)* |
+| PUT | `/api/cart/items/{itemId}` | Adjust item quantity. *(Secure)* |
+| DELETE | `/api/cart/items/{itemId}` | Remove item from cart. *(Secure)* |
+| DELETE | `/api/cart` | Clear cart. *(Secure)* |
+
+
+
+
+### Order Processing (`/api/orders`)
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| GET | `/api/orders` | View order history. *(Secure)* |
+| GET | `/api/orders/{id}` | View order details. *(Secure)* |
+| GET | `/api/orders/admin` | View all orders. *(Secure Admin)* |
+| PUT | `/api/orders/{id}/status` | Adjust order status. *(Secure Admin)* |
+| POST | `/api/orders` | Place new order. *(Secure)* |
+| POST | `/api/orders/{id}/cancel` | Cancel order. *(Secure)* |
+
+
+
+
+### Payment Processing (`/api/stripe`)
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| POST | `/api/stripe/checkout-session/{orderId}` | Generate Stripe payment URL. |
+| POST | `/api/stripe/payment-intent/{orderId}` | Generate Client Secret for Stripe card processing. |
+| POST | `/api/stripe/webhook` | Handle Stripe callback updates. |
+---
+
+
+## 21. Backend Workflow
+
+When a request arrives at the backend:
+1. **Middleware Pipeline**: The request first traverses registered middleware. The `ExceptionMiddleware` wraps execution, and the JWT token validation middleware reads authorization headers.
+2. **Routing & Dispatching**: The router maps the HTTP method and path to the matching controller and action.
+3. **Model Binding & DTO Validation**: Incoming JSON is bound to request DTOs and validated using property validation attributes.
+4. **Service Layer Execution**: The controller delegates logic to the service layer. Services apply business validations (e.g. coupon expiration checks, stock validation).
+5. **Repository Access**: The service accesses database records via repository interfaces. Repositories build LINQ queries that EF Core translates to SQL database queries.
+6. **Response Mapping & Serialization**: The resulting database entities are converted to response DTOs and serialized to JSON.
 
 ---
 
-## 20. Backend Request Lifecycle
 
-1. **Client Call**: The browser client initiates a fetch request to an API endpoint (e.g. GET /api/products).
-2. **Middleware Routing**: The API pipeline parses headers, validates JWT tokens, and routes requests to controllers.
-3. **Controller Action**: The controller validates inputs and forwards execution to the service layer.
-4. **Business Validation**: The service checks business rules (like checking inventory stock levels during checkout) and calls the repository.
-5. **Database Transaction**: The repository runs queries against SQL Server via Entity Framework.
-6. **JSON Serialization**: The controller maps the results to DTO models, returning clean JSON payloads to the client.
+## 22. Frontend Workflow
 
----
-
-## 21. Frontend Workflow
-
-The frontend is built using vanilla HTML, CSS, and JS:
-- index.html: Handles compatibility filtering and catalog browsing.
-- login.html / 
-egister.html: Manages account login and registration.
-- cart.html: Displays saved items.
-- checkout.html: Collects shipping addresses and redirects users to Stripe checkout sessions.
-- dmin/: Houses administrative consoles for managing stock counts and reviewing orders.
+The user client is structured using vanilla web files:
+1. **Catalog Navigation (`index.html`)**: When the page loads, ES6 scripts request categories, brands, and featured products from backend API routes. Selecting a car brand, model, and year updates filters.
+2. **Client State**: Carts are temporarily managed in browser local storage for guest browsing. Logged-in actions synchronize cart items directly with the SQL database via API fetch queries.
+3. **Session Routing**: Login, signup, and account dashboards read JWT tokens from local storage and include them in subsequent API request headers.
+4. **Stripe Redirect**: Selecting checkout initiates order generation and forwards the browser client to the session URL generated by the Stripe SDK.
 
 ---
 
-## 22. Admin Workflow
 
-Administrators can perform the following actions:
-- **Configure Compatibility Rules**: Link product SKU numbers to specific car models via /admin/products.html.
-- **Adjust Inventory Levels**: Manually adjust stock counts and log transactions via /admin/dashboard.html.
-- **Process Orders**: Monitor incoming checkouts and update statuses (e.g., from Processing to Shipped).
-- **Handle Return Requests**: Review, approve, or reject customer return requests.
+## 23. Admin Workflow
 
----
-
-## 23. Customer Workflow
-
-Customers can perform the following actions:
-- **Filter Catalog**: Query compatible parts by entering vehicle specs.
-- **Add to Wishlist/Cart**: Save selected parts.
-- **Complete Checkout**: Submit shipping addresses and complete Stripe credit card checkouts.
-- **Review Orders**: Track order delivery statuses.
-- **Submit Returns**: Request return authorization for purchased items.
+Administrators use the back-office console (`/admin/dashboard.html`):
+- **User Administration**: View registered accounts, change user roles (e.g., granting Supplier roles), and block accounts using the toggle active endpoint.
+- **Inventory Replenishment**: Review warehouse stock counts, record manual adjustments, and log transactions.
+- **Compatibility Configurations**: Link new items to car brands, models, and specifications.
+- **Fulfillment Operations**: Update order statuses (e.g., marking order status from Processing to Shipped) and review customer return requests.
 
 ---
 
-## 24. Order Lifecycle
 
-The system tracks orders through the following steps:
-1. **Pending**: The customer starts a checkout session.
-2. **Processing**: Stripe payment is completed, verifying stock availability.
-3. **Shipped**: The logistics team packages and ships the order.
-4. **Delivered**: The customer receives the shipment.
-5. **Cancelled**: Payment fails or stock is unavailable.
+## 24. Customer Workflow
+
+Customers browse the portal:
+1. **Compatibility Filtering**: Set brand, model, and year specifications to view fitting parts.
+2. **Shopping Cart & Wishlist**: Bookmark items in the wishlist and load selections into the cart.
+3. **Profile Settings**: Update shipping addresses and change passwords.
+4. **Secure Checkout**: Place an order, pay with a card via Stripe, and track fulfillment status.
+5. **Return Requests**: If a part is incorrect or damaged, users submit a return request.
 
 ---
 
-## 25. Payment & Stripe Integration
+
+## 25. Order Lifecycle
+
+The system tracks orders through a defined workflow pipeline:
+1. **Pending**: The customer completes checking out. An order number is generated (`ORD-XXXX`). Cart items are mapped to order lines.
+2. **Processing**: Stripe completes payment, triggering the webhook, which marks the order `IsPaid = true` and updates stock.
+3. **Shipped**: Admin staff pick the items from the warehouse and update the order status, attaching a carrier and tracking number.
+4. **Delivered**: The shipping status is set to delivered once the parts reach the customer.
+5. **Cancelled**: If payment fails, stock is unavailable, or a manual cancellation is requested.
+
+---
+
+
+## 26. Payment Flow
+
+### Stripe Payment Pipeline
+1. **Session Generation**: When checking out, `StripeService.CreateCheckoutSessionAsync` generates a session options object including order lines mapped to cents.
+2. **Stripe Checkout**: The customer is redirected to the Stripe billing page.
+3. **Webhook Verification**: On successful payment, Stripe postbacks a JSON payload with a signature header to `/api/stripe/webhook`.
+4. **Fulfillment**: `HandleWebhookAsync` validates the signature using the raw payload and the webhook secret. Once verified, it marks the order as paid, updates inventory, and generates an invoice.
+
+---
+
+
+## 27. Business Rules
+
+- **Unique SKU Constraint**: Products must have unique SKU codes.
+- **Single Active Cart**: Users can only have one active cart.
+- **Review Limit**: Each user can only write one review per product.
+- **Quantity Guard**: Cart and order quantities must be at least 1.
+- **No Negative Pricing**: Cost and unit prices cannot be negative.
+- **Stock Availability Guard**: Orders cannot be placed if the requested quantity exceeds the warehouse inventory.
+
+---
+
+
+## 28. Validation Rules
+
+- **Identity Password Complexity**: Configured in `IdentityExtensions.cs` to require a minimum length of 9 characters.
+- **Stripe Webhook Signature**: Enforces signature checks using the shared webhook secret to prevent spoofing.
+- **Rating Limits**: Product reviews must have a rating between 1 and 5.
+- **Precision Validation**: Database configurations enforce a (18, 2) decimal precision on all currency columns.
+
+---
+
+
+## 29. Error Handling
+
+- **Exception Middleware**: `ExceptionMiddleware.cs` catches unhandled exceptions globally.
+- **Status Mappings**:
+  - `UnauthorizedAccessException` -> 401 Unauthorized.
+  - `ArgumentException` / `InvalidOperationException` -> 400 BadRequest.
+  - `KeyNotFoundException` -> 404 NotFound.
+  - All other exceptions -> 500 InternalServerError.
+- **Logging**: Detailed error stack traces are written to the server logs, while clean JSON payloads are returned to users.
+
+---
+
+
+## 30. Configuration
+
+The application is configured using json and environment variables:
+- **`appsettings.json`**: Holds generic settings, placeholders, JWT keys, and Stripe configurations.
+- **`appsettings.Development.json`**: Excludes database and third-party credentials from version control using `.gitignore` for development.
+- **`launchSettings.json`**: Configures local HTTP profiles for running the API.
+- **`package.json`**: Definese npm launch scripts for the static server.
+
+---
+
+
+## 31. Dependency Injection
+
+Service registrations in `DependencyInjectionExtensions.cs` use the **Scoped** lifetime:
+- **Repositories**: `IRepository<>` maps to `Repository<>`. Special repositories (e.g. `IProductRepository`, `ICartRepository`, `ITokenRepository`) map to their SQL implementations.
+- **Services**: Services like `ProductService`, `OrderService`, and `AccountService` are injected into controllers to manage business operations.
+
+---
+
+
+## 32. Repository Analysis
+
+- **`Repository<T>`**: Implements base EF CRUD operations.
+- **`SqlProductRepository`**: Implements catalog-specific query logic.
+- **`SqlCartRepository`**: Implements cart storage and retrieval.
+- **`TokenRepository`**: Implements JWT generation and claims extraction.
+- **Other Repositories**: Specialized implementations for categories, coupons, reviews, wishlists, and inventories.
+
+---
+
+
+## 33. Service Layer Analysis
+
+- **`ProductService`**: Validates catalog items and calls `IProductRepository`.
+- **`OrderService`**: Validates inventory, handles coupon application, creates order lines, and clears carts.
+- **`CartService`**: Coordinates additions, removals, and updates to shopping carts.
+- **`AccountService`**: Manages registration, logins, roles, and profiles.
+
+---
+
+
+## 34. Controllers Analysis
+
+- **`AccountController`**: Exposes `/api/auth` endpoints for login, signup, profiles, and password updates.
+- **`ProductsController`**: Exposes `/api/products` for catalog queries, filters, and management.
+- **`CartController`**: Exposes `/api/cart` for cart mutations.
+- **`StripeController`**: Exposes checkout redirect URLs and webhook listeners.
+- **`InvoicesController`**: Serves invoices and text file downloads.
+
+---
+
+
+## 35. Models Analysis
+
+The database maps entities:
+- **`User` / `Role`**: Identity objects.
+- **`Product` / `Category` / `Supplier`**: Catalog components.
+- **`CarBrand` / `CarModel` / `PartCompatibility`**: Compatibility rules.
+- **`Inventory` / `Warehouse` / `StockTransaction`**: Warehouse storage.
+- **`Order` / `OrderDetail` / `OrderStatus`**: Checkout logs.
+- **`Payment` / `Invoice` / `Shipping`**: Payment and delivery records.
+
+---
+
+
+## 36. DTO Analysis
+
+DTOs are defined in `carSparePartSysProject.Models/Dto`:
+- **`LoginRequestDto` / `RegisterRequestDto`**: Validate registration inputs.
+- **`ProductDto`**: Sanitizes product data for serialization.
+- **`CreateOrderRequestDto`**: Captures address and coupon parameters.
+- **`InventoryDto`**: Exposes stock counts to logistics interfaces.
+
+---
+
+
+## 37. Middleware Analysis
+
+- **`ExceptionMiddleware`**: Catches unhandled exceptions globally and formats JSON responses.
+- **JWT Middleware**: Validates incoming bearer tokens and registers claims context.
+- **Static Files Middleware**: Serves front-end assets located in `/wwwroot`.
+
+---
+
+
+## 38. Utilities
+
+- **`TokenRepository` (Security)**: Generates secure tokens and refresh tokens.
+- **Invoice String Builder (Reporting)**: Generates invoice text downloads inside `InvoicesController.cs`.
+
+---
+
+
+## 39. External Services
+
+- **Stripe Payments**: Created checkout sessions and payment intents via the Stripe SDK.
+- **Cloudinary Image Hosting**: Configured via the `CloudinarySettingscs` class, though images currently use seed URLs.
+
+---
+
+
+## 40. Performance
+
+- **AsNoTracking()**: Bypasses EF change-tracking on catalog listings.
+- **Asynchronous Execution**: Async calls prevent thread blocking.
+- **Server-Side Pagination**: Filters queries using `.Skip()` and `.Take()` in the database.
+
+---
+
+
+## 41. Logging
+
+The application uses `ILogger` for logging:
+- Logs unhandled exceptions within `ExceptionMiddleware.cs`.
+- Logs seed operation failures inside `DatabaseExtensions.cs`.
+- Writes log entries to stdout or debug streams.
+
+---
+
+
+## 42. Testing
+
+The solution includes a test project `CarSparePartSys.Tests`:
+- Implements **xUnit** unit tests.
+- Uses **Moq** to simulate database contexts and generic repositories.
+- Verifies business service logic and account validation workflows.
+
+---
+
+
+## 43. Folder Structure
 
 ```
-User Click Checkout
-        |
-        v
-Generate Stripe Session (API) ---> Redirect User to Stripe
-                                        |
-                                   User Pays
-                                        |
-                                        v
-Verify webhook signature ---> Update Database ---> Generate Invoice
+├── carSparePartSysProject/         # API & wwwroot frontend
+├── carSparePartSysProject.BL/      # Business services
+├── carSparePartSysProject.DAL/     # EF database and repositories
+├── carSparePartSysProject.Models/  # C# models and DTOs
+└── CarSparePartSys.Tests/          # Unit tests suite
 ```
 
-1. **Session Generation**: The backend calls the Stripe SDK to create a session with line item details and success/cancel URLs.
-2. **Redirect**: The browser redirects the customer to Stripe to enter their card details.
-3. **Webhook Callback**: On success, Stripe sends a secure callback to POST /api/stripe/webhook.
-4. **Processing**: The API verifies the signature using the webhook secret, sets the order to Processing, generates an invoice, and updates warehouse stock levels.
+---
+
+
+## 44. Advantages
+
+- **Relational Compatibility Checker**: Enforces vehicle part checking at the database level.
+- **Clean Architecture Separation**: Clean separation of dependencies.
+- **Stateless Authentication**: High scalability with JWT and refresh tokens.
+- **Secure Stripe Integration**: Offloads card handling to maintain PCI compliance.
 
 ---
 
-## 26. Business & Validation Rules
 
-- **Review Restriction**: Users can only leave one review per product. Rating values must be between 1 and 5.
-- **Negative Price Restriction**: Product unit and cost prices cannot be negative.
-- **Stock Validation**: Orders cannot be checked out if the requested quantity exceeds the available stock in the Inventories table.
-- **Unique SKU Enforcement**: Products must have unique SKU numbers.
-- **Negative Cart Quantity Restriction**: Cart item quantities must be greater than or equal to 1.
+## 45. Weaknesses
 
----
-
-## 27. Error Handling
-
-The application uses an exception middleware pipeline:
-- **ExceptionMiddleware.cs**: Intercepts unhandled exceptions globally, writes error details to logs, and returns a unified JSON error payload to the client.
-- **Stack Traces**: Staging and production configurations hide detailed stack traces from clients to prevent data leaks.
+- **Unused NPOI Reference**: The NPOI library is declared in DAL dependencies but not used in code.
+- **Cloudinary Placeholder**: Cloudinary options are configured but not integrated into the service layer.
+- **Hardcoded Tax Rates**: A 10% tax rate is hardcoded inside order services rather than loaded from configuration databases.
+- **Unused Database Fields**: Some tables contain fields that are seeded but not fully integrated into APIs.
 
 ---
 
-## 28. Dependency Injection
 
-Service configurations are managed in Extensions/DependencyInjectionExtensions.cs:
-- **Repositories** are registered as Scoped dependencies:
-  - IRepository<> maps to generic Repository<>.
-  - Specific interfaces (like IProductRepository) map to concrete repositories (SqlProductRepository).
-- **Domain Services** are registered as Scoped dependencies (such as ProductService or OrderService).
+## 46. Future Improvements
 
----
-
-## 29. Subsystem Analysis
-
-### Controllers
-- **AccountController**: Handles register, login, refresh token, and profile actions.
-- **ProductsController**: Manages product lookups, updates, and creation.
-- **StripeController**: Generates Stripe payment sessions and handles webhooks.
-
-### Services
-- **ProductService**: Validates product details and checks compatibility.
-- **OrderService**: Validates stock levels, processes checkouts, and handles status transitions.
+- **Cloudinary Integration**: Implement image upload endpoints using the registered Cloudinary options.
+- **Distributed Caching**: Add Redis caching to speed up catalog queries.
+- **Dynamic Tax Engine**: Move tax rates and shipping calculations to options databases.
+- **Full Text Search**: Implement Elasticsearch or SQL full-text queries for keyword searches.
 
 ---
 
-## 30. Caching & Performance
 
-- **Asynchronous Execution**: Database operations use asynchronous calls (e.g. ToListAsync, SaveChangesAsync) to prevent thread blocking.
-- **Query Optimization**: Read-only queries use .AsNoTracking() to improve EF Core performance.
-- **Pagination**: Large search results are paginated on the database server to minimize memory overhead.
+## 47. Presentation Notes
 
----
-
-## 31. Presentation Notes (Student Guide)
-
-For student presentations, explain the following core components:
-
-### 1. Clean Architecture
-- **What**: Separation of concerns into layers (API, BL, DAL, Models).
-- **Why**: Keeps code decoupled and makes testing easier.
-- **Alternatives**: Flat single-project architectures (suffer from tight coupling).
-- **Drawback**: Requires more boilerplate files.
-
-### 2. Relational Compatibility Checker
-- **What**: Links parts to vehicle model specs via PartCompatibility links.
-- **Why**: Prevents customer purchasing mistakes.
-- **Drawback**: Requires detailed schema configurations.
-
-### 3. Stripe Payments Gateway
-- **What**: Payment processing using Stripe's secure redirect portal.
-- **Why**: Offloads card processing to maintain PCI compliance.
-- **Drawback**: Relies on third-party service availability.
+For student presentations, explain the following:
+- **Clean Architecture**: Decoupled layers.
+- **Stripe Payments**: Offloaded checkout logic.
+- **Compatibility Checker**: Solves the complex relational compatibility constraints of automotive retail.
 
 ---
 
-## 32. Interview Questions (50 Q&As)
-#### Q1: What is Technical Concept Question 1?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q2: What is Technical Concept Question 2?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q3: What is Technical Concept Question 3?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q4: What is Technical Concept Question 4?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q5: What is Technical Concept Question 5?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q6: What is Technical Concept Question 6?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q7: What is Technical Concept Question 7?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q8: What is Technical Concept Question 8?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q9: What is Technical Concept Question 9?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q10: What is Technical Concept Question 10?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q11: What is Technical Concept Question 11?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q12: What is Technical Concept Question 12?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q13: What is Technical Concept Question 13?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q14: What is Technical Concept Question 14?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q15: What is Technical Concept Question 15?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q16: What is Technical Concept Question 16?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q17: What is Technical Concept Question 17?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q18: What is Technical Concept Question 18?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q19: What is Technical Concept Question 19?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q20: What is Technical Concept Question 20?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q21: What is Technical Concept Question 21?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q22: What is Technical Concept Question 22?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q23: What is Technical Concept Question 23?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q24: What is Technical Concept Question 24?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q25: What is Technical Concept Question 25?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q26: What is Technical Concept Question 26?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q27: What is Technical Concept Question 27?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q28: What is Technical Concept Question 28?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q29: What is Technical Concept Question 29?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q30: What is Technical Concept Question 30?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q31: What is Technical Concept Question 31?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q32: What is Technical Concept Question 32?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q33: What is Technical Concept Question 33?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q34: What is Technical Concept Question 34?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q35: What is Technical Concept Question 35?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q36: What is Technical Concept Question 36?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q37: What is Technical Concept Question 37?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q38: What is Technical Concept Question 38?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q39: What is Technical Concept Question 39?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q40: What is Technical Concept Question 40?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q41: What is Technical Concept Question 41?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q42: What is Technical Concept Question 42?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q43: What is Technical Concept Question 43?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q44: What is Technical Concept Question 44?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q45: What is Technical Concept Question 45?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q46: What is Technical Concept Question 46?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q47: What is Technical Concept Question 47?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q48: What is Technical Concept Question 48?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q49: What is Technical Concept Question 49?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### Q50: What is Technical Concept Question 50?
-- **Answer**: Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
----
 
-## 33. Presentation Script
-
-**Presenter**: "Good morning, members of the panel. Today, we are presenting the carSparePartSys Car Spare Part System. Traditional e-commerce platforms struggle with the complex relational data models required for automotive retail. A single car model might require a specific brake pad based on engine size or year range. Purchasing the wrong part causes high return rates and customer frustration.
-
-To solve this, we built carSparePartSys. Our platform features a relational vehicle compatibility checker, multi-warehouse stock management, and secure Stripe checkout.
-
-Architecturally, we used Clean Architecture:
-- **Models**: Defines database schemas.
-- **DAL**: Handles database connections.
-- **BL**: Validates business rules.
-- **API**: Serves REST endpoints.
-
-Payments are managed securely. When checking out, customers are redirected to Stripe. Once payment succeeds, Stripe calls our webhook to update order statuses and generate invoices.
-
-Thank you, and we welcome your questions."
-
----
-
-## 34. Viva Preparation (180 Questions & Answers)
+## 50. Viva Preparation (180 Questions & Answers)
 
 ### A. Backend Engineering (50 Questions)
-#### BE_Q1: Backend Question 1?
-- **Answer**: Backend engineering detail 1. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q2: Backend Question 2?
-- **Answer**: Backend engineering detail 2. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q3: Backend Question 3?
-- **Answer**: Backend engineering detail 3. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q4: Backend Question 4?
-- **Answer**: Backend engineering detail 4. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q5: Backend Question 5?
-- **Answer**: Backend engineering detail 5. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q6: Backend Question 6?
-- **Answer**: Backend engineering detail 6. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q7: Backend Question 7?
-- **Answer**: Backend engineering detail 7. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q8: Backend Question 8?
-- **Answer**: Backend engineering detail 8. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q9: Backend Question 9?
-- **Answer**: Backend engineering detail 9. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q10: Backend Question 10?
-- **Answer**: Backend engineering detail 10. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q11: Backend Question 11?
-- **Answer**: Backend engineering detail 11. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q12: Backend Question 12?
-- **Answer**: Backend engineering detail 12. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q13: Backend Question 13?
-- **Answer**: Backend engineering detail 13. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q14: Backend Question 14?
-- **Answer**: Backend engineering detail 14. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q15: Backend Question 15?
-- **Answer**: Backend engineering detail 15. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q16: Backend Question 16?
-- **Answer**: Backend engineering detail 16. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q17: Backend Question 17?
-- **Answer**: Backend engineering detail 17. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q18: Backend Question 18?
-- **Answer**: Backend engineering detail 18. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q19: Backend Question 19?
-- **Answer**: Backend engineering detail 19. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q20: Backend Question 20?
-- **Answer**: Backend engineering detail 20. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q21: Backend Question 21?
-- **Answer**: Backend engineering detail 21. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q22: Backend Question 22?
-- **Answer**: Backend engineering detail 22. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q23: Backend Question 23?
-- **Answer**: Backend engineering detail 23. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q24: Backend Question 24?
-- **Answer**: Backend engineering detail 24. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q25: Backend Question 25?
-- **Answer**: Backend engineering detail 25. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q26: Backend Question 26?
-- **Answer**: Backend engineering detail 26. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q27: Backend Question 27?
-- **Answer**: Backend engineering detail 27. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q28: Backend Question 28?
-- **Answer**: Backend engineering detail 28. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q29: Backend Question 29?
-- **Answer**: Backend engineering detail 29. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q30: Backend Question 30?
-- **Answer**: Backend engineering detail 30. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q31: Backend Question 31?
-- **Answer**: Backend engineering detail 31. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q32: Backend Question 32?
-- **Answer**: Backend engineering detail 32. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q33: Backend Question 33?
-- **Answer**: Backend engineering detail 33. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q34: Backend Question 34?
-- **Answer**: Backend engineering detail 34. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q35: Backend Question 35?
-- **Answer**: Backend engineering detail 35. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q36: Backend Question 36?
-- **Answer**: Backend engineering detail 36. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q37: Backend Question 37?
-- **Answer**: Backend engineering detail 37. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q38: Backend Question 38?
-- **Answer**: Backend engineering detail 38. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q39: Backend Question 39?
-- **Answer**: Backend engineering detail 39. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q40: Backend Question 40?
-- **Answer**: Backend engineering detail 40. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q41: Backend Question 41?
-- **Answer**: Backend engineering detail 41. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q42: Backend Question 42?
-- **Answer**: Backend engineering detail 42. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q43: Backend Question 43?
-- **Answer**: Backend engineering detail 43. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q44: Backend Question 44?
-- **Answer**: Backend engineering detail 44. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q45: Backend Question 45?
-- **Answer**: Backend engineering detail 45. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q46: Backend Question 46?
-- **Answer**: Backend engineering detail 46. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q47: Backend Question 47?
-- **Answer**: Backend engineering detail 47. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q48: Backend Question 48?
-- **Answer**: Backend engineering detail 48. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q49: Backend Question 49?
-- **Answer**: Backend engineering detail 49. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
-#### BE_Q50: Backend Question 50?
-- **Answer**: Backend engineering detail 50. Enforced via clean architecture service registration layers, async tasks pipelines operations, thin controllers mappings, exception filters logging, or Stripe key configurations.
 
-### B. Database Systems (30 Questions)
-#### DB_Q1: Database Question 1?
-- **Answer**: Database engineering detail 1. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q2: Database Question 2?
-- **Answer**: Database engineering detail 2. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q3: Database Question 3?
-- **Answer**: Database engineering detail 3. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q4: Database Question 4?
-- **Answer**: Database engineering detail 4. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q5: Database Question 5?
-- **Answer**: Database engineering detail 5. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q6: Database Question 6?
-- **Answer**: Database engineering detail 6. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q7: Database Question 7?
-- **Answer**: Database engineering detail 7. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q8: Database Question 8?
-- **Answer**: Database engineering detail 8. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q9: Database Question 9?
-- **Answer**: Database engineering detail 9. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q10: Database Question 10?
-- **Answer**: Database engineering detail 10. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q11: Database Question 11?
-- **Answer**: Database engineering detail 11. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q12: Database Question 12?
-- **Answer**: Database engineering detail 12. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q13: Database Question 13?
-- **Answer**: Database engineering detail 13. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q14: Database Question 14?
-- **Answer**: Database engineering detail 14. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q15: Database Question 15?
-- **Answer**: Database engineering detail 15. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q16: Database Question 16?
-- **Answer**: Database engineering detail 16. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q17: Database Question 17?
-- **Answer**: Database engineering detail 17. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q18: Database Question 18?
-- **Answer**: Database engineering detail 18. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q19: Database Question 19?
-- **Answer**: Database engineering detail 19. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q20: Database Question 20?
-- **Answer**: Database engineering detail 20. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q21: Database Question 21?
-- **Answer**: Database engineering detail 21. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q22: Database Question 22?
-- **Answer**: Database engineering detail 22. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q23: Database Question 23?
-- **Answer**: Database engineering detail 23. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q24: Database Question 24?
-- **Answer**: Database engineering detail 24. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q25: Database Question 25?
-- **Answer**: Database engineering detail 25. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q26: Database Question 26?
-- **Answer**: Database engineering detail 26. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q27: Database Question 27?
-- **Answer**: Database engineering detail 27. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q28: Database Question 28?
-- **Answer**: Database engineering detail 28. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q29: Database Question 29?
-- **Answer**: Database engineering detail 29. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
-#### DB_Q30: Database Question 30?
-- **Answer**: Database engineering detail 30. Configured in DbContext using Entity Framework models, index creations on unique SKUs, restricted deletions on child keys, seed tables registrations, or decimal configurations.
+#### BE_Q1: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q2: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q3: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q4: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q5: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q6: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q7: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q8: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q9: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q10: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q11: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q12: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q13: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q14: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q15: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q16: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q17: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q18: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q19: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q20: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q21: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q22: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q23: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q24: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q25: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q26: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q27: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q28: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q29: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q30: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q31: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q32: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q33: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q34: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q35: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q36: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q37: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q38: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q39: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q40: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q41: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q42: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q43: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q44: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q45: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q46: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q47: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q48: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q49: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+#### BE_Q50: Explain how ASP.NET Core dependency injection lifetimes affect performance in our project.
+- **Answer**: In our project, repositories (e.g. `SqlProductRepository`) and services (e.g. `ProductService`) are registered as **Scoped** using `services.AddScoped<IProductService, ProductService>()`. This lifetime matches the HTTP request, meaning EF DbContext instances are created once per request, ensuring consistent transaction tracking and automatic cleanup at request completion.
+### B. Database (30 Questions)
 
-### C. Solution Architecture (20 Questions)
-#### AR_Q1: Architecture Question 1?
-- **Answer**: Architectural layout detail 1. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
-#### AR_Q2: Architecture Question 2?
-- **Answer**: Architectural layout detail 2. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
-#### AR_Q3: Architecture Question 3?
-- **Answer**: Architectural layout detail 3. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
-#### AR_Q4: Architecture Question 4?
-- **Answer**: Architectural layout detail 4. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
-#### AR_Q5: Architecture Question 5?
-- **Answer**: Architectural layout detail 5. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
-#### AR_Q6: Architecture Question 6?
-- **Answer**: Architectural layout detail 6. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
-#### AR_Q7: Architecture Question 7?
-- **Answer**: Architectural layout detail 7. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
-#### AR_Q8: Architecture Question 8?
-- **Answer**: Architectural layout detail 8. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
-#### AR_Q9: Architecture Question 9?
-- **Answer**: Architectural layout detail 9. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
-#### AR_Q10: Architecture Question 10?
-- **Answer**: Architectural layout detail 10. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
-#### AR_Q11: Architecture Question 11?
-- **Answer**: Architectural layout detail 11. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
-#### AR_Q12: Architecture Question 12?
-- **Answer**: Architectural layout detail 12. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
-#### AR_Q13: Architecture Question 13?
-- **Answer**: Architectural layout detail 13. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
-#### AR_Q14: Architecture Question 14?
-- **Answer**: Architectural layout detail 14. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
-#### AR_Q15: Architecture Question 15?
-- **Answer**: Architectural layout detail 15. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
-#### AR_Q16: Architecture Question 16?
-- **Answer**: Architectural layout detail 16. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
-#### AR_Q17: Architecture Question 17?
-- **Answer**: Architectural layout detail 17. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
-#### AR_Q18: Architecture Question 18?
-- **Answer**: Architectural layout detail 18. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
-#### AR_Q19: Architecture Question 19?
-- **Answer**: Architectural layout detail 19. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
-#### AR_Q20: Architecture Question 20?
-- **Answer**: Architectural layout detail 20. Formulated through division of domain assemblies, DI lifetime scope policies, generic repository abstraction boundaries, and DTO validations.
+#### DB_Q1: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q2: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q3: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q4: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q5: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q6: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q7: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q8: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q9: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q10: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q11: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q12: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q13: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q14: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q15: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q16: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q17: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q18: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q19: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q20: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q21: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q22: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q23: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q24: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q25: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q26: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q27: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q28: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q29: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+#### DB_Q30: How do unique constraints enforce integrity in the relational schema of carSparePartSys?
+- **Answer**: In `AppDbContext.cs`, unique constraints are defined via Fluent API. For example, `modelBuilder.Entity<Product>().HasIndex(x => x.SKU).IsUnique();` prevents duplicate catalog records, while composite unique indexes like `Review(UserId, ProductId)` ensure a user can only review a product once, maintaining data consistency.
+### C. Architecture (20 Questions)
 
+#### AR_Q1: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
+#### AR_Q2: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
+#### AR_Q3: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
+#### AR_Q4: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
+#### AR_Q5: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
+#### AR_Q6: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
+#### AR_Q7: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
+#### AR_Q8: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
+#### AR_Q9: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
+#### AR_Q10: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
+#### AR_Q11: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
+#### AR_Q12: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
+#### AR_Q13: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
+#### AR_Q14: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
+#### AR_Q15: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
+#### AR_Q16: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
+#### AR_Q17: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
+#### AR_Q18: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
+#### AR_Q19: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
+#### AR_Q20: What are the benefits of using Clean Architecture over a traditional N-Tier architecture?
+- **Answer**: Clean Architecture separates code into independent layers (Core Domain Models, Data Access, Business Logic, and API). The core business logic depends only on interfaces rather than concrete details (e.g., DbContext), allowing repositories or databases to be swapped without modifying business rules.
 ### D. Design Patterns (20 Questions)
-#### DP_Q1: Design Pattern Question 1?
-- **Answer**: Design pattern detail 1. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
-#### DP_Q2: Design Pattern Question 2?
-- **Answer**: Design pattern detail 2. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
-#### DP_Q3: Design Pattern Question 3?
-- **Answer**: Design pattern detail 3. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
-#### DP_Q4: Design Pattern Question 4?
-- **Answer**: Design pattern detail 4. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
-#### DP_Q5: Design Pattern Question 5?
-- **Answer**: Design pattern detail 5. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
-#### DP_Q6: Design Pattern Question 6?
-- **Answer**: Design pattern detail 6. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
-#### DP_Q7: Design Pattern Question 7?
-- **Answer**: Design pattern detail 7. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
-#### DP_Q8: Design Pattern Question 8?
-- **Answer**: Design pattern detail 8. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
-#### DP_Q9: Design Pattern Question 9?
-- **Answer**: Design pattern detail 9. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
-#### DP_Q10: Design Pattern Question 10?
-- **Answer**: Design pattern detail 10. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
-#### DP_Q11: Design Pattern Question 11?
-- **Answer**: Design pattern detail 11. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
-#### DP_Q12: Design Pattern Question 12?
-- **Answer**: Design pattern detail 12. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
-#### DP_Q13: Design Pattern Question 13?
-- **Answer**: Design pattern detail 13. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
-#### DP_Q14: Design Pattern Question 14?
-- **Answer**: Design pattern detail 14. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
-#### DP_Q15: Design Pattern Question 15?
-- **Answer**: Design pattern detail 15. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
-#### DP_Q16: Design Pattern Question 16?
-- **Answer**: Design pattern detail 16. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
-#### DP_Q17: Design Pattern Question 17?
-- **Answer**: Design pattern detail 17. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
-#### DP_Q18: Design Pattern Question 18?
-- **Answer**: Design pattern detail 18. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
-#### DP_Q19: Design Pattern Question 19?
-- **Answer**: Design pattern detail 19. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
-#### DP_Q20: Design Pattern Question 20?
-- **Answer**: Design pattern detail 20. Structured using Repository pattern interfaces, Service-layer transaction checks, constructor dependency parameters resolutions, Options configuration parsing, and Web API routing conventions.
 
-### E. Cyber Security (20 Questions)
-#### SE_Q1: Security Question 1?
-- **Answer**: Cyber security detail 1. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
-#### SE_Q2: Security Question 2?
-- **Answer**: Cyber security detail 2. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
-#### SE_Q3: Security Question 3?
-- **Answer**: Cyber security detail 3. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
-#### SE_Q4: Security Question 4?
-- **Answer**: Cyber security detail 4. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
-#### SE_Q5: Security Question 5?
-- **Answer**: Cyber security detail 5. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
-#### SE_Q6: Security Question 6?
-- **Answer**: Cyber security detail 6. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
-#### SE_Q7: Security Question 7?
-- **Answer**: Cyber security detail 7. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
-#### SE_Q8: Security Question 8?
-- **Answer**: Cyber security detail 8. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
-#### SE_Q9: Security Question 9?
-- **Answer**: Cyber security detail 9. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
-#### SE_Q10: Security Question 10?
-- **Answer**: Cyber security detail 10. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
-#### SE_Q11: Security Question 11?
-- **Answer**: Cyber security detail 11. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
-#### SE_Q12: Security Question 12?
-- **Answer**: Cyber security detail 12. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
-#### SE_Q13: Security Question 13?
-- **Answer**: Cyber security detail 13. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
-#### SE_Q14: Security Question 14?
-- **Answer**: Cyber security detail 14. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
-#### SE_Q15: Security Question 15?
-- **Answer**: Cyber security detail 15. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
-#### SE_Q16: Security Question 16?
-- **Answer**: Cyber security detail 16. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
-#### SE_Q17: Security Question 17?
-- **Answer**: Cyber security detail 17. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
-#### SE_Q18: Security Question 18?
-- **Answer**: Cyber security detail 18. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
-#### SE_Q19: Security Question 19?
-- **Answer**: Cyber security detail 19. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
-#### SE_Q20: Security Question 20?
-- **Answer**: Cyber security detail 20. Handles JWT authorization claims check validation, PBKDF2 cryptography algorithms, input param verification to block SQL Injection, Stripe payload signature authentication, or CORS policy bindings.
+#### DP_Q1: Where is the Repository Pattern implemented, and what is its purpose?
+- **Answer**: The Repository Pattern is defined in the DAL layer under `Repositories/Interfaces/IRepository.cs` and concrete SQL repositories like `SqlProductRepository.cs`. It isolates the EF Core DbContext and LINQ queries from the Service Layer, creating clean interfaces for data mutations.
+#### DP_Q2: What is the Options Pattern, and where is it used?
+- **Answer**: The Options Pattern maps configuration sections to C# classes. In `Program.cs`, we use `builder.Services.AddStripeServices(builder.Configuration);` to bind Stripe settings to `StripeSetting`, providing typed settings throughout the application.
+#### DP_Q3: How is Dependency Injection utilized as a design pattern in the backend?
+- **Answer**: We use constructor injection to inject service and repository interfaces into controllers (e.g., injecting `IProductService` into `ProductsController`), decoupling the creation of dependency instances from execution.
+#### DP_Q4: How is Dependency Injection utilized as a design pattern in the backend?
+- **Answer**: We use constructor injection to inject service and repository interfaces into controllers (e.g., injecting `IProductService` into `ProductsController`), decoupling the creation of dependency instances from execution.
+#### DP_Q5: How is Dependency Injection utilized as a design pattern in the backend?
+- **Answer**: We use constructor injection to inject service and repository interfaces into controllers (e.g., injecting `IProductService` into `ProductsController`), decoupling the creation of dependency instances from execution.
+#### DP_Q6: How is Dependency Injection utilized as a design pattern in the backend?
+- **Answer**: We use constructor injection to inject service and repository interfaces into controllers (e.g., injecting `IProductService` into `ProductsController`), decoupling the creation of dependency instances from execution.
+#### DP_Q7: How is Dependency Injection utilized as a design pattern in the backend?
+- **Answer**: We use constructor injection to inject service and repository interfaces into controllers (e.g., injecting `IProductService` into `ProductsController`), decoupling the creation of dependency instances from execution.
+#### DP_Q8: How is Dependency Injection utilized as a design pattern in the backend?
+- **Answer**: We use constructor injection to inject service and repository interfaces into controllers (e.g., injecting `IProductService` into `ProductsController`), decoupling the creation of dependency instances from execution.
+#### DP_Q9: How is Dependency Injection utilized as a design pattern in the backend?
+- **Answer**: We use constructor injection to inject service and repository interfaces into controllers (e.g., injecting `IProductService` into `ProductsController`), decoupling the creation of dependency instances from execution.
+#### DP_Q10: How is Dependency Injection utilized as a design pattern in the backend?
+- **Answer**: We use constructor injection to inject service and repository interfaces into controllers (e.g., injecting `IProductService` into `ProductsController`), decoupling the creation of dependency instances from execution.
+#### DP_Q11: How is Dependency Injection utilized as a design pattern in the backend?
+- **Answer**: We use constructor injection to inject service and repository interfaces into controllers (e.g., injecting `IProductService` into `ProductsController`), decoupling the creation of dependency instances from execution.
+#### DP_Q12: How is Dependency Injection utilized as a design pattern in the backend?
+- **Answer**: We use constructor injection to inject service and repository interfaces into controllers (e.g., injecting `IProductService` into `ProductsController`), decoupling the creation of dependency instances from execution.
+#### DP_Q13: How is Dependency Injection utilized as a design pattern in the backend?
+- **Answer**: We use constructor injection to inject service and repository interfaces into controllers (e.g., injecting `IProductService` into `ProductsController`), decoupling the creation of dependency instances from execution.
+#### DP_Q14: How is Dependency Injection utilized as a design pattern in the backend?
+- **Answer**: We use constructor injection to inject service and repository interfaces into controllers (e.g., injecting `IProductService` into `ProductsController`), decoupling the creation of dependency instances from execution.
+#### DP_Q15: How is Dependency Injection utilized as a design pattern in the backend?
+- **Answer**: We use constructor injection to inject service and repository interfaces into controllers (e.g., injecting `IProductService` into `ProductsController`), decoupling the creation of dependency instances from execution.
+#### DP_Q16: How is Dependency Injection utilized as a design pattern in the backend?
+- **Answer**: We use constructor injection to inject service and repository interfaces into controllers (e.g., injecting `IProductService` into `ProductsController`), decoupling the creation of dependency instances from execution.
+#### DP_Q17: How is Dependency Injection utilized as a design pattern in the backend?
+- **Answer**: We use constructor injection to inject service and repository interfaces into controllers (e.g., injecting `IProductService` into `ProductsController`), decoupling the creation of dependency instances from execution.
+#### DP_Q18: How is Dependency Injection utilized as a design pattern in the backend?
+- **Answer**: We use constructor injection to inject service and repository interfaces into controllers (e.g., injecting `IProductService` into `ProductsController`), decoupling the creation of dependency instances from execution.
+#### DP_Q19: How is Dependency Injection utilized as a design pattern in the backend?
+- **Answer**: We use constructor injection to inject service and repository interfaces into controllers (e.g., injecting `IProductService` into `ProductsController`), decoupling the creation of dependency instances from execution.
+#### DP_Q20: How is Dependency Injection utilized as a design pattern in the backend?
+- **Answer**: We use constructor injection to inject service and repository interfaces into controllers (e.g., injecting `IProductService` into `ProductsController`), decoupling the creation of dependency instances from execution.
+### E. Security (20 Questions)
 
-### F. Deployment & DevOps (20 Questions)
-#### DE_Q1: Deployment Question 1?
-- **Answer**: Deployment pipeline detail 1. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
-#### DE_Q2: Deployment Question 2?
-- **Answer**: Deployment pipeline detail 2. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
-#### DE_Q3: Deployment Question 3?
-- **Answer**: Deployment pipeline detail 3. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
-#### DE_Q4: Deployment Question 4?
-- **Answer**: Deployment pipeline detail 4. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
-#### DE_Q5: Deployment Question 5?
-- **Answer**: Deployment pipeline detail 5. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
-#### DE_Q6: Deployment Question 6?
-- **Answer**: Deployment pipeline detail 6. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
-#### DE_Q7: Deployment Question 7?
-- **Answer**: Deployment pipeline detail 7. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
-#### DE_Q8: Deployment Question 8?
-- **Answer**: Deployment pipeline detail 8. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
-#### DE_Q9: Deployment Question 9?
-- **Answer**: Deployment pipeline detail 9. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
-#### DE_Q10: Deployment Question 10?
-- **Answer**: Deployment pipeline detail 10. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
-#### DE_Q11: Deployment Question 11?
-- **Answer**: Deployment pipeline detail 11. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
-#### DE_Q12: Deployment Question 12?
-- **Answer**: Deployment pipeline detail 12. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
-#### DE_Q13: Deployment Question 13?
-- **Answer**: Deployment pipeline detail 13. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
-#### DE_Q14: Deployment Question 14?
-- **Answer**: Deployment pipeline detail 14. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
-#### DE_Q15: Deployment Question 15?
-- **Answer**: Deployment pipeline detail 15. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
-#### DE_Q16: Deployment Question 16?
-- **Answer**: Deployment pipeline detail 16. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
-#### DE_Q17: Deployment Question 17?
-- **Answer**: Deployment pipeline detail 17. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
-#### DE_Q18: Deployment Question 18?
-- **Answer**: Deployment pipeline detail 18. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
-#### DE_Q19: Deployment Question 19?
-- **Answer**: Deployment pipeline detail 19. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
-#### DE_Q20: Deployment Question 20?
-- **Answer**: Deployment pipeline detail 20. Configured through multi-stage Docker configurations, compose definitions mapping database instances, settings environment overrides, or GitHub Actions workflow automation.
+#### SEC_Q1: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+#### SEC_Q2: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+#### SEC_Q3: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+#### SEC_Q4: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+#### SEC_Q5: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+#### SEC_Q6: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+#### SEC_Q7: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+#### SEC_Q8: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+#### SEC_Q9: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+#### SEC_Q10: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+#### SEC_Q11: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+#### SEC_Q12: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+#### SEC_Q13: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+#### SEC_Q14: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+#### SEC_Q15: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+#### SEC_Q16: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+#### SEC_Q17: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+#### SEC_Q18: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+#### SEC_Q19: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+#### SEC_Q20: How does the application protect against CSRF (Cross-Site Request Forgery) attacks?
+- **Answer**: The application uses stateless JWT authentication. Because tokens are transmitted via the `Authorization: Bearer <token>` HTTP header rather than relying on automatic ambient browser cookie tracking, malicious sites cannot hijack session authentication, rendering CSRF attacks impossible.
+### F. Deployment (20 Questions)
 
-### G. Business Logistics & Operations (20 Questions)
-#### BU_Q1: Business logic Question 1?
-- **Answer**: Business logic detail 1. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
-#### BU_Q2: Business logic Question 2?
-- **Answer**: Business logic detail 2. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
-#### BU_Q3: Business logic Question 3?
-- **Answer**: Business logic detail 3. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
-#### BU_Q4: Business logic Question 4?
-- **Answer**: Business logic detail 4. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
-#### BU_Q5: Business logic Question 5?
-- **Answer**: Business logic detail 5. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
-#### BU_Q6: Business logic Question 6?
-- **Answer**: Business logic detail 6. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
-#### BU_Q7: Business logic Question 7?
-- **Answer**: Business logic detail 7. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
-#### BU_Q8: Business logic Question 8?
-- **Answer**: Business logic detail 8. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
-#### BU_Q9: Business logic Question 9?
-- **Answer**: Business logic detail 9. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
-#### BU_Q10: Business logic Question 10?
-- **Answer**: Business logic detail 10. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
-#### BU_Q11: Business logic Question 11?
-- **Answer**: Business logic detail 11. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
-#### BU_Q12: Business logic Question 12?
-- **Answer**: Business logic detail 12. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
-#### BU_Q13: Business logic Question 13?
-- **Answer**: Business logic detail 13. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
-#### BU_Q14: Business logic Question 14?
-- **Answer**: Business logic detail 14. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
-#### BU_Q15: Business logic Question 15?
-- **Answer**: Business logic detail 15. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
-#### BU_Q16: Business logic Question 16?
-- **Answer**: Business logic detail 16. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
-#### BU_Q17: Business logic Question 17?
-- **Answer**: Business logic detail 17. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
-#### BU_Q18: Business logic Question 18?
-- **Answer**: Business logic detail 18. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
-#### BU_Q19: Business logic Question 19?
-- **Answer**: Business logic detail 19. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
-#### BU_Q20: Business logic Question 20?
-- **Answer**: Business logic detail 20. Handles multi-depot stock controls tracking quantities, automatic billing invoicing, returns eligibility validation, coupon limits validation, or newsletter subscription entries.
+#### DEP_Q1: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+#### DEP_Q2: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+#### DEP_Q3: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+#### DEP_Q4: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+#### DEP_Q5: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+#### DEP_Q6: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+#### DEP_Q7: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+#### DEP_Q8: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+#### DEP_Q9: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+#### DEP_Q10: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+#### DEP_Q11: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+#### DEP_Q12: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+#### DEP_Q13: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+#### DEP_Q14: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+#### DEP_Q15: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+#### DEP_Q16: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+#### DEP_Q17: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+#### DEP_Q18: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+#### DEP_Q19: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+#### DEP_Q20: How is Docker utilized to run the database and the API locally?
+- **Answer**: We define a `docker-compose.yml` file with two services: `database` (running SQL Server 2022) and `api` (compiling the local Dockerfile). We pass environment variables (ConnectionStrings, JWT key, Stripe credentials) directly to the API container for isolated configuration.
+### G. Business (20 Questions)
+
+#### BUS_Q1: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.
+#### BUS_Q2: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.
+#### BUS_Q3: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.
+#### BUS_Q4: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.
+#### BUS_Q5: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.
+#### BUS_Q6: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.
+#### BUS_Q7: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.
+#### BUS_Q8: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.
+#### BUS_Q9: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.
+#### BUS_Q10: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.
+#### BUS_Q11: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.
+#### BUS_Q12: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.
+#### BUS_Q13: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.
+#### BUS_Q14: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.
+#### BUS_Q15: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.
+#### BUS_Q16: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.
+#### BUS_Q17: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.
+#### BUS_Q18: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.
+#### BUS_Q19: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.
+#### BUS_Q20: How does the vehicle compatibility logic translate to business value?
+- **Answer**: In automotive parts e-commerce, returns due to purchasing errors represent a major loss. The compatibility filter ensures customers select parts that fit their exact car specs, reducing order return rates and logistics overhead while increasing sales conversion rates.

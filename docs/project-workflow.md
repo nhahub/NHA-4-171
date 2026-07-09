@@ -46,26 +46,21 @@ System operators and suppliers manage catalog and inventory levels through the `
 
 The following flow detail outlines the secure integration with the payment gateway:
 
-```
-┌──────────┐          POST /stripe/create-session          ┌──────────┐
-│ Frontend │──────────────────────────────────────────────>│ Web API  │
-└──────────┘                                               └──────────┘
-      │                                                          │
-      │                                                  Connects to Stripe
-      │                                                          │
-      │               Redirect to Stripe Checkout                ▼
-      │<───────────────────────────────────────────────────┌──────────┐
-      │                                                    │  Stripe  │
-      │                                                    │ Gateway  │
-      │            Process Card Payment Successful         └──────────┘
-      │──────────────────────────────────────────────────────────>
-      │                                                          │
-      │                Triggers webhook callback                 │
-      │<─────────────────────────────────────────────────────────┘
-      ▼
-┌──────────┐          POST /stripe/webhook                 ┌──────────┐
-│ Web API  │──────────────────────────────────────────────>│ Database │
-└──────────┘              Updates Order status             └──────────┘
+```mermaid
+sequenceDiagram
+    participant Frontend as Frontend Client
+    participant WebAPI as Web API Backend
+    participant Stripe as Stripe Gateway
+    participant Database as Database (SQL Server)
+
+    Frontend->>WebAPI: POST /api/stripe/checkout-session/{orderId}
+    WebAPI->>Stripe: Create checkout session
+    Stripe-->>WebAPI: Return session URL
+    WebAPI-->>Frontend: Return session URL
+    Frontend->>Stripe: Redirect to secure checkout page
+    Stripe->>Stripe: Process card payment
+    Stripe->>WebAPI: Asynchronous webhook POST /api/stripe/webhook
+    WebAPI->>Database: Update order status to Processing & deduct stock
 ```
 
 1. **Stripe Webhook Alert**: Once the customer's card is successfully charged, the Stripe platform sends an asynchronous HTTP POST webhook to `POST /api/stripe/webhook`.

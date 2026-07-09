@@ -7,13 +7,9 @@
 
 An enterprise-grade, Clean Architecture ASP.NET Core e-commerce and inventory platform built specifically for the automotive spare parts industry. 
 
-```
-┌────────────────────────────────────────────────────────┐
-│                                                        │
-│             [ CARSPAREPARTSYS CAR SPARE PARTS LOGO ]            │
-│                                                        │
-└────────────────────────────────────────────────────────┘
-```
+> [!NOTE]
+> ### **CARSPAREPARTSYS CAR SPARE PARTS**
+
 
 ---
 
@@ -67,21 +63,9 @@ Unlike typical e-commerce solutions that manage uniform catalogs, automotive par
 
 ## Screenshots
 
-```
-┌────────────────────────────────────────────────────────┐
-│                                                        │
-│           [ Customer Dashboard & Catalog UI ]          │
-│                                                        │
-└────────────────────────────────────────────────────────┘
-```
+*Dashboard mockup:* `[ Customer Dashboard & Catalog UI ]`
 
-```
-┌────────────────────────────────────────────────────────┐
-│                                                        │
-│           [ Admin Inventory & Orders Console ]         │
-│                                                        │
-└────────────────────────────────────────────────────────┘
-```
+*Admin console mockup:* `[ Admin Inventory & Orders Console ]`
 
 ---
 
