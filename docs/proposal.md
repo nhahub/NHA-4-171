@@ -1,10 +1,10 @@
 # Proposal
 
-This document outlines the architectural plan, scope, and objectives of the Thanya Car Spare Part System. It establishes a baseline for the development lifecycle, system capabilities, and integration deliverables.
+This document outlines the architectural plan, scope, and objectives of the carSparePartSys Car Spare Part System. It establishes a baseline for the development lifecycle, system capabilities, and integration deliverables.
 
 ## Background
 
-Traditional e-commerce platforms struggle with the complex relational data models required for automotive retail. The Thanya project was proposed to build a high-performance Web API and frontend client specifically designed for spare parts management, featuring vehicle compatibility checking, multi-warehouse stock control, and integrated billing.
+Traditional e-commerce platforms struggle with the complex relational data models required for automotive retail. The carSparePartSys project was proposed to build a high-performance Web API and frontend client specifically designed for spare parts management, featuring vehicle compatibility checking, multi-warehouse stock control, and integrated billing.
 
 ## Objectives
 

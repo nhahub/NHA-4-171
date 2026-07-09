@@ -5,13 +5,13 @@ ENV ASPNETCORE_URLS=http://+:8080
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
-COPY ["ThanyaProject/CarSparePartSysProject.csproj", "ThanyaProject/"]
-COPY ["ThanyaProject.BL/CarSparePartSysProject.BL.csproj", "ThanyaProject.BL/"]
-COPY ["ThanyaProject.DAL/CarSparePartSysProject.DAL.csproj", "ThanyaProject.DAL/"]
-COPY ["ThanyaProject.Models/CarSparePartSysProject.Models.csproj", "ThanyaProject.Models/"]
-RUN dotnet restore "ThanyaProject/CarSparePartSysProject.csproj"
+COPY ["carSparePartSysProject/CarSparePartSysProject.csproj", "carSparePartSysProject/"]
+COPY ["carSparePartSysProject.BL/CarSparePartSysProject.BL.csproj", "carSparePartSysProject.BL/"]
+COPY ["carSparePartSysProject.DAL/CarSparePartSysProject.DAL.csproj", "carSparePartSysProject.DAL/"]
+COPY ["carSparePartSysProject.Models/CarSparePartSysProject.Models.csproj", "carSparePartSysProject.Models/"]
+RUN dotnet restore "carSparePartSysProject/CarSparePartSysProject.csproj"
 COPY . .
-WORKDIR "/src/ThanyaProject"
+WORKDIR "/src/carSparePartSysProject"
 RUN dotnet build "CarSparePartSysProject.csproj" -c Release -o /app/build
 
 FROM build AS publish

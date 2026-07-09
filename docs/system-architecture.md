@@ -1,6 +1,6 @@
 # System Architecture
 
-Thanya Car Spare Part System is designed around Clean Architecture and DDD (Domain-Driven Design) principles. It separates domain logic from data access and delivery channels, ensuring the system remains maintainable and testable over time.
+carSparePartSys Car Spare Part System is designed around Clean Architecture and DDD (Domain-Driven Design) principles. It separates domain logic from data access and delivery channels, ensuring the system remains maintainable and testable over time.
 
 ## Architectural Layers
 
@@ -8,32 +8,32 @@ The solution is divided into four main layers:
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│               ThanyaProject (API/UI)                   │
+│               carSparePartSysProject (API/UI)                   │
 ├────────────────────────────────────────────────────────┤
-│             ThanyaProject.BL (Business Logic)          │
+│             carSparePartSysProject.BL (Business Logic)          │
 ├────────────────────────────────────────────────────────┤
-│             ThanyaProject.DAL (Data Access)            │
+│             carSparePartSysProject.DAL (Data Access)            │
 ├────────────────────────────────────────────────────────┤
-│             ThanyaProject.Models (Entities & DTOs)     │
+│             carSparePartSysProject.Models (Entities & DTOs)     │
 └────────────────────────────────────────────────────────┘
 ```
 
-### 1. Presentation & API Layer (`ThanyaProject`)
+### 1. Presentation & API Layer (`carSparePartSysProject`)
 - **Type**: ASP.NET Core 9.0 Web API and Static Web Client.
 - **Responsibilities**: Maps incoming HTTP requests to endpoints, handles CORS rules, manages Swagger OpenAPI configurations, and processes static web pages (`wwwroot`).
-- **Dependency Rule**: References `ThanyaProject.BL` and `ThanyaProject.Models`. It has no direct references to EF Core db contexts.
+- **Dependency Rule**: References `carSparePartSysProject.BL` and `carSparePartSysProject.Models`. It has no direct references to EF Core db contexts.
 
-### 2. Business Logic Layer (`ThanyaProject.BL`)
+### 2. Business Logic Layer (`carSparePartSysProject.BL`)
 - **Type**: C# Class Library.
 - **Responsibilities**: Contains the application logic, interface definitions, business validations (e.g. stock checking during order placement), and integrations with external gateways.
-- **Dependency Rule**: References `ThanyaProject.Models`. Decoupled from the presentation layer.
+- **Dependency Rule**: References `carSparePartSysProject.Models`. Decoupled from the presentation layer.
 
-### 3. Data Access Layer (`ThanyaProject.DAL`)
+### 3. Data Access Layer (`carSparePartSysProject.DAL`)
 - **Type**: C# Class Library.
 - **Responsibilities**: Manages Entity Framework Core integrations, includes database schema migrations, and implements the Repository Pattern to run SQL Server operations.
-- **Dependency Rule**: References `ThanyaProject.Models` and implements repositories using `AppDbContext`.
+- **Dependency Rule**: References `carSparePartSysProject.Models` and implements repositories using `AppDbContext`.
 
-### 4. Domain Models Layer (`ThanyaProject.Models`)
+### 4. Domain Models Layer (`carSparePartSysProject.Models`)
 - **Type**: C# Class Library.
 - **Responsibilities**: Declares the domain entities, database tables, validation attributes, enum classes, and strongly-typed DTOs (Data Transfer Objects).
 - **Dependency Rule**: Independent of all other layers.

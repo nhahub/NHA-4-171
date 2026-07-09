@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "Integrated Car Spare Parts System solution",
   "scripts": {
-    "dev": "dotnet run --project ThanyaProject",
-    "frontend": "npx http-server ThanyaProject/wwwroot -p 3000",
-    "backend": "dotnet run --project ThanyaProject",
+    "dev": "dotnet run --project carSparePartSysProject",
+    "frontend": "npx http-server carSparePartSysProject/wwwroot -p 3000",
+    "backend": "dotnet run --project carSparePartSysProject",
     "test": "dotnet test"
   },
   "devDependencies": {

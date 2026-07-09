@@ -22,10 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ThanyaProject\CarSparePartSysProject.csproj" />
-    <ProjectReference Include="..\ThanyaProject.BL\CarSparePartSysProject.BL.csproj" />
-    <ProjectReference Include="..\ThanyaProject.DAL\CarSparePartSysProject.DAL.csproj" />
-    <ProjectReference Include="..\ThanyaProject.Models\CarSparePartSysProject.Models.csproj" />
+    <ProjectReference Include="..\carSparePartSysProject\CarSparePartSysProject.csproj" />
+    <ProjectReference Include="..\carSparePartSysProject.BL\CarSparePartSysProject.BL.csproj" />
+    <ProjectReference Include="..\carSparePartSysProject.DAL\CarSparePartSysProject.DAL.csproj" />
+    <ProjectReference Include="..\carSparePartSysProject.Models\CarSparePartSysProject.Models.csproj" />
   </ItemGroup>
 
 </Project>

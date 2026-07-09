@@ -14,9 +14,9 @@ Three primary pain points affect the car spare parts market:
 - **Generic E-commerce Platforms**: Platforms like Shopify or WooCommerce rely on simple flat catalogs. They have no natural way to model many-to-many relationships (e.g., one spark plug fitting 50 different car models, each with different compatibility notes) without slow, third-party plugins that degrade search speed.
 - **Legacy ERP Systems**: Enterprise resource management software used by warehouses has strong inventory tracking but poor customer-facing interfaces, lacking modern checkout capabilities like direct API integrations with Stripe or smooth visual catalogs.
 
-## How Thanya Solves the Problem Better
+## How carSparePartSys Solves the Problem Better
 
-Thanya resolves these issues by using a unified database structure specifically designed for vehicle compatibility:
+carSparePartSys resolves these issues by using a unified database structure specifically designed for vehicle compatibility:
 - **Relational Part-to-Vehicle Bindings**: A dedicated table, `PartCompatibilities`, links products directly to vehicle model configurations. Searches filter down to the model configuration dynamically.
 - **Unified Inventory Layer**: The `Inventories` table links products to specific `Warehouses` with dedicated reorder parameters. Customers are served from local stock while admins track item locations in real-time.
 - **Automated Workflow Integrity**: Returns are tied to specific order details via `ReturnRequest` records. Database changes to inventory levels and audit trails are logged instantly to prevent catalog discrepancies.

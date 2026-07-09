@@ -1,6 +1,6 @@
 # Database Schema
 
-The database for the Thanya Car Spare Part System is built on Microsoft SQL Server and managed using Entity Framework Core. The schema is highly relational, enforcing integrity across products, compatibility mappings, inventory levels, order pipelines, and billing details.
+The database for the carSparePartSys Car Spare Part System is built on Microsoft SQL Server and managed using Entity Framework Core. The schema is highly relational, enforcing integrity across products, compatibility mappings, inventory levels, order pipelines, and billing details.
 
 ---
 

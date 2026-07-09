@@ -1,10 +1,10 @@
 # Business Value
 
-The Thanya Car Spare Part System delivers clear benefits across organizational, user-facing, and developer dimensions. By streamlining complex logistics and offering a robust purchasing pipeline, it creates value at every touchpoint.
+The carSparePartSys Car Spare Part System delivers clear benefits across organizational, user-facing, and developer dimensions. By streamlining complex logistics and offering a robust purchasing pipeline, it creates value at every touchpoint.
 
 ## Business Benefits
 
-- **Reduced Return Overhead**: Return shipping and inventory re-processing costs are high. By enforcing vehicle compatibility checks before checkout, Thanya cuts down on ordering errors, lowering return rates and saving customer support time.
+- **Reduced Return Overhead**: Return shipping and inventory re-processing costs are high. By enforcing vehicle compatibility checks before checkout, carSparePartSys cuts down on ordering errors, lowering return rates and saving customer support time.
 - **Improved Inventory Management**: Real-time multi-warehouse tracking prevents over-stocking and out-of-stock situations. The system alerts stock managers when inventory drops below specified reorder thresholds (`ReorderLevel`).
 - **Higher Sales Conversion**: Customers buy with confidence when they know a part is guaranteed to fit their specific vehicle model. Clear compatibility warnings and an easy checkout process drive customer loyalty.
 - **Automated Billing and Reporting**: Invoices are generated automatically on order completion. Audit logs track crucial system activities to maintain operational transparency.

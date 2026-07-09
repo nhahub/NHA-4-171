@@ -1,6 +1,6 @@
 # Design Patterns
 
-This document details the architectural and software design patterns implemented within the Thanya Car Spare Part System codebase. Only patterns actually implemented are documented here.
+This document details the architectural and software design patterns implemented within the carSparePartSys Car Spare Part System codebase. Only patterns actually implemented are documented here.
 
 ---
 
@@ -25,7 +25,7 @@ The business logic of the application resides entirely inside dedicated service 
 
 ### Example
 - Interface: `IProductService`
-- Implementation: `ProductService` class in the `ThanyaProject.BL` project.
+- Implementation: `ProductService` class in the `carSparePartSysProject.BL` project.
 
 ### Advantage
 Keeps controllers lightweight and ensures that business logic can be reused by other delivery channels (such as CLI tasks or queue processors) if needed.

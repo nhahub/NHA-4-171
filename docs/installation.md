@@ -1,6 +1,6 @@
 # Installation & Setup Guide
 
-This document provides step-by-step instructions to configure and run the Thanya Car Spare Part System on a local development machine.
+This document provides step-by-step instructions to configure and run the carSparePartSys Car Spare Part System on a local development machine.
 
 ---
 
@@ -26,7 +26,7 @@ cd NHA-4-171
 ### Step B: Configure Local Settings
 Navigate to the Web API project folder:
 ```bash
-cd ThanyaProject
+cd carSparePartSysProject
 ```
 
 Copy the example configuration to create your development settings file:
@@ -38,12 +38,12 @@ Open `appsettings.Development.json` in your code editor and fill in your develop
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=ThanyaCarSparePartDb;Trusted_Connection=True;MultipleActiveResultSets=true"
+    "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=carSparePartSysCarSparePartDb;Trusted_Connection=True;MultipleActiveResultSets=true"
   },
   "JWT": {
     "Key": "CHOOSE_A_SECURE_JWT_SECRET_SIGNING_KEY_OF_AT_LEAST_32_BYTES",
-    "Issuer": "ThanyaAPI",
-    "Audience": "ThanyaUser"
+    "Issuer": "carSparePartSysAPI",
+    "Audience": "carSparePartSysUser"
   },
   "CloudinarySettings": {
     "CloudName": "YOUR_CLOUDINARY_NAME",
@@ -63,9 +63,9 @@ Open `appsettings.Development.json` in your code editor and fill in your develop
 ## 3. Database Initialization
 
 1. Ensure your local SQL Server instance is running.
-2. From the `ThanyaProject/` folder, run the EF Core migration command:
+2. From the `carSparePartSysProject/` folder, run the EF Core migration command:
    ```bash
-   dotnet ef database update --project ../ThanyaProject.DAL --startup-project .
+   dotnet ef database update --project ../carSparePartSysProject.DAL --startup-project .
    ```
    *Note: If the `dotnet-ef` tool is not installed globally, install it with:*
    ```bash

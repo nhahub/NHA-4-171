@@ -1,6 +1,6 @@
 # Features
 
-This document provides a breakdown of the core features implemented in the Thanya Car Spare Part System.
+This document provides a breakdown of the core features implemented in the carSparePartSys Car Spare Part System.
 
 ---
 

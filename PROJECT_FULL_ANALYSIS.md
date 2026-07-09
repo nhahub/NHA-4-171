@@ -5,10 +5,10 @@
 ## 1. Executive Summary
 
 ### What is this project?
-The Thanya Car Spare Part System is an enterprise e-commerce platform and inventory system specifically designed for the automotive spare parts industry. The system provides a headless REST API backend built in ASP.NET Core 9.0, connected to a Microsoft SQL Server database, and combined with an interactive, lightweight customer and administrator frontend in vanilla CSS and JavaScript.
+The carSparePartSys Car Spare Part System is an enterprise e-commerce platform and inventory system specifically designed for the automotive spare parts industry. The system provides a headless REST API backend built in ASP.NET Core 9.0, connected to a Microsoft SQL Server database, and combined with an interactive, lightweight customer and administrator frontend in vanilla CSS and JavaScript.
 
 ### What does it solve?
-Automotive retail is highly complex due to strict vehicle-to-part compatibility. A simple oil filter or brake rotor might fit a 2015 Toyota Corolla 1.8L but fail to fit a 2015 Toyota Corolla 2.0L. Standard retail catalogs do not support these relational constraints, resulting in high order return rates, lost shipping costs, and customer frustration. Thanya solves this by providing:
+Automotive retail is highly complex due to strict vehicle-to-part compatibility. A simple oil filter or brake rotor might fit a 2015 Toyota Corolla 1.8L but fail to fit a 2015 Toyota Corolla 2.0L. Standard retail catalogs do not support these relational constraints, resulting in high order return rates, lost shipping costs, and customer frustration. carSparePartSys solves this by providing:
 - Relational vehicle compatibility filtering (by brand, model, and year range) directly at the database and API levels.
 - Real-time inventory tracking across multiple regional warehouses.
 - Automated order processing and secure billing via Stripe checkout.
@@ -30,7 +30,7 @@ Automotive retail is highly complex due to strict vehicle-to-part compatibility.
 
 The automotive aftermarket industry is highly fragmented, with millions of part numbers matching specific engine designs, chassis configurations, and years. Traditional flat-catalog e-commerce setups struggle with these details. They cannot prevent a customer from buying a spark plug intended for a 1.8L engine to use in a 2.0L vehicle.
 
-Thanya was conceived to solve this problem. Built as an open-source project by the Thanya development team, the platform offers:
+carSparePartSys was conceived to solve this problem. Built as an open-source project by the carSparePartSys development team, the platform offers:
 - A relational data model connecting parts to car models.
 - An easy checkout experience integrated with Stripe.
 - A clean separation of concerns using Clean Architecture.
@@ -42,7 +42,7 @@ This design makes it easy for developers to add features (such as Redis caching 
 ## 3. Real World Scenario
 
 1. A mechanic at a garage needs a front pair of sport brake rotors for a **BMW 3-Series (F30)**.
-2. The mechanic opens the Thanya system and selects: Brand: BMW, Model: 3 Series (F30), Year: 2015.
+2. The mechanic opens the carSparePartSys system and selects: Brand: BMW, Model: 3 Series (F30), Year: 2015.
 3. The compatibility engine queries the PartCompatibilities table and shows the compatible product: Brembo Sport Brake Rotor (Front Pair), SKU BR-BREMBO-F20, along with the note: "Requires M-Sport braking kit."
 4. The mechanic adds the item to the cart, enters shipping details, and selects credit card checkout.
 5. The system validates stock availability, creates a Stripe Checkout session, and redirects the client to Stripe for secure payment.
@@ -158,24 +158,29 @@ This design makes it easy for developers to add features (such as Redis caching 
 
 ## 11. Project Architecture
 
-Thanya uses Clean Architecture:
+carSparePartSys uses Clean Architecture:
 
-`
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚               ThanyaProject (API/UI)                   â”‚
+```
++--------------------------------------------------------+
+|               carSparePartSysProject (API/UI)                   |
++--------------------------------------------------------+
+|             carSparePartSysProject.BL (Business Logic)          |
++--------------------------------------------------------+
+|             carSparePartSysProject.DAL (Data Access)            |
++--------------------------------------------------------+
+|             carSparePartSysProject.Models (Entities & DTOs)     |
++--------------------------------------------------------+
+```”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚             carSparePartSysProject.DAL (Data Access)            â”‚
 â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
-â”‚             ThanyaProject.BL (Business Logic)          â”‚
-â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
-â”‚             ThanyaProject.DAL (Data Access)            â”‚
-â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
-â”‚             ThanyaProject.Models (Entities & DTOs)     â”‚
+â”‚             carSparePartSysProject.Models (Entities & DTOs)     â”‚
 â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 `
 
-- **ThanyaProject (Presentation)**: Hosts API endpoints, registers dependencies, and serves the static HTML/JS files in /wwwroot.
-- **ThanyaProject.BL (Business Logic)**: Defines the core services and interfaces, validating business rules before database operations.
-- **ThanyaProject.DAL (Data Access)**: Implements database configurations, repositories, and Entity Framework migrations.
-- **ThanyaProject.Models (Domain)**: Declares database tables as C# classes and contains validation-safe DTOs.
+- **carSparePartSysProject (Presentation)**: Hosts API endpoints, registers dependencies, and serves the static HTML/JS files in /wwwroot.
+- **carSparePartSysProject.BL (Business Logic)**: Defines the core services and interfaces, validating business rules before database operations.
+- **carSparePartSysProject.DAL (Data Access)**: Implements database configurations, repositories, and Entity Framework migrations.
+- **carSparePartSysProject.Models (Domain)**: Declares database tables as C# classes and contains validation-safe DTOs.
 
 ---
 
@@ -315,7 +320,8 @@ The system defines three roles:
 
 The frontend is built using vanilla HTML, CSS, and JS:
 - index.html: Handles compatibility filtering and catalog browsing.
-- login.html / egister.html: Manages account login and registration.
+- login.html / 
+egister.html: Manages account login and registration.
 - cart.html: Displays saved items.
 - checkout.html: Collects shipping addresses and redirects users to Stripe checkout sessions.
 - dmin/: Houses administrative consoles for managing stock counts and reviewing orders.
@@ -356,17 +362,17 @@ The system tracks orders through the following steps:
 
 ## 25. Payment & Stripe Integration
 
-`
+```
 User Click Checkout
-        â”‚
-        â–¼
-Generate Stripe Session (API) â”€â”€> Redirect User to Stripe
-                                        â”‚
+        |
+        v
+Generate Stripe Session (API) ---> Redirect User to Stripe
+                                        |
                                    User Pays
-                                        â”‚
-                                        â–¼
-Verify webhook signature â”€â”€> Update Database â”€â”€> Generate Invoice
-`
+                                        |
+                                        v
+Verify webhook signature ---> Update Database ---> Generate Invoice
+```
 
 1. **Session Generation**: The backend calls the Stripe SDK to create a session with line item details and success/cancel URLs.
 2. **Redirect**: The browser redirects the customer to Stripe to enter their card details.
@@ -551,9 +557,9 @@ For student presentations, explain the following core components:
 
 ## 33. Presentation Script
 
-**Presenter**: "Good morning, members of the panel. Today, we are presenting the Thanya Car Spare Part System. Traditional e-commerce platforms struggle with the complex relational data models required for automotive retail. A single car model might require a specific brake pad based on engine size or year range. Purchasing the wrong part causes high return rates and customer frustration.
+**Presenter**: "Good morning, members of the panel. Today, we are presenting the carSparePartSys Car Spare Part System. Traditional e-commerce platforms struggle with the complex relational data models required for automotive retail. A single car model might require a specific brake pad based on engine size or year range. Purchasing the wrong part causes high return rates and customer frustration.
 
-To solve this, we built Thanya. Our platform features a relational vehicle compatibility checker, multi-warehouse stock management, and secure Stripe checkout.
+To solve this, we built carSparePartSys. Our platform features a relational vehicle compatibility checker, multi-warehouse stock management, and secure Stripe checkout.
 
 Architecturally, we used Clean Architecture:
 - **Models**: Defines database schemas.

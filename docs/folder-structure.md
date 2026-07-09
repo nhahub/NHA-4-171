@@ -1,6 +1,6 @@
 # Folder Structure
 
-This document details the folder structure of the Thanya Car Spare Part System. It explains the purpose of each project and sub-folder, reflecting Clean Architecture design principles.
+This document details the folder structure of the carSparePartSys Car Spare Part System. It explains the purpose of each project and sub-folder, reflecting Clean Architecture design principles.
 
 ---
 
@@ -10,10 +10,10 @@ The project is split into four layers plus a test suite:
 
 ```
 CarSparePartSys.sln
-├── ThanyaProject/               # Presentation & API Layer
-├── ThanyaProject.BL/            # Business Logic Layer
-├── ThanyaProject.DAL/           # Data Access Layer
-├── ThanyaProject.Models/        # Domain Models & DTOs Layer
+├── carSparePartSysProject/               # Presentation & API Layer
+├── carSparePartSysProject.BL/            # Business Logic Layer
+├── carSparePartSysProject.DAL/           # Data Access Layer
+├── carSparePartSysProject.Models/        # Domain Models & DTOs Layer
 └── CarSparePartSys.Tests/       # Unit Testing Suite
 ```
 
@@ -21,7 +21,7 @@ CarSparePartSys.sln
 
 ## 2. Layer Breakdown
 
-### A. Presentation & Delivery (`ThanyaProject`)
+### A. Presentation & Delivery (`carSparePartSysProject`)
 This folder represents the entry point of the application. It handles routing, security middlewares, static file serving, and dependency configuration:
 
 - **`Controllers/`**: Contains thin API controller classes (such as `ProductsController` or `StripeController`). These controllers validate incoming requests, execute actions, and return HTTP status codes.
@@ -35,7 +35,7 @@ This folder represents the entry point of the application. It handles routing, s
 
 ---
 
-### B. Business Logic Layer (`ThanyaProject.BL`)
+### B. Business Logic Layer (`carSparePartSysProject.BL`)
 This library isolates the core business processes and validation rules:
 
 - **`Service/`**: Implements business operations (such as processing cart checkouts, validating inventory levels, and managing coupon applications).
@@ -43,7 +43,7 @@ This library isolates the core business processes and validation rules:
 
 ---
 
-### C. Data Access Layer (`ThanyaProject.DAL`)
+### C. Data Access Layer (`carSparePartSysProject.DAL`)
 This library integrates the application with the database engine:
 
 - **`Data/`**: Declares `AppDbContext.cs` for entity-relationship configurations and `DbSeed.cs` for database initialization lookups, default roles, and admin accounts.
@@ -54,7 +54,7 @@ This library integrates the application with the database engine:
 
 ---
 
-### D. Domain Models Layer (`ThanyaProject.Models`)
+### D. Domain Models Layer (`carSparePartSysProject.Models`)
 This layer defines the data structures and transfer payloads:
 
 - **`Model/`**: Plain old C# object (POCO) model classes representing the database tables.

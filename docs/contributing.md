@@ -1,6 +1,6 @@
 # Contributing Guidelines
 
-Thank you for contributing to the Thanya Car Spare Part System project. To maintain code quality and architectural integrity, please review the following guidelines before submitting code.
+Thank you for contributing to the carSparePartSys Car Spare Part System project. To maintain code quality and architectural integrity, please review the following guidelines before submitting code.
 
 ---
 
@@ -9,7 +9,7 @@ Thank you for contributing to the Thanya Car Spare Part System project. To maint
 The codebase enforces a Clean Architecture structure. Please follow these principles when writing code:
 
 - **Thin Controllers**: Controllers must not contain business validation logic or direct Entity Framework database context queries. Keep them thin, using them to capture inputs, call service layers, and map outputs.
-- **Service Isolation**: Place business processes inside the `ThanyaProject.BL` library. Write interfaces for services to keep implementations decoupled from HTTP layers.
+- **Service Isolation**: Place business processes inside the `carSparePartSysProject.BL` library. Write interfaces for services to keep implementations decoupled from HTTP layers.
 - **Strongly-Typed Payloads**: Never expose database entities directly to controllers. Use DTO (Data Transfer Object) models for API request bodies and response outputs.
 
 ---

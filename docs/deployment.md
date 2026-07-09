@@ -1,6 +1,6 @@
 # Deployment Guide
 
-This document describes the deployment workflows for the Thanya Car Spare Part System, highlighting container configuration and production best practices.
+This document describes the deployment workflows for the carSparePartSys Car Spare Part System, highlighting container configuration and production best practices.
 
 ---
 

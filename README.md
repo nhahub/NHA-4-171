@@ -10,7 +10,7 @@ An enterprise-grade, Clean Architecture ASP.NET Core e-commerce and inventory pl
 ```
 ┌────────────────────────────────────────────────────────┐
 │                                                        │
-│             [ THANYA CAR SPARE PARTS LOGO ]            │
+│             [ CARSPAREPARTSYS CAR SPARE PARTS LOGO ]            │
 │                                                        │
 └────────────────────────────────────────────────────────┘
 ```
@@ -40,13 +40,13 @@ An enterprise-grade, Clean Architecture ASP.NET Core e-commerce and inventory pl
 
 ## Introduction
 
-Thanya Car Spare Part System is a production-ready, highly relational e-commerce application designed to handle the unique complexities of automotive parts sales, warehousing, and vehicle compatibility checking. It provides a headless REST API backend built in ASP.NET Core 9.0, paired with an interactive, lightweight frontend using vanilla CSS and JavaScript.
+carSparePartSys Car Spare Part System is a production-ready, highly relational e-commerce application designed to handle the unique complexities of automotive parts sales, warehousing, and vehicle compatibility checking. It provides a headless REST API backend built in ASP.NET Core 9.0, paired with an interactive, lightweight frontend using vanilla CSS and JavaScript.
 
 ---
 
 ## Why This Project Exists
 
-Unlike typical e-commerce solutions that manage uniform catalogs, automotive parts retail is highly complex. A single physical part (e.g., a brake rotor) might only fit specific car brands, models, and manufacturing year ranges. Furthermore, inventory must be tracked across multiple regional warehouses, and orders require robust tracking, returns processing, and secure transaction workflows. Thanya resolves these pain points by offering:
+Unlike typical e-commerce solutions that manage uniform catalogs, automotive parts retail is highly complex. A single physical part (e.g., a brake rotor) might only fit specific car brands, models, and manufacturing year ranges. Furthermore, inventory must be tracked across multiple regional warehouses, and orders require robust tracking, returns processing, and secure transaction workflows. carSparePartSys resolves these pain points by offering:
 - Strict relational binding between parts, manufacturers, and vehicle model lines.
 - Native multi-warehouse stock allocation.
 - Direct Stripe checkout integration.
@@ -103,13 +103,13 @@ Unlike typical e-commerce solutions that manage uniform catalogs, automotive par
 
 ## Architecture Summary
 
-Thanya is built using Clean Architecture, separating concerns across distinct layers to maintain high testability and loosely coupled components.
+carSparePartSys is built using Clean Architecture, separating concerns across distinct layers to maintain high testability and loosely coupled components.
 
 ```mermaid
 graph TD
-    API[Presentation Layer: ThanyaProject] --> BL[Business Logic Layer: ThanyaProject.BL]
-    BL --> DAL[Data Access Layer: ThanyaProject.DAL]
-    BL --> MD[Domain Models Layer: ThanyaProject.Models]
+    API[Presentation Layer: carSparePartSysProject] --> BL[Business Logic Layer: carSparePartSysProject.BL]
+    BL --> DAL[Data Access Layer: carSparePartSysProject.DAL]
+    BL --> MD[Domain Models Layer: carSparePartSysProject.Models]
     API --> MD
     DAL --> MD
 ```
@@ -122,18 +122,18 @@ For a comprehensive review, see [system-architecture.md](file:///d:/depi_rahmaAN
 
 ```text
 CarSparePartSys.sln
-├── ThanyaProject/               # API / Presentation Layer
+├── carSparePartSysProject/               # API / Presentation Layer
 │   ├── Controllers/            # Thin API Controllers
 │   ├── Extensions/             # Dependency Injection composition roots
 │   ├── Stripe/                 # Stripe integration config & handlers
 │   └── wwwroot/                # Frontend static assets (HTML, CSS, JS)
-├── ThanyaProject.BL/            # Business Logic Layer
+├── carSparePartSysProject.BL/            # Business Logic Layer
 │   └── Service/                # Domain services implementations & interfaces
-├── ThanyaProject.DAL/           # Data Access Layer
+├── carSparePartSysProject.DAL/           # Data Access Layer
 │   ├── Data/                   # DbContext, DB Seed, and database configurations
 │   ├── Migrations/             # EF Core database migrations
 │   └── Repositories/           # Repository Pattern implementations
-├── ThanyaProject.Models/        # Domain Models / DTOs
+├── carSparePartSysProject.Models/        # Domain Models / DTOs
 │   ├── Dto/                    # Strongly-typed input and output DTOs
 │   └── Model/                  # Database tables/entities mapping
 └── CarSparePartSys.Tests/       # xUnit Unit and Mock testing suite
@@ -154,7 +154,7 @@ Detailed structure details are documented in [folder-structure.md](file:///d:/de
 2. **Configure Configuration Files**:
    Copy the example configuration to development settings:
    ```bash
-   cd ThanyaProject
+   cd carSparePartSysProject
    cp appsettings.Development.example.json appsettings.Development.json
    ```
 
@@ -172,7 +172,7 @@ Refer to the full guide in [installation.md](file:///d:/depi_rahmaANDreem_777/do
 
 Run the application locally using the .NET CLI:
 ```bash
-cd ThanyaProject
+cd carSparePartSysProject
 dotnet run
 ```
 The application will launch and listen on the configured port (default `8085` or mapped environment variables).
@@ -244,7 +244,7 @@ Read more in [project-workflow.md](file:///d:/depi_rahmaANDreem_777/docs/project
 ## Future Improvements
 
 - **Distributed Caching**: Integrating Redis to cache frequently requested catalog queries like car brands and model lists.
-- **Full Test Suite**: Increasing xUnit test coverage across all domain services in `ThanyaProject.BL`.
+- **Full Test Suite**: Increasing xUnit test coverage across all domain services in `carSparePartSysProject.BL`.
 - **Search Optimization**: Adding full-text search indexing on product names, SKUs, and descriptions.
 
 Detailed plans are compiled in [future-plan.md](file:///d:/depi_rahmaANDreem_777/docs/future-plan.md).
@@ -253,7 +253,7 @@ Detailed plans are compiled in [future-plan.md](file:///d:/depi_rahmaANDreem_777
 
 ## Contributors
 
-- **Thanya Team** - Core Architecture & Frontend/Backend Development
+- **carSparePartSys Team** - Core Architecture & Frontend/Backend Development
 
 ---
 

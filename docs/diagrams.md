@@ -1,6 +1,6 @@
 # System Diagrams
 
-This document contains Mermaid diagrams visualizing the architecture, user journeys, relational databases, security pipelines, and deployment layouts for the Thanya Car Spare Part System.
+This document contains Mermaid diagrams visualizing the architecture, user journeys, relational databases, security pipelines, and deployment layouts for the carSparePartSys Car Spare Part System.
 
 ---
 
@@ -11,19 +11,19 @@ Shows the separation of layers and dependency directions based on Clean Architec
 ```mermaid
 graph TD
     subgraph Presentation ["Presentation Layer"]
-        API["ThanyaProject (Web API / UI)"]
+        API["carSparePartSysProject (Web API / UI)"]
     end
 
     subgraph Logic ["Business Logic Layer"]
-        BL["ThanyaProject.BL (Services)"]
+        BL["carSparePartSysProject.BL (Services)"]
     end
 
     subgraph DataAccess ["Data Access Layer"]
-        DAL["ThanyaProject.DAL (EF Core & Repositories)"]
+        DAL["carSparePartSysProject.DAL (EF Core & Repositories)"]
     end
 
     subgraph Domain ["Domain Layer"]
-        Models["ThanyaProject.Models (Entities & DTOs)"]
+        Models["carSparePartSysProject.Models (Entities & DTOs)"]
     end
 
     API --> BL

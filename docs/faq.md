@@ -1,6 +1,6 @@
 # Frequently Asked Questions (FAQ)
 
-Here are answers to common questions about setting up, using, and modifying the Thanya Car Spare Part System.
+Here are answers to common questions about setting up, using, and modifying the carSparePartSys Car Spare Part System.
 
 ---
 

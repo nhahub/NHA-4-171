@@ -1,6 +1,6 @@
 # API Overview
 
-The Thanya Car Spare Part System exposes a RESTful Web API under the base path `/api`. The API maps search configurations, account credentials, order operations, and payment triggers.
+The carSparePartSys Car Spare Part System exposes a RESTful Web API under the base path `/api`. The API maps search configurations, account credentials, order operations, and payment triggers.
 
 ---
 

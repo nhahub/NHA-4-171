@@ -1,12 +1,12 @@
 # Changelog
 
-All notable changes to the Thanya Car Spare Part System will be documented in this file.
+All notable changes to the carSparePartSys Car Spare Part System will be documented in this file.
 
 ---
 
 ## [1.0.0] - 2026-07-09
 
-This is the initial production release of the Thanya Car Spare Part System.
+This is the initial production release of the carSparePartSys Car Spare Part System.
 
 ### Added Features
 - **Clean Architecture Solution Layout**: Split the codebase into API, BL, DAL, and Models projects to improve maintainability and testability.

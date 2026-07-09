@@ -1,6 +1,6 @@
 # Technology Stack
 
-Thanya Car Spare Part System leverages a modern, stable technical stack to ensure performance, type safety, and straightforward hosting.
+carSparePartSys Car Spare Part System leverages a modern, stable technical stack to ensure performance, type safety, and straightforward hosting.
 
 ---
 

@@ -1,6 +1,6 @@
 # Future Plan
 
-This document outlines planned technical and business improvements for the Thanya Car Spare Part System. These plans focus on performance, security, operational efficiency, and expanding developer resources.
+This document outlines planned technical and business improvements for the carSparePartSys Car Spare Part System. These plans focus on performance, security, operational efficiency, and expanding developer resources.
 
 ---
 

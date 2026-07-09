@@ -1,6 +1,6 @@
 # Project Workflow
 
-This document traces the workflow paths within the Thanya Car Spare Part System, mapping user interactions to backend services and database operations.
+This document traces the workflow paths within the carSparePartSys Car Spare Part System, mapping user interactions to backend services and database operations.
 
 ---
 
