@@ -1,147 +1,262 @@
-# Thanya Car Spare Part System — API
+# Thanya Car Spare Part System
 
-A Clean Architecture ASP.NET Core Web API for managing car spare parts, orders, payments, and user accounts.
+[![Build Status](https://github.com/nhahub/NHA-4-171/actions/workflows/dotnet.yml/badge.svg)](https://github.com/nhahub/NHA-4-171/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![.NET Core](https://img.shields.io/badge/.NET-9.0-blue.svg)](https://dotnet.microsoft.com/download/dotnet/9.0)
+[![Database](https://img.shields.io/badge/Database-SQL_Server-red.svg)](https://www.microsoft.com/en-us/sql-server)
+
+An enterprise-grade, Clean Architecture ASP.NET Core e-commerce and inventory platform built specifically for the automotive spare parts industry. 
+
+```
+┌────────────────────────────────────────────────────────┐
+│                                                        │
+│             [ THANYA CAR SPARE PARTS LOGO ]            │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 1. Project Architecture
+## Table of Contents
 
-The solution is designed around Clean Architecture and SOLID principles, ensuring high maintainability and testability:
+- [Introduction](#introduction)
+- [Why This Project Exists](#why-this-project-exists)
+- [Main Features](#main-features)
+- [Screenshots](#screenshots)
+- [Technology Stack](#technology-stack)
+- [Architecture Summary](#architecture-summary)
+- [Folder Structure](#folder-structure)
+- [Installation & Setup](#installation--setup)
+- [Running the Project](#running-the-project)
+- [Environment Variables](#environment-variables)
+- [Usage](#usage)
+- [Project Workflow](#project-workflow)
+- [Challenges & Decisions](#challenges--decisions)
+- [Future Improvements](#future-improvements)
+- [Contributors](#contributors)
+- [License](#license)
+
+---
+
+## Introduction
+
+Thanya Car Spare Part System is a production-ready, highly relational e-commerce application designed to handle the unique complexities of automotive parts sales, warehousing, and vehicle compatibility checking. It provides a headless REST API backend built in ASP.NET Core 9.0, paired with an interactive, lightweight frontend using vanilla CSS and JavaScript.
+
+---
+
+## Why This Project Exists
+
+Unlike typical e-commerce solutions that manage uniform catalogs, automotive parts retail is highly complex. A single physical part (e.g., a brake rotor) might only fit specific car brands, models, and manufacturing year ranges. Furthermore, inventory must be tracked across multiple regional warehouses, and orders require robust tracking, returns processing, and secure transaction workflows. Thanya resolves these pain points by offering:
+- Strict relational binding between parts, manufacturers, and vehicle model lines.
+- Native multi-warehouse stock allocation.
+- Direct Stripe checkout integration.
+
+---
+
+## Main Features
+
+- **Vehicle Compatibility Checker**: Filter parts dynamically by selecting Car Brand, Car Model, and manufacturing year range.
+- **Cart & Wishlist Systems**: Client-side storage synchronized with database records upon authentication.
+- **Order & Returns Pipeline**: Track orders from Pending to Delivered, complete with automated invoice generation and customer return requests.
+- **Warehouse & Inventory Tracking**: Support for multiple warehouses, minimum reorder thresholds, and granular stock transaction logs.
+- **Stripe Payments**: End-to-end payment processing including Stripe Checkout sessions and secure webhook callbacks.
+- **Newsletter Subscription**: Marketing mailing list registration and status management.
+- **Role-Based Security**: Access policies dividing workflows into standard Customers, parts Suppliers, and system Administrators.
+
+---
+
+## Screenshots
+
+```
+┌────────────────────────────────────────────────────────┐
+│                                                        │
+│           [ Customer Dashboard & Catalog UI ]          │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+```
+
+```
+┌────────────────────────────────────────────────────────┐
+│                                                        │
+│           [ Admin Inventory & Orders Console ]         │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Technology Stack
+
+### Backend
+- **Framework**: .NET 9.0 Web API
+- **ORM**: Entity Framework Core 9.0
+- **Database Engine**: Microsoft SQL Server
+- **Authentication**: JWT Bearer Tokens & ASP.NET Core Identity
+- **External APIs**: Stripe (Payments), Cloudinary (Asset management)
+
+### Frontend
+- **Structure**: Semantic HTML5
+- **Style**: Custom Vanilla CSS3
+- **Logic**: Vanilla JavaScript ES6 (built-in API client)
+
+---
+
+## Architecture Summary
+
+Thanya is built using Clean Architecture, separating concerns across distinct layers to maintain high testability and loosely coupled components.
 
 ```mermaid
 graph TD
-    API[API Layer: ThanyaProject] --> BL[Business Logic Layer: ThanyaProject.BL]
+    API[Presentation Layer: ThanyaProject] --> BL[Business Logic Layer: ThanyaProject.BL]
     BL --> DAL[Data Access Layer: ThanyaProject.DAL]
-    BL --> MD[Models Layer: ThanyaProject.Models]
+    BL --> MD[Domain Models Layer: ThanyaProject.Models]
     API --> MD
     DAL --> MD
 ```
 
-*   **API Layer (`ThanyaProject`)**: Handles HTTP requests, CORS, Swagger UI, authentication pipelines, and maps endpoints. Controllers speak only to services (never directly to repositories or DbContext).
-*   **Business Logic Layer (`ThanyaProject.BL`)**: Contains the core business logic services. Interfaces are defined here and implemented to keep code decoupled.
-*   **Data Access Layer (`ThanyaProject.DAL`)**: Integrates EF Core, handles DB seeding, manages SQL repositories, and tracks migration history.
-*   **Domain Models Layer (`ThanyaProject.Models`)**: Houses domain models, database entities, and Data Transfer Objects (DTOs).
+For a comprehensive review, see [system-architecture.md](file:///d:/depi_rahmaANDreem_777/docs/system-architecture.md).
 
 ---
 
-## 2. Folder Structure
+## Folder Structure
 
 ```text
 CarSparePartSys.sln
 ├── ThanyaProject/               # API / Presentation Layer
-│   ├── Controllers/            # Thin controllers delegating to Service Layer
-│   ├── Extensions/             # Startup Extension modules (pure Composition Root)
-│   ├── Stripe/                 # Stripe checkout, webhook, and configuration mappings
-│   └── Configuration/          # Other configuration files
+│   ├── Controllers/            # Thin API Controllers
+│   ├── Extensions/             # Dependency Injection composition roots
+│   ├── Stripe/                 # Stripe integration config & handlers
+│   └── wwwroot/                # Frontend static assets (HTML, CSS, JS)
 ├── ThanyaProject.BL/            # Business Logic Layer
-│   └── Service/                # Logic service implementations and interfaces
+│   └── Service/                # Domain services implementations & interfaces
 ├── ThanyaProject.DAL/           # Data Access Layer
-│   ├── Data/                   # AppDbContext, database seeding and configuration
-│   ├── Migrations/             # EF Core database schema migrations
+│   ├── Data/                   # DbContext, DB Seed, and database configurations
+│   ├── Migrations/             # EF Core database migrations
 │   └── Repositories/           # Repository Pattern implementations
 ├── ThanyaProject.Models/        # Domain Models / DTOs
 │   ├── Dto/                    # Strongly-typed input and output DTOs
 │   └── Model/                  # Database tables/entities mapping
-├── CarSparePartSys.Tests/       # xUnit Unit and Mock testing suite
-├── Dockerfile                   # Multistage Docker build config
-├── docker-compose.yml           # Multi-container local orchestration (SQL Server + Web API)
-└── .github/
-    └── workflows/
-        └── dotnet.yml           # GitHub Actions CI/CD pipeline
+└── CarSparePartSys.Tests/       # xUnit Unit and Mock testing suite
 ```
 
----
-
-## 3. Environment Variables & Configuration
-
-Configuration sections mapped from `appsettings.json`, user-secrets, or environment variables:
-
-| Path / Key | Variable Equivalent | Description |
-|:---|:---|:---|
-| `ConnectionStrings:DefaultConnection` | `ConnectionStrings__DefaultConnection` | SQL Server database connection string |
-| `JWT:Key` | `JWT__Key` | HMAC-SHA256 signing key (min. 32 characters) |
-| `JWT:Issuer` | `JWT__Issuer` | Token issuer claim (e.g., `ThanyaAPI`) |
-| `JWT:Audience` | `JWT__Audience` | Token audience claim (e.g., `ThanyaUser`) |
-| `JWT:DurationInMinutes` | `JWT__DurationInMinutes` | Expiry duration for access token in minutes |
-| `Stripe:Secretkey` | `Stripe__Secretkey` | Stripe API Secret Key |
-| `Stripe:Publishablekey` | `Stripe__Publishablekey` | Stripe API Publishable Key |
-| `Stripe:WebhookSecret` | `Stripe__WebhookSecret` | Stripe webhook signature key |
-| `CloudinarySettings:CloudName` | `CloudinarySettings__CloudName` | Cloudinary Account Cloud Name |
-| `CloudinarySettings:ApiKey` | `CloudinarySettings__ApiKey` | Cloudinary API Key |
-| `CloudinarySettings:ApiSecret` | `CloudinarySettings__ApiSecret` | Cloudinary API Secret Key |
-| `Admin:Email` | `Admin__Email` | Seeded admin email address |
-| `Admin:Password` | `Admin__Password` | Seeded admin account password |
+Detailed structure details are documented in [folder-structure.md](file:///d:/depi_rahmaANDreem_777/docs/folder-structure.md).
 
 ---
 
-## 4. Running Locally
+## Installation & Setup
 
-### Prerequisites
-*   [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) (or later via roll-forward)
-*   SQL Server (Express or LocalDB instance)
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/nhahub/NHA-4-171.git
+   cd NHA-4-171
+   ```
 
-### Steps
-1.  **Configure local secrets**:
-    ```bash
-    cd ThanyaProject
-    cp appsettings.Development.example.json appsettings.Development.json
-    ```
-    Open `appsettings.Development.json` and replace standard placeholder credentials with your developer credentials.
+2. **Configure Configuration Files**:
+   Copy the example configuration to development settings:
+   ```bash
+   cd ThanyaProject
+   cp appsettings.Development.example.json appsettings.Development.json
+   ```
 
-2.  **Restore & Build**:
-    ```bash
-    dotnet restore
-    dotnet build
-    ```
+3. **Install Dependencies & Restore Packages**:
+   From the root folder:
+   ```bash
+   dotnet restore
+   ```
 
-3.  **Run Migrations**:
-    ```bash
-    dotnet ef database update --project ../ThanyaProject.DAL --startup-project .
-    ```
-
-4.  **Launch application**:
-    ```bash
-    dotnet run
-    ```
-    Swagger documentation UI is served by default at: `http://localhost:8080/swagger`
+Refer to the full guide in [installation.md](file:///d:/depi_rahmaANDreem_777/docs/installation.md).
 
 ---
 
-## 5. Docker Setup & Running with Docker
+## Running the Project
 
-Orchestrate the entire stack (ASP.NET API + SQL Server database engine) using one command.
+Run the application locally using the .NET CLI:
+```bash
+cd ThanyaProject
+dotnet run
+```
+The application will launch and listen on the configured port (default `8085` or mapped environment variables).
+Access the interactive OpenAPI spec at `http://localhost:8085/swagger`.
 
-### Running with Docker Compose
-From the solution root directory, execute:
+To run using Docker:
 ```bash
 docker compose up --build -d
 ```
-This builds the API image, launches SQL Server 2022, creates the necessary databases, runs EF migrations at startup, and starts the API listening on port `8080`.
 
 ---
 
-## 6. Testing
+## Environment Variables
 
-Unit and service mock tests are stored inside `CarSparePartSys.Tests` using **xUnit**, **FluentAssertions**, and **Moq**.
+| Variable | Description | Default / Example |
+| :--- | :--- | :--- |
+| `PORT` | Local server port for Kestrel hosting | `8085` |
+| `ConnectionStrings__DefaultConnection` | SQL Server DB Connection String | `Server=...;Database=...;` |
+| `JWT__Key` | Secret signature key for JWT tokens | `YourSigningKeyOfAtLeast32Bytes...` |
+| `Stripe__Secretkey` | Stripe Account Secret Key | `sk_test_...` |
+| `CloudinarySettings__CloudName` | Cloudinary storage bucket identifier | `CloudName` |
 
-Run the test suite:
-```bash
-dotnet test
+For detail on variables, see [technology-stack.md](file:///d:/depi_rahmaANDreem_777/docs/technology-stack.md).
+
+---
+
+## Usage
+
+### Customers
+1. Register a new account or log in via the Login page.
+2. Select vehicle specifications to query compatible parts.
+3. Add products to Cart/Wishlist.
+4. Proceed to checkout, paying via Stripe card simulation.
+
+### Admins
+- Access backend controls at `/admin/dashboard.html`.
+- Manage product categories, track stock logs, set product listings, and process orders.
+
+---
+
+## Project Workflow
+
+The customer experience transitions from catalog browsing and vehicle selection to checkout. The diagram below represents the core data flow:
+
+```mermaid
+sequenceDiagram
+    User->>Frontend: Selects Car Brand & Model
+    Frontend->>API: GET /api/compatibility/search
+    API->>Database: Query compatible products
+    Database-->>API: Return products
+    API-->>Frontend: Render compatibility list
+    User->>Frontend: Adds to Cart & Checks Out
+    Frontend->>API: POST /api/stripe/create-checkout-session
+    API->>Stripe: Request payment session
+    Stripe-->>Frontend: Redirect to secure page
 ```
 
----
-
-## 7. GitHub Actions CI/CD
-
-The workflow in `.github/workflows/dotnet.yml` runs on every pull request and push to the `main` branch. It executes:
-1.  **Restore** of project dependencies.
-2.  **Build** under `Release` configuration.
-3.  **Unit Tests** execution. The build fails if any test fails.
+Read more in [project-workflow.md](file:///d:/depi_rahmaANDreem_777/docs/project-workflow.md).
 
 ---
 
-## 8. Production Deployment Recommendations
+## Challenges & Decisions
 
-1.  **Secrets Management**: Use a secret store provider (AWS Secrets Manager, Azure Key Vault) to inject environment variables securely. Do not store secrets in configuration files.
-2.  **HTTPS Enforcement**: Ensure Kestrel is bound to port `443` with a valid TLS certificate, or run the container behind a HTTPS-terminating reverse proxy.
-3.  **Security Token Rotation**: Refresh token rotation is fully enabled. Ensure clients handle rotated credentials atomically.
+1. **Circular Referencing**: Direct JSON mapping of highly relational tables can cause infinite serialization loops. We resolved this in `Program.cs` by configuring `JsonSerializerOptions.ReferenceHandler` to `ReferenceHandler.IgnoreCycles`.
+2. **Transactional Security**: Payment processing must map reliably to database orders. Stripe webhook events were integrated in `StripeController` to verify transaction events directly before updating order statuses to `Processing`.
+
+---
+
+## Future Improvements
+
+- **Distributed Caching**: Integrating Redis to cache frequently requested catalog queries like car brands and model lists.
+- **Full Test Suite**: Increasing xUnit test coverage across all domain services in `ThanyaProject.BL`.
+- **Search Optimization**: Adding full-text search indexing on product names, SKUs, and descriptions.
+
+Detailed plans are compiled in [future-plan.md](file:///d:/depi_rahmaANDreem_777/docs/future-plan.md).
+
+---
+
+## Contributors
+
+- **Thanya Team** - Core Architecture & Frontend/Backend Development
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
