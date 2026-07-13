@@ -20,6 +20,10 @@ namespace CarSparePartSysProject.Models.Dto.Products
 
         public bool IsActive { get; set; }
 
+        public string SKU { get; set; } = string.Empty;
+
+        public string? PartNumber { get; set; }
+
         public int CategoryId { get; set; }
 
         public string? CategoryName { get; set; }

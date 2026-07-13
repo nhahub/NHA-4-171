@@ -50,15 +50,16 @@ function renderTable() {
     return;
   }
 
-  tbody.innerHTML = pageItems.map(sub => {
+  tbody.innerHTML = pageItems.map((sub, idx) => {
     const date = new Date(sub.subscribedAt || sub.SubscribedAt).toLocaleDateString('en-US', {
       year: 'numeric', month: 'short', day: 'numeric'
     });
     const isContacted = sub.isContacted || sub.IsContacted || false;
     const id = sub.id || sub.Id;
+    const seqNum = (currentPage - 1) * PAGE_SIZE + idx + 1;
 
     return `<tr>
-      <td>${id}</td>
+      <td>${seqNum}</td>
       <td><strong>${sub.email || sub.Email}</strong></td>
       <td>${date}</td>
       <td>

@@ -68,9 +68,9 @@ async function loadWarehouses() {
       return;
     }
 
-    tbody.innerHTML = list.map(w => `
+    tbody.innerHTML = list.map((w, idx) => `
       <tr>
-        <td>${w.warehouseId}</td>
+        <td>${idx + 1}</td>
         <td><strong>${w.warehouseName}</strong></td>
         <td><span class="text--sm text--muted">${w.location || '—'}</span></td>
         <td>${w.isActive ? '<span class="badge badge--success">Yes</span>' : '<span class="badge badge--error">No</span>'}</td>
@@ -137,6 +137,10 @@ window.saveWarehouse = async function() {
   const data = Object.fromEntries(fd.entries());
   data.isActive = document.getElementById('warehouse-active').checked;
 
+  if (!id) {
+    delete data.warehouseId;
+  }
+
   try {
     if (id) {
       await AdminAPI.Warehouses.update(id, data);
@@ -194,7 +198,7 @@ async function loadInventory() {
       return;
     }
 
-    tbody.innerHTML = items.map(inv => {
+    tbody.innerHTML = items.map((inv, idx) => {
       const stock = inv.quantityInStock || 0;
       const reorder = inv.reorderLevel || 10;
       const pName = inv.productName || inv.product?.productName || 'Product #' + inv.productId;
@@ -210,9 +214,11 @@ async function loadInventory() {
         statusBadge = '<span class="badge badge--warning">Low Stock</span>';
       }
 
+      const seqNum = (filterState.page - 1) * filterState.pageSize + idx + 1;
+
       return `
         <tr>
-          <td>${inv.inventoryId}</td>
+          <td>${seqNum}</td>
           <td><strong>${pName}</strong></td>
           <td><code>${pSku}</code></td>
           <td>${whName}</td>
@@ -301,7 +307,7 @@ async function loadTransactions() {
 window.openAdjustmentModal = async function(preselectProductId = null, preselectWarehouseId = null) {
   const productsResult = await AdminAPI.Products.getAll('', '', '', 1, 100);
   const products = productsResult?.items || [];
-  const warehouses = await AdminAPI.Warehouses.getAll();
+  const warehouses = (await AdminAPI.Warehouses.getAll()).filter(w => w.isActive);
 
   UI.openModal({
     title: 'Quick Stock Adjustment',

@@ -18,7 +18,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarSparePartSys.Tests", "CarSparePartSys.Tests\CarSparePartSys.Tests.csproj", "{B26450E4-E1B3-4FBA-8A65-6657123BA672}"
 EndProject
-
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThanyaProject", "ThanyaProject", "{54E75CD6-7263-7C72-2825-E0E8FE7EF1CC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThanyaProject.BL", "ThanyaProject.BL", "{35F3375A-41A9-0062-6CFD-DD23A522376F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThanyaProject.DAL", "ThanyaProject.DAL", "{3F3EE0FD-AE57-E51F-241D-ECE40E4CD35B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThanyaProject.Models", "ThanyaProject.Models", "{051EA26C-F523-43B1-6DF9-D56DA2F2B89E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

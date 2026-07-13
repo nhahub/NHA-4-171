@@ -34,9 +34,9 @@ async function loadBrands() {
       return;
     }
 
-    tbody.innerHTML = list.map(b => `
+    tbody.innerHTML = list.map((b, idx) => `
       <tr>
-        <td>${b.brandId}</td>
+        <td>${idx + 1}</td>
         <td><strong>${b.brandName}</strong></td>
         <td>${b.country || '—'}</td>
         <td class="admin-table-actions">
@@ -171,9 +171,9 @@ async function loadModels() {
       return;
     }
 
-    tbody.innerHTML = list.map(m => `
+    tbody.innerHTML = list.map((m, idx) => `
       <tr>
-        <td>${m.modelId}</td>
+        <td>${idx + 1}</td>
         <td><strong>${m.modelName}</strong></td>
         <td>${m.brand?.brandName || '—'}</td>
         <td>${m.yearStart}${m.yearEnd ? '–' + m.yearEnd : '+'}</td>
@@ -294,7 +294,7 @@ async function loadCompatibilityMappings() {
       return;
     }
 
-    tbody.innerHTML = list.map(c => {
+    tbody.innerHTML = list.map((c, idx) => {
       const p = products.find(prod => prod.productId === c.productId);
       const m = models.find(mod => mod.modelId === c.modelId);
       
@@ -304,7 +304,7 @@ async function loadCompatibilityMappings() {
 
       return `
         <tr>
-          <td>${c.compatibilityId}</td>
+          <td>${idx + 1}</td>
           <td style="max-width:200px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;"><strong>${pName}</strong></td>
           <td><code>${pSku}</code></td>
           <td>${vName}</td>

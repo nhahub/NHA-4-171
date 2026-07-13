@@ -12,7 +12,7 @@ namespace CarSparePartSysProject.Extensions
                             "http://localhost:3000",
                             "http://localhost:5173",
                             "http://localhost:4200",
-                            "https://carsparepartsys.netlify.app"
+                            "https://thanya.netlify.app"
                           )
                           .AllowAnyHeader()
                           .AllowAnyMethod()

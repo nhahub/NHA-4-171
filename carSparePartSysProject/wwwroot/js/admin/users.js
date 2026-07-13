@@ -65,7 +65,7 @@ async function loadUsers() {
       return;
     }
 
-    tbody.innerHTML = items.map(u => {
+    tbody.innerHTML = items.map((u, idx) => {
       const activeBadge = u.isActive 
         ? '<span class="badge badge--success">Active</span>' 
         : '<span class="badge badge--error">Deactivated</span>';
@@ -73,9 +73,11 @@ async function loadUsers() {
       const toggleText = u.isActive ? 'Deactivate' : 'Activate';
       const toggleClass = u.isActive ? 'btn--danger' : 'btn--primary';
 
+      const seqNum = (filterState.page - 1) * filterState.pageSize + idx + 1;
+
       return `
         <tr>
-          <td>${u.userId}</td>
+          <td>${seqNum}</td>
           <td><strong>${u.firstName || ''} ${u.lastName || ''}</strong></td>
           <td><code>${u.username || '—'}</code></td>
           <td>${u.email || '—'}</td>

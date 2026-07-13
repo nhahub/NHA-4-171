@@ -56,17 +56,18 @@ async function loadReturns() {
       return;
     }
 
-    tbody.innerHTML = items.map(r => {
+    tbody.innerHTML = items.map((r, idx) => {
       let statusClass = 'warning';
       if (r.status === 'Approved' || r.status === 'Refunded') statusClass = 'success';
       if (r.status === 'Rejected') statusClass = 'error';
       const statusBadge = `<span class="badge badge--${statusClass}">${r.status}</span>`;
 
       const refundVal = r.refundAmount !== null ? formatPrice(r.refundAmount) : '—';
+      const seqNum = (filterState.page - 1) * filterState.pageSize + idx + 1;
 
       return `
         <tr>
-          <td>#${r.returnId}</td>
+          <td>${seqNum}</td>
           <td>${r.user?.firstName || 'User'} ${r.user?.lastName || ''}</td>
           <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><strong>${r.orderDetail?.product?.productName || 'Product'}</strong></td>
           <td>${r.quantity}</td>

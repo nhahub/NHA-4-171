@@ -58,21 +58,24 @@ async function loadSuppliers() {
       return;
     }
 
-    tbody.innerHTML = items.map(s => `
-      <tr>
-        <td>${s.supplierId}</td>
-        <td><strong>${s.supplierName}</strong></td>
-        <td>${s.contactPerson || '—'}</td>
-        <td>${s.email || '—'}</td>
-        <td>${s.phone || '—'}</td>
-        <td><code>${s.taxNumber || '—'}</code></td>
-        <td>${s.isActive ? '<span class="badge badge--success">Active</span>' : '<span class="badge badge--error">Inactive</span>'}</td>
-        <td class="admin-table-actions">
-          <button class="btn btn--icon btn--ghost" onclick="openSupplierDrawer(${s.supplierId})" title="Edit">${UI.Icons.edit}</button>
-          <button class="btn btn--icon btn--ghost" onclick="deleteSupplier(${s.supplierId})" title="Delete">${UI.Icons.trash}</button>
-        </td>
-      </tr>
-    `).join('');
+    tbody.innerHTML = items.map((s, idx) => {
+      const seqNum = (filterState.page - 1) * filterState.pageSize + idx + 1;
+      return `
+        <tr>
+          <td>${seqNum}</td>
+          <td><strong>${s.supplierName}</strong></td>
+          <td>${s.contactPerson || '—'}</td>
+          <td>${s.email || '—'}</td>
+          <td>${s.phone || '—'}</td>
+          <td><code>${s.taxNumber || '—'}</code></td>
+          <td>${s.isActive ? '<span class="badge badge--success">Active</span>' : '<span class="badge badge--error">Inactive</span>'}</td>
+          <td class="admin-table-actions">
+            <button class="btn btn--icon btn--ghost" onclick="openSupplierDrawer(${s.supplierId})" title="Edit">${UI.Icons.edit}</button>
+            <button class="btn btn--icon btn--ghost" onclick="deleteSupplier(${s.supplierId})" title="Delete">${UI.Icons.trash}</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
 
     renderPagination(totalPages);
   } catch (err) {

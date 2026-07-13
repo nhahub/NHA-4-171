@@ -22,10 +22,10 @@ services:
       - "8080:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
-      ConnectionStrings__DefaultConnection: "Server=database;Database=carSparePartSysDB;User Id=sa;Password=YourSecurePassword!123;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
+      ConnectionStrings__DefaultConnection: "Server=database;Database=ThanyaDB;User Id=sa;Password=YourSecurePassword!123;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
       JWT__Key: "THIS_IS_SUPER_SECRET_KEY_123456_!@#$%^!@#$%%^^"
-      JWT__Issuer: "carSparePartSysAPI"
-      JWT__Audience: "carSparePartSysUser"
+      JWT__Issuer: "ThanyaAPI"
+      JWT__Audience: "ThanyaUser"
       JWT__DurationInMinutes: "60"
       Stripe__Secretkey: "sk_test_placeholder"
       Stripe__Publishablekey: "pk_test_placeholder"
@@ -33,7 +33,7 @@ services:
       CloudinarySettings__CloudName: "cloudinary_placeholder"
       CloudinarySettings__ApiKey: "cloudinary_placeholder"
       CloudinarySettings__ApiSecret: "cloudinary_placeholder"
-      Admin__Email: "admin@carsparepartsys.com"
+      Admin__Email: "admin@thanya.com"
       Admin__Password: "AdminPassword!123"
     depends_on:
       - database

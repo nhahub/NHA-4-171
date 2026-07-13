@@ -76,7 +76,7 @@ async function loadOrders() {
       return;
     }
 
-    tbody.innerHTML = items.map(o => {
+    tbody.innerHTML = items.map((o, idx) => {
       const isPaidBadge = o.isPaid 
         ? '<span class="badge badge--success">Paid</span>' 
         : '<span class="badge badge--warning">Unpaid</span>';
@@ -89,10 +89,11 @@ async function loadOrders() {
       else if (o.statusName === 'Delivered') { statusClass = 'success'; statusLabel = 'Completed'; }
       else if (o.statusName === 'Cancelled') { statusClass = 'error'; statusLabel = 'Cancelled'; }
       const statusBadge = `<span class="badge badge--${statusClass}">${statusLabel}</span>`;
+      const seqNum = (filterState.page - 1) * filterState.pageSize + idx + 1;
 
       return `
         <tr>
-          <td><strong>${o.orderNumber}</strong></td>
+          <td><strong>${seqNum}</strong></td>
           <td>${o.customer?.firstName || 'User'} ${o.customer?.lastName || ''}</td>
           <td>${new Date(o.orderDate).toLocaleDateString()}</td>
           <td class="text--accent text--bold">${formatPrice(o.totalAmount)}</td>

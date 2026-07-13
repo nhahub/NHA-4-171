@@ -55,14 +55,16 @@ async function loadReviews() {
       return;
     }
 
-    tbody.innerHTML = items.map(r => {
+    tbody.innerHTML = items.map((r, idx) => {
       const verifiedBtn = r.isVerified 
         ? `<button class="btn btn--sm btn--outline" onclick="toggleVerify(${r.reviewId})">${UI.Icons.check} Verified</button>`
         : `<button class="btn btn--sm btn--secondary" onclick="toggleVerify(${r.reviewId})">Unverified</button>`;
 
+      const seqNum = (filterState.page - 1) * filterState.pageSize + idx + 1;
+
       return `
         <tr>
-          <td>${r.reviewId}</td>
+          <td>${seqNum}</td>
           <td>${r.user?.firstName || 'User'} ${r.user?.lastName || ''}</td>
           <td style="max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
             <a href="/product-details.html?id=${r.productId}" target="_blank" style="color:var(--accent); font-weight:bold;">${r.product?.productName || 'Product'}</a>

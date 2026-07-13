@@ -94,12 +94,12 @@ namespace CarSparePartSysProject.Controllers
                 return BadRequest(new { message = "This coupon is currently inactive." });
             }
 
-            if (coupon.StartDate > DateTime.UtcNow)
+            if (coupon.StartDate.Date > DateTime.UtcNow.Date)
             {
                 return BadRequest(new { message = "This coupon has not started yet." });
             }
 
-            if (coupon.EndDate < DateTime.UtcNow)
+            if (coupon.EndDate.Date < DateTime.UtcNow.Date)
             {
                 return BadRequest(new { message = "This coupon has expired." });
             }

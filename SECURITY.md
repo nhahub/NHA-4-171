@@ -1,6 +1,6 @@
 # Security Configuration Guide
 
-This document describes how to securely configure and deploy the carSparePartSys Car Spare Part System API.
+This document describes how to securely configure and deploy the Thanya Car Spare Part System API.
 
 ---
 
@@ -28,8 +28,8 @@ Every variable below must be set in production. The application will use `appset
 | Variable | Description |
 | :--- | :--- |
 | `JWT__Key` | HMAC-SHA256 signing key (minimum 256-bit / 32 characters) |
-| `JWT__Issuer` | Token issuer claim (e.g. `carSparePartSysAPI`) |
-| `JWT__Audience` | Token audience claim (e.g. `carSparePartSysUser`) |
+| `JWT__Issuer` | Token issuer claim (e.g. `ThanyaAPI`) |
+| `JWT__Audience` | Token audience claim (e.g. `ThanyaUser`) |
 | `JWT__DurationInMinutes` | Access token lifetime in minutes |
 
 ### Stripe Payments
@@ -49,7 +49,7 @@ Every variable below must be set in production. The application will use `appset
 ### Admin Seeding
 | Variable | Description |
 | :--- | :--- |
-| `Admin__Email` | Initial administrator email (default: `admin@carsparepartsys.com`) |
+| `Admin__Email` | Initial administrator email (default: `admin@thanya.com`) |
 | `Admin__Password` | Initial administrator password. **If missing, admin seeding is skipped safely.** |
 
 ---
@@ -61,7 +61,7 @@ Every variable below must be set in production. The application will use `appset
 An example configuration file is included in the repository. To get started:
 
 ```bash
-cd carSparePartSysProject
+cd ThanyaProject
 cp appsettings.Development.example.json appsettings.Development.json
 ```
 
@@ -72,9 +72,9 @@ Then open `appsettings.Development.json` and replace the placeholder values with
 ### Option B: .NET User Secrets (recommended for teams)
 
 ```bash
-cd carSparePartSysProject
+cd ThanyaProject
 dotnet user-secrets init
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost\SQLEXPRESS;Database=carSparePartSysDB;Trusted_Connection=True;TrustServerCertificate=True"
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost\SQLEXPRESS;Database=ThanyaDB;Trusted_Connection=True;TrustServerCertificate=True"
 dotnet user-secrets set "JWT:Key" "your-dev-only-signing-key-at-least-32-chars"
 dotnet user-secrets set "Stripe:Secretkey" "sk_test_your_key"
 dotnet user-secrets set "Stripe:Publishablekey" "pk_test_your_key"

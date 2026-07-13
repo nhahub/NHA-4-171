@@ -292,6 +292,13 @@ async function renderOrders(container) {
             <a href="mailto:admin@CrSys.com" style="color:var(--accent); font-weight:var(--fw-semibold)">admin@CrSys.com</a>
           </p>
         </div>` : ''}
+        ${(o.statusName !== 'Cancelled' && o.statusName !== 'Delivered' && o.statusName !== 'Completed') ? `
+        <div style="margin-top:var(--space-4); background:rgba(96,165,250,0.06); border:1px dashed var(--border); border-radius:var(--radius-md); padding:var(--space-4)">
+          <p class="text--sm" style="color:var(--text-secondary); margin:0">
+            Need to cancel this order? Please contact our support team via email at 
+            <a href="mailto:admin@CrSys.com" style="color:var(--accent); font-weight:var(--fw-semibold); text-decoration:underline">admin@CrSys.com</a>.
+          </p>
+        </div>` : ''}
       </div>
     </div>`).join('');
 }
@@ -301,32 +308,122 @@ async function renderOrders(container) {
 // ================================================================
 async function renderInvoices(container) {
   const data = await API.Orders.getAll();
-  const orders = (Array.isArray(data) ? data : data?.items || []).filter(o => o.invoice);
+  const orders = (Array.isArray(data) ? data : data?.items || []).filter(o => o.isPaid && (o.statusName === 'Delivered' || o.statusName === 'Completed' || o.status === 'Delivered'));
 
   if (orders.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-state__icon">${UI.Icons.invoice}</div><h3 class="empty-state__title">No invoices yet</h3><p class="empty-state__message">Invoices will appear here once orders are processed.</p></div>`;
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state__icon">${UI.Icons.invoice}</div>
+        <h3 class="empty-state__title">No processed invoices</h3>
+        <p class="empty-state__message">Invoices will appear here once your orders are completed and paid.</p>
+      </div>`;
     return;
   }
 
   container.innerHTML = `
     <h3 style="margin-bottom:var(--space-6)">Invoices</h3>
-    <div class="table-responsive">
-      <table class="data-table">
-        <thead><tr><th>Invoice #</th><th>Order #</th><th>Date</th><th>Total</th><th>Status</th><th></th></tr></thead>
-        <tbody>
-          ${orders.map(o => {
-            const inv = o.invoice;
-            return `<tr>
-              <td>${inv.invoiceNumber}</td>
-              <td>${o.orderNumber}</td>
-              <td>${new Date(inv.invoiceDate).toLocaleDateString()}</td>
-              <td class="text--accent text--bold">${formatPrice(inv.totalAmount)}</td>
-              <td>${inv.isPaid ? '<span class="badge badge--success">Paid</span>' : '<span class="badge badge--warning">Unpaid</span>'}</td>
-              <td><button class="btn btn--ghost btn--sm" onclick="window.print()" title="Print">${UI.Icons.download} Print</button></td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
+    <div style="display:flex; flex-direction:column; gap:var(--space-5)">
+      ${orders.map((o, idx) => {
+        return `
+        <div class="order-card" style="border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden">
+          <div class="order-card__header" onclick="this.nextElementSibling.classList.toggle('is-active')" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; background:var(--bg-tertiary); padding:var(--space-4)">
+            <div>
+              <span class="order-card__number" style="font-weight:bold; color:var(--accent)">Invoice #INV-${o.orderNumber}</span>
+              <span class="order-card__date" style="margin-left:var(--space-3); color:var(--text-secondary)">${new Date(o.orderDate).toLocaleDateString()}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:var(--space-3)">
+              <span class="badge badge--success">Paid</span>
+              <span class="badge badge--success">Completed</span>
+              <span class="order-card__total" style="font-weight:bold">${formatPrice(o.totalAmount)}</span>
+              <span style="width:16px;height:16px;color:var(--text-muted)">${UI.Icons.chevronDown}</span>
+            </div>
+          </div>
+          
+          <div class="order-card__body">
+            <div style="border:1px solid var(--border); border-radius:var(--radius-md); padding:var(--space-5); background:var(--bg-secondary); margin-bottom:var(--space-4)">
+              <!-- Invoice Header -->
+              <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:var(--space-4); margin-bottom:var(--space-4)">
+                <div>
+                  <h4 style="margin:0; color:var(--accent)">AutoParts Store</h4>
+                  <span class="text--xs text--muted">Invoice Date: ${new Date(o.orderDate).toLocaleDateString()}</span>
+                </div>
+                <div style="text-align:right">
+                  <h4 style="margin:0">Invoice Details</h4>
+                  <span class="text--xs text--muted">Order No: ${o.orderNumber}</span>
+                </div>
+              </div>
+
+              <!-- Customer Info -->
+              <div style="display:flex; gap:var(--space-4); margin-bottom:var(--space-5)">
+                <div style="flex:1">
+                  <span class="text--xs text--muted" style="text-transform:uppercase; display:block; margin-bottom:4px">Billed To</span>
+                  <strong>${o.customer?.firstName || 'Valued'} ${o.customer?.lastName || 'Customer'}</strong><br/>
+                  <span class="text--sm text--secondary">${o.customer?.email || ''}</span>
+                </div>
+                <div style="flex:1">
+                  <span class="text--xs text--muted" style="text-transform:uppercase; display:block; margin-bottom:4px">Payment Info</span>
+                  <span class="badge badge--success" style="font-size:11px">${o.paymentMethod || 'Paid'}</span>
+                </div>
+              </div>
+
+              <!-- Items Table -->
+              <div class="table-responsive" style="margin-bottom:var(--space-5)">
+                <table class="data-table data-table--dense" style="width:100%">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th class="text--center">Qty</th>
+                      <th class="text--right">Unit Price</th>
+                      <th class="text--right">Discount</th>
+                      <th class="text--right">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${(o.orderDetails || []).map(d => `
+                      <tr>
+                        <td><strong>${d.product?.productName || 'Product #' + d.productId}</strong></td>
+                        <td class="text--center">${d.quantity}</td>
+                        <td class="text--right">${formatPrice(d.unitPrice)}</td>
+                        <td class="text--right">${formatPrice(d.discount)}</td>
+                        <td class="text--right" style="font-weight:bold">${formatPrice(d.lineTotal)}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Invoice Totals -->
+              <div style="display:flex; justify-content:flex-end">
+                <div style="min-width:200px">
+                  <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px">
+                    <span class="text--muted">Subtotal:</span>
+                    <span>${formatPrice(o.subTotal)}</span>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px; color:var(--error)">
+                    <span>Discount:</span>
+                    <span>-${formatPrice(o.discountAmount)}</span>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px">
+                    <span class="text--muted">Tax:</span>
+                    <span>${formatPrice(o.taxAmount)}</span>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; font-weight:bold; border-top:1px solid var(--border); padding-top:var(--space-2); margin-top:var(--space-2); font-size:1.1rem">
+                    <span>Grand Total:</span>
+                    <span style="color:var(--accent)">${formatPrice(o.totalAmount)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Print Actions -->
+            <div style="display:flex; justify-content:flex-end; gap:var(--space-2)">
+              <button class="btn btn--outline btn--sm" onclick="window.print()" style="display:inline-flex; align-items:center; gap:8px">
+                ${UI.Icons.download} Print Invoice
+              </button>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
     </div>`;
 }
 

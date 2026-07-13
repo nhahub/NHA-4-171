@@ -123,16 +123,17 @@ async function loadProducts() {
       return;
     }
 
-    tbody.innerHTML = items.map(p => {
+    tbody.innerHTML = items.map((p, idx) => {
       const img = p.imageUrl
         ? p.imageUrl
         : 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22%3E%3Crect fill=%22%231C2333%22 width=%2240%22 height=%2240%22/%3E%3Ctext x=%2250%25%22 y=%2255%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2218%22 fill=%22%23555%22%3E%3F%3C%2Ftext%3E%3C%2Fsvg%3E';
       const catName = p.categoryName || p.category?.categoryName || '—';
       const supName = p.supplierName || p.supplier?.supplierName || '—';
+      const seqNum = (filterState.page - 1) * filterState.pageSize + idx + 1;
       return `
         <tr>
-          <td>${p.productId}</td>
-          <td><img src="${img}" alt="" style="width:36px; height:36px; object-fit:cover; border-radius:4px; background:var(--bg-tertiary);" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22%3E%3Crect fill=%22%231C2333%22 width=%2240%22 height=%2240%22/%3E%3C%2Fsvg%3E'" /></td>
+          <td>${seqNum}</td>
+          <td><img src="${img}" alt="" style="width:36px; height:36px; object-fit:cover; border-radius:4px; background:var(--bg-tertiary);" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22%3E%3Crect fill=%22%231C2333%22 width=%2240%22 height=%2240%22/%3E%3C/svg%3E'" /></td>
           <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${p.productName}"><strong>${p.productName}</strong></td>
           <td><code>${p.sku || '—'}</code></td>
           <td>${p.partNumber || '—'}</td>

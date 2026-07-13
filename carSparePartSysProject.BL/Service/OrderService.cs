@@ -173,7 +173,7 @@ namespace CarSparePartSysProject.BL.Service
 
             if (!string.IsNullOrEmpty(dto.CouponCode))
             {
-                coupon = await Context.Coupons.FirstOrDefaultAsync(c => c.Code == dto.CouponCode && c.IsActive && c.StartDate <= DateTime.UtcNow && c.EndDate >= DateTime.UtcNow);
+                coupon = await Context.Coupons.FirstOrDefaultAsync(c => c.Code == dto.CouponCode && c.IsActive && c.StartDate.Date <= DateTime.UtcNow.Date && c.EndDate.Date >= DateTime.UtcNow.Date);
                 if (coupon != null)
                 {
                     if (coupon.MinOrderAmount == null || subtotal >= coupon.MinOrderAmount.Value)
